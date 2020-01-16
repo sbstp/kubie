@@ -119,8 +119,8 @@ function kubens {{
 export KUBECONFIG="{}"
 export PATH="{}:$PATH"
 
-PROMPT='\[[\e[0;32m$(kubie info ctx)\e[m|\e[0;31m$(kubie info ns)\e[m]\]'
-export PS1="$PROMPT ${{PS1}}"
+PROMPT='\[[\033[0;32m\]$(kubie info ctx)\[\033[m\]|\[\033[0;31m\]$(kubie info ns)\[\033[m]\]'
+export PS1="$PROMPT  ${{PS1}}"
 unset PROMPT
 "#,
         temp_config_file.path().display(),
