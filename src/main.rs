@@ -119,7 +119,7 @@ function kubens {{
 export KUBECONFIG="{}"
 export PATH="{}:$PATH"
 
-PROMPT='[\e[0;32m$(kubie info ctx)\e[m|\e[0;31m$(kubie info ns)\e[m]'
+PROMPT='\[[\e[0;32m$(kubie info ctx)\e[m|\e[0;31m$(kubie info ns)\e[m]\]'
 export PS1="$PROMPT ${{PS1}}"
 unset PROMPT
 "#,
