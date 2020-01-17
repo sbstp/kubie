@@ -77,28 +77,41 @@ unset PROMPT
 }
 
 #[derive(Debug, StructOpt)]
-enum InfoItem {
-    #[structopt(name = "ctx")]
-    Context,
-    #[structopt(name = "ns")]
-    Namespace,
-}
-
-#[derive(Debug, StructOpt)]
 enum Kubie {
     #[structopt(name = "ctx", about = "Spawn a new shell in the given context")]
     Context {
-        #[structopt(short = "n", help = "Specify the namespace in which the shell is spawned")]
+        #[structopt(
+            short = "n",
+            long = "--namespace",
+            help = "Specify the namespace in which the shell is spawned"
+        )]
         namespace_name: Option<String>,
         context_name: Option<String>,
     },
+
     #[structopt(
         name = "ns",
         about = "Spawn a new shell in the given namespace, using the current context"
     )]
     Namespace { namespace_name: Option<String> },
+
     #[structopt(name = "info", about = "View info about the environment")]
     Info(InfoItem),
+
+    #[structopt(name = "exec", about = "Run a command inside of a context")]
+    Exec {
+        context_name: String,
+        namespace_name: String,
+        args: Vec<String>,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+enum InfoItem {
+    #[structopt(name = "ctx")]
+    Context,
+    #[structopt(name = "ns")]
+    Namespace,
 }
 
 fn main() -> Result<()> {
@@ -150,6 +163,29 @@ fn main() -> Result<()> {
                 println!("{}", conf.contexts[0].context.namespace);
             }
         },
+        Kubie::Exec {
+            context_name,
+            namespace_name,
+            args,
+        } => {
+            if args.len() == 0 {
+                return Ok(());
+            }
+
+            let installed = kubeconfig::get_installed_contexts()?;
+            let kubeconfig = installed.make_kubeconfig_for_context(&context_name, Some(&namespace_name))?;
+
+            let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
+            kubeconfig.write_to(&*temp_config_file)?;
+
+            let mut proc = Command::new(&args[0])
+                .args(&args[1..])
+                .env("KUBECONFIG", temp_config_file.path())
+                .env("KUBIE_ACTIVE", "1")
+                .env("KUBIE_DEPTH", "1")
+                .spawn()?;
+            let status = proc.wait()?;
+        }
     }
 
     Ok(())
