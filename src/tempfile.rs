@@ -11,11 +11,7 @@ pub struct Tempfile {
 }
 
 impl Tempfile {
-    pub fn new(
-        base_dir: impl AsRef<Path>,
-        prefix: impl AsRef<str>,
-        suffix: impl AsRef<str>,
-    ) -> Result<Tempfile> {
+    pub fn new(base_dir: impl AsRef<Path>, prefix: impl AsRef<str>, suffix: impl AsRef<str>) -> Result<Tempfile> {
         let duration = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("system time is before unix epoch");
