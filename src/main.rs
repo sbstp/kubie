@@ -2,10 +2,9 @@ use std::env;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 
 use tempfile::Tempfile;
@@ -14,65 +13,11 @@ mod kubeconfig;
 mod kubectl;
 mod tempfile;
 
-struct Config {
-    name: String,
-    path: PathBuf,
-}
-
-fn get_configs() -> Result<Vec<Config>> {
-    let mut config_dir = dirs::home_dir().ok_or(anyhow!("Could not get home directory"))?;
-    config_dir.push(".kube");
-    config_dir.push("kubie");
-
-    let dir_iter = config_dir.read_dir().context(format!(
-        "Could not list list files in {}",
-        config_dir.display()
-    ))?;
-
-    let mut configs = vec![];
-
-    for entry in dir_iter {
-        let entry = entry?;
-        let path = entry.path();
-
-        if entry.file_type()?.is_file() {
-            if let (Some(stem), Some(ext)) = (
-                path.file_stem().and_then(|s| s.to_str()),
-                path.extension().and_then(|s| s.to_str()),
-            ) {
-                match ext {
-                    "yml" | "yaml" => {
-                        configs.push(Config {
-                            name: stem.to_string(),
-                            path: path.clone(),
-                        });
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
-
-    configs.sort_by(|a, b| a.name.cmp(&b.name));
-
-    Ok(configs)
-}
-
 fn get_depth() -> u32 {
     env::var("KUBIE_DEPTH")
         .ok()
         .and_then(|s| s.parse::<u32>().ok())
         .unwrap_or(0)
-}
-
-fn get_context_config(context_name: &str) -> Result<Config> {
-    for c in get_configs()? {
-        if c.name.to_lowercase() == context_name.to_lowercase() {
-            return Ok(c);
-        }
-    }
-
-    return Err(anyhow!("Context {} not found", context_name));
 }
 
 fn ensure_kubie_shell() -> Result<()> {
@@ -83,16 +28,7 @@ fn ensure_kubie_shell() -> Result<()> {
     Ok(())
 }
 
-fn spawn_shell(
-    context_config: &Config,
-    namespace_name: Option<&str>,
-    shell: &OsStr,
-    depth: u32,
-) -> Result<()> {
-    let mut config = kubeconfig::load(&context_config.path)?;
-    if let Some(ns) = namespace_name {
-        config.contexts[0].context.namespace = ns.to_string();
-    }
+fn spawn_shell(config: kubeconfig::KubeConfig, shell: &OsStr, depth: u32) -> Result<()> {
     let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
     config.write_to(&*temp_config_file)?;
 
@@ -120,7 +56,7 @@ export KUBECONFIG="{}"
 export PATH="{}:$PATH"
 
 PROMPT='\[[\033[0;32m\]$(kubie info ctx)\[\033[m\]|\[\033[0;31m\]$(kubie info ns)\[\033[m]\]'
-export PS1="$PROMPT  ${{PS1}}"
+export PS1="$PROMPT ${{PS1}}"
 unset PROMPT
 "#,
         temp_config_file.path().display(),
@@ -152,10 +88,7 @@ enum InfoItem {
 enum Kubie {
     #[structopt(name = "ctx", about = "Spawn a new shell in the given context")]
     Context {
-        #[structopt(
-            short = "n",
-            help = "Specify the namespace in which the shell is spawned"
-        )]
+        #[structopt(short = "n", help = "Specify the namespace in which the shell is spawned")]
         namespace_name: Option<String>,
         context_name: Option<String>,
     },
@@ -179,11 +112,14 @@ fn main() -> Result<()> {
             namespace_name,
             context_name,
         } => {
+            let mut installed = kubeconfig::get_installed_contexts()?;
+
             if let Some(context_name) = context_name {
-                let config = get_context_config(&context_name)?;
-                spawn_shell(&config, namespace_name.as_deref(), &shell, depth)?;
+                let kubeconfig = installed.make_kubeconfig_for_context(&context_name, namespace_name.as_deref())?;
+                spawn_shell(kubeconfig, &shell, depth)?;
             } else {
-                for c in get_configs()? {
+                installed.contexts.sort_by(|a, b| a.name.cmp(&b.name));
+                for c in installed.contexts {
                     println!("{}", c.name);
                 }
             }
