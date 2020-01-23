@@ -29,7 +29,7 @@ fn get_next_depth() -> String {
 }
 
 /// Ensure that we're inside a kubie shell, returning an error if we aren't.
-fn ensure_kubie_shell() -> Result<()> {
+fn ensure_kubie_active() -> Result<()> {
     let active = env::var("KUBIE_ACTIVE").unwrap_or("0".into());
     if active != "1" {
         return Err(anyhow!("Not in a kubie shell!"));
@@ -114,7 +114,11 @@ fn main() -> Result<()> {
         }
         Kubie::Namespace { namespace_name } => {
             if let Some(namespace_name) = namespace_name {
-                ensure_kubie_shell()?;
+                ensure_kubie_active()?;
+                let namespaces = kubectl::get_namespaces()?;
+                if !namespaces.contains(&namespace_name) {
+                    return Err(anyhow!("{} is not a valid namespace for the context", namespace_name));
+                }
                 let mut config = kubeconfig::get_current_config()?;
                 config.contexts[0].context.namespace = namespace_name;
 
@@ -128,17 +132,17 @@ fn main() -> Result<()> {
         }
         Kubie::Info(info) => match info.kind {
             KubieInfoKind::Context => {
-                ensure_kubie_shell()?;
+                ensure_kubie_active()?;
                 let conf = kubeconfig::get_current_config()?;
                 println!("{}", conf.current_context.as_deref().unwrap_or(""));
             }
             KubieInfoKind::Namespace => {
-                ensure_kubie_shell()?;
+                ensure_kubie_active()?;
                 let conf = kubeconfig::get_current_config()?;
                 println!("{}", conf.contexts[0].context.namespace);
             }
             KubieInfoKind::Depth => {
-                ensure_kubie_shell()?;
+                ensure_kubie_active()?;
                 println!("{}", get_depth());
             }
         },
