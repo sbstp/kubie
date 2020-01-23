@@ -1,6 +1,15 @@
 # Kubie
-`kubie` is an alternative to `kubectx`, `kubens` and `k on`. It spawns shells in isolated kubernetes environment.
-Each shell gets a prompt
+`kubie` is an alternative to `kubectx`, `kubens` and `k on`. The main design goal of kubie is to isolalate kubernetes
+environments from each other. Everytime you enter a context with kubie, it spawns a new shell which is isolated from
+other shells. If you enter a context in another shell it won't affect the other shells in any way.
+
+Kubie also has other nice features such as `kubie exec` which allows you to execute commands in a context without
+having to spawn a shell.
+
+Other features are also planned. One of them is a config manager which helps you keep clean config files by detecting
+orphanned clusters and users. The command will probably be something like `kubie vet`.
+
+# Commands
 
 ###  List available contexts
 `kubie ctx`
@@ -9,7 +18,7 @@ Each shell gets a prompt
 `kubie ctx <context>`
 
 ### Enter a context while also specifying the namespace
-`kubie ctx <context> -n <namespace>
+`kubie ctx <context> -n <namespace>`
 
 ### List available namespaces
 `kubie ns`
@@ -23,13 +32,5 @@ Each shell gets a prompt
 ### Get current namespace
 `kubie info ns`
 
-## Plan
-* Each cluster has its own config file. The `current-context` in that file is always the same.
-* Kubie spawns a shell with the correct KUBECONFIG variable and a modified PS1 to display the environment.
-* `kubie ls` list contexts
-* `kubie ctx <context>` spawn a shell with the given context
-* `kubie ns <namespace>` switch namespace in current context
-* `kubie edit <context>` edit the config file for the given context
-* `kubie import -n <context> /path/to/config.yaml` import a cluster in kubie with the given name
-* `kubie get-ctx` get current context
-* `kubie get-ns` get current namespace
+### Execute command in context & namespace
+`kubie exec <context> <namespace> <command> <args...>`

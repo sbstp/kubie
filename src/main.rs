@@ -6,13 +6,16 @@ use std::process::Command;
 
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
-
 use tempfile::Tempfile;
 
+use commands::{Kubie, KubieInfoKind};
+
+mod commands;
 mod kubeconfig;
 mod kubectl;
 mod tempfile;
 
+/// Get the current depth of shells.
 fn get_depth() -> u32 {
     env::var("KUBIE_DEPTH")
         .ok()
@@ -20,6 +23,12 @@ fn get_depth() -> u32 {
         .unwrap_or(0)
 }
 
+/// Get the next depth if a context is created.
+fn get_next_depth() -> String {
+    format!("{}", get_depth() + 1)
+}
+
+/// Ensure that we're inside a kubie shell, returning an error if we aren't.
 fn ensure_kubie_shell() -> Result<()> {
     let active = env::var("KUBIE_ACTIVE").unwrap_or("0".into());
     if active != "1" {
@@ -52,6 +61,10 @@ function kubens {{
     echo "kubens disabled to prevent misuse."
 }}
 
+function k {{
+    echo "k on disabled to prevent misuse."
+}}
+
 export KUBECONFIG="{}"
 export PATH="{}:$PATH"
 
@@ -67,51 +80,13 @@ unset PROMPT
         .arg("--rcfile")
         .arg(temp_rc_file.path())
         .env("KUBIE_ACTIVE", "1")
-        .env("KUBIE_DEPTH", format!("{}", depth + 1))
+        .env("KUBIE_DEPTH", get_next_depth())
         .spawn()?;
     child.wait()?;
 
-    println!("Kubie depth now {}", depth);
+    println!("Kubie depth is now {}", depth);
 
     Ok(())
-}
-
-#[derive(Debug, StructOpt)]
-enum Kubie {
-    #[structopt(name = "ctx", about = "Spawn a new shell in the given context")]
-    Context {
-        #[structopt(
-            short = "n",
-            long = "--namespace",
-            help = "Specify the namespace in which the shell is spawned"
-        )]
-        namespace_name: Option<String>,
-        context_name: Option<String>,
-    },
-
-    #[structopt(
-        name = "ns",
-        about = "Spawn a new shell in the given namespace, using the current context"
-    )]
-    Namespace { namespace_name: Option<String> },
-
-    #[structopt(name = "info", about = "View info about the environment")]
-    Info(InfoItem),
-
-    #[structopt(name = "exec", about = "Run a command inside of a context")]
-    Exec {
-        context_name: String,
-        namespace_name: String,
-        args: Vec<String>,
-    },
-}
-
-#[derive(Debug, StructOpt)]
-enum InfoItem {
-    #[structopt(name = "ctx")]
-    Context,
-    #[structopt(name = "ns")]
-    Namespace,
 }
 
 fn main() -> Result<()> {
@@ -151,16 +126,20 @@ fn main() -> Result<()> {
                 }
             }
         }
-        Kubie::Info(item) => match item {
-            InfoItem::Context => {
+        Kubie::Info(info) => match info.kind {
+            KubieInfoKind::Context => {
                 ensure_kubie_shell()?;
                 let conf = kubeconfig::get_current_config()?;
                 println!("{}", conf.current_context.as_deref().unwrap_or(""));
             }
-            InfoItem::Namespace => {
+            KubieInfoKind::Namespace => {
                 ensure_kubie_shell()?;
                 let conf = kubeconfig::get_current_config()?;
                 println!("{}", conf.contexts[0].context.namespace);
+            }
+            KubieInfoKind::Depth => {
+                ensure_kubie_shell()?;
+                println!("{}", get_depth());
             }
         },
         Kubie::Exec {
@@ -182,9 +161,10 @@ fn main() -> Result<()> {
                 .args(&args[1..])
                 .env("KUBECONFIG", temp_config_file.path())
                 .env("KUBIE_ACTIVE", "1")
-                .env("KUBIE_DEPTH", "1")
+                .env("KUBIE_DEPTH", get_next_depth())
                 .spawn()?;
             let status = proc.wait()?;
+            std::process::exit(status.code().unwrap_or(0))
         }
     }
 
