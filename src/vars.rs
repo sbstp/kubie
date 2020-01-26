@@ -111,3 +111,25 @@ pub fn generate_path() -> Result<String> {
 
     Ok(directories.join(":"))
 }
+
+/// Get the current depth of shells.
+pub fn get_depth() -> u32 {
+    env::var("KUBIE_DEPTH")
+        .ok()
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(0)
+}
+
+/// Get the next depth if a context is created.
+pub fn get_next_depth() -> String {
+    format!("{}", get_depth() + 1)
+}
+
+/// Ensure that we're inside a kubie shell, returning an error if we aren't.
+pub fn ensure_kubie_active() -> Result<()> {
+    let active = env::var("KUBIE_ACTIVE").unwrap_or("0".into());
+    if active != "1" {
+        return Err(anyhow!("Not in a kubie shell!"));
+    }
+    Ok(())
+}

@@ -38,6 +38,10 @@ pub enum Kubie {
         /// Command to run as well as its arguments.
         args: Vec<String>,
     },
+
+    /// Check the Kubernetes config files for issues.
+    #[structopt(name = "lint")]
+    Lint,
 }
 
 #[derive(Debug, StructOpt)]
