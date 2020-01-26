@@ -49,6 +49,7 @@ fn default_namespace() -> String {
     "default".to_string()
 }
 
+#[derive(Debug)]
 pub struct Installed {
     pub clusters: Vec<NamedCluster>,
     pub users: Vec<NamedUser>,
@@ -69,6 +70,14 @@ impl Installed {
 
     pub fn find_user_by_name(&self, name: &str) -> Option<&NamedUser> {
         self.users.iter().find(|u| u.name == name)
+    }
+
+    pub fn find_contexts_by_cluster(&self, name: &str) -> Vec<&NamedContext> {
+        self.contexts.iter().filter(|c| c.context.cluster == name).collect()
+    }
+
+    pub fn find_contexts_by_user(&self, name: &str) -> Vec<&NamedContext> {
+        self.contexts.iter().filter(|c| c.context.user == name).collect()
     }
 
     pub fn make_kubeconfig_for_context(&self, context_name: &str, namespace_name: Option<&str>) -> Result<KubeConfig> {
