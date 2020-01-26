@@ -67,6 +67,10 @@ impl Installed {
         self.clusters.iter().find(|c| c.name == name)
     }
 
+    pub fn find_user_by_name(&self, name: &str) -> Option<&NamedUser> {
+        self.users.iter().find(|u| u.name == name)
+    }
+
     pub fn make_kubeconfig_for_context(&self, context_name: &str, namespace_name: Option<&str>) -> Result<KubeConfig> {
         let mut context = self
             .contexts
@@ -106,10 +110,6 @@ impl Installed {
                 m
             },
         })
-    }
-
-    pub fn find_user_by_name(&self, name: &str) -> Option<&NamedUser> {
-        self.users.iter().find(|u| u.name == name)
     }
 }
 

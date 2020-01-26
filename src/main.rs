@@ -14,6 +14,7 @@ mod commands;
 mod kubeconfig;
 mod kubectl;
 mod tempfile;
+mod vars;
 
 /// Get the current depth of shells.
 fn get_depth() -> u32 {
@@ -66,14 +67,15 @@ function k {{
 }}
 
 export KUBECONFIG="{}"
-export PATH="{}:$PATH"
+export PATH="{}"
 
-PROMPT='\[[\033[0;32m\]$(kubie info ctx)\[\033[m\]|\[\033[0;31m\]$(kubie info ns)\[\033[m]\]'
+PROMPT='{}'
 export PS1="$PROMPT ${{PS1}}"
 unset PROMPT
 "#,
         temp_config_file.path().display(),
-        env::current_exe().unwrap().parent().unwrap().display(),
+        vars::generate_path()?,
+        vars::generate_ps1(depth + 1),
     )?;
 
     let mut child = Command::new(shell)

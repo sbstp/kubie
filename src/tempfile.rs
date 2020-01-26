@@ -5,6 +5,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use anyhow::Result;
 
+/// Tempfile is an object which generates a random name for a file and opens it for editing.
+///
+/// When the object is dropped, the file is closed and unlinked.
 pub struct Tempfile {
     file: Option<File>,
     path: PathBuf,
