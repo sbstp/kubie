@@ -1,36 +1,41 @@
 # Kubie
-`kubie` is an alternative to `kubectx`, `kubens` and `k on`. The main design goal of kubie is to isolalate kubernetes
-environments from each other. Everytime you enter a context with kubie, it spawns a new shell which is isolated from
-other shells. If you enter a context in another shell it won't affect the other shells in any way.
+`kubie` is an alternative to `kubectx`, `kubens` and `k on`. It offers context switching, namespace switching and
+prompt modification in an isolated fashion.
 
-Kubie also has other nice features such as `kubie exec` which allows you to execute commands in a context without
-having to spawn a shell.
+* [Primer](#primer)
+* [Usage](#usage)
+* [Future plans](#future-plans)
 
-Other features are also planned. One of them is a config manager which helps you keep clean config files by detecting
-orphanned clusters and users. The command will probably be something like `kubie vet`.
+## Primer
+The main design goal of kubie is to isolate kubernetes environments from each other. Kubie will never modify your k8s
+config files. Before spawning a shell in a new context, it will create a temporary config file which contains the
+context you wish to use. The namespace changes are made in that temporary config file, leaving your original config
+files untouched. This is how Kubie achieves isolation.
 
-# Commands
+Kubie also supports recursive contexts. The depth of the context recursion if displayed in the shell prompt, the third
+component of the prompt: `[context|namespace|depth]` for instance `[dev|services|3]`.
 
-###  List available contexts
-`kubie ctx`
+Kubie also has other nice features such as `kubie exec` which allows you to execute commands in a context and a
+namespace without having to spawn a shell. There's also `kubie lint` which scans your k8s config files for issues
+and informs you of what they are.
 
-### Enter a context
-`kubie ctx <context>`
+## Usage
+Note that if you have [`fzf`](https://github.com/junegunn/fzf) installed, the experience will be greatly improved.
+Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 
-### Enter a context while also specifying the namespace
-`kubie ctx <context> -n <namespace>`
+---
 
-### List available namespaces
-`kubie ns`
+* `kubie ctx` show the list of available contexts (if fzf is installed, display a selectable menu of contexts)
+* `kubie ctx <context>` spawn a shell in the given context
+* `kubie ctx <context> -n <namespace>` spawn a shell in the given context and namespace
+* `kubie ns` show the list of available namespaces (if fzf is installed, display a selectable menu of namespaces)
+* `kubie ns <namespace>` switch the current shell to the given namespace
+* `kubie exec <context> <namespace> <cmd> <args>...` execute a command in the given context and namespace
+* `kubie lint` lint k8s config files for issues
+* `kubie info ctx` print name of current context
+* `kubie info ns` print name of current namespace
+* `kubie info depth` print depth of recursive contexts
 
-### Switch namespace
-`kubie ns <namespace>`
-
-### Get current context
-`kubie info ctx`
-
-### Get current namespace
-`kubie info ns`
-
-### Execute command in context & namespace
-`kubie exec <context> <namespace> <command> <args...>`
+## Future plans
+* Integration with vault to automatically download k8s configs from a vault server
+* Import/edit configs
