@@ -3,7 +3,8 @@ use std::process::Command;
 
 use anyhow::{anyhow, Result};
 
-use crate::kubeconfig;
+use crate::fzf;
+use crate::kubeconfig::{self, Installed};
 use crate::kubectl;
 use crate::tempfile::Tempfile;
 use crate::vars;
@@ -61,25 +62,45 @@ unset PROMPT
     Ok(())
 }
 
+fn enter_context(installed: Installed, context_name: &str, namespace_name: Option<&str>) -> Result<()> {
+    let depth = vars::get_depth();
+    let kubeconfig = installed.make_kubeconfig_for_context(&context_name, namespace_name)?;
+
+    if let Some(namespace_name) = namespace_name {
+        let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
+        if !namespaces.contains(&namespace_name.to_string()) {
+            return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
+        }
+    }
+
+    spawn_shell(kubeconfig, depth)?;
+    Ok(())
+}
+
 pub fn context(context_name: Option<String>, namespace_name: Option<String>) -> Result<()> {
     let mut installed = kubeconfig::get_installed_contexts()?;
-    let depth = vars::get_depth();
 
     if let Some(context_name) = context_name {
-        let kubeconfig = installed.make_kubeconfig_for_context(&context_name, namespace_name.as_deref())?;
-
-        if let Some(namespace_name) = namespace_name {
-            let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
-            if !namespaces.contains(&namespace_name) {
-                return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
-            }
-        }
-
-        spawn_shell(kubeconfig, depth)?;
+        enter_context(installed, &context_name, namespace_name.as_deref())?;
     } else {
         installed.contexts.sort_by(|a, b| a.name.cmp(&b.name));
-        for c in installed.contexts {
-            println!("{}", c.name);
+
+        // We only select the context with fzf if stdout is a terminal and if
+        // fzf is present on the machine.
+        if atty::is(atty::Stream::Stdout) && fzf::is_available() {
+            match crate::fzf::select(installed.contexts.iter().map(|c| &c.name))? {
+                Some(context_name) => {
+                    enter_context(installed, &context_name, None)?;
+                }
+                None => {
+                    println!("Selection cancelled.");
+                }
+            }
+        } else {
+            installed.contexts.sort_by(|a, b| a.name.cmp(&b.name));
+            for c in installed.contexts {
+                println!("{}", c.name);
+            }
         }
     }
 

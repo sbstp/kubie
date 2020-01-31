@@ -1,5 +1,6 @@
 mod cmd;
 mod commands;
+mod fzf;
 mod kubeconfig;
 mod kubectl;
 mod tempfile;

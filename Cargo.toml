@@ -8,7 +8,9 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1"
+atty = "0.2"
 dirs = "2"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.8"
 structopt = "0.3"
+which = "3"
