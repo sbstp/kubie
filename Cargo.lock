@@ -195,7 +195,7 @@ dependencies = [
 
 [[package]]
 name = "kubie"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow 1.0.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "atty 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
