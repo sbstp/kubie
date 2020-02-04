@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use anyhow::Result;
 
 use crate::kubeconfig::{self, Installed};
+use crate::settings::Settings;
 
 fn lint_clusters(installed: &Installed) {
     let mut set = HashSet::new();
@@ -64,8 +65,8 @@ fn lint_contexts(installed: &Installed) {
     }
 }
 
-pub fn lint() -> Result<()> {
-    let installed = kubeconfig::get_installed_contexts()?;
+pub fn lint(settings: &Settings) -> Result<()> {
+    let installed = kubeconfig::get_installed_contexts(settings)?;
     lint_clusters(&installed);
     lint_users(&installed);
     lint_contexts(&installed);

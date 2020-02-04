@@ -4,6 +4,7 @@ prompt modification in an isolated fashion.
 
 * [Primer](#primer)
 * [Usage](#usage)
+* [Settings](#settings)
 * [Future plans](#future-plans)
 
 ## Primer
@@ -35,6 +36,26 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 * `kubie info ctx` print name of current context
 * `kubie info ns` print name of current namespace
 * `kubie info depth` print depth of recursive contexts
+
+## Settings
+You can customize kubie's behavior with the `~/.kube/kubie.yaml` file. The settings available and their defaults are
+available below.
+
+```yaml
+configs: # configure where to lookup the kubernetes configs
+    include: # include these globs
+        - ~/.kube/config
+        - ~/.kube/*.yml
+        - ~/.kube/*.yaml
+        - ~/.kube/configs/*.yml
+        - ~/.kube/configs/*.yaml
+        - ~/.kube/kubie/*.yml
+        - ~/.kube/kubie/*.yaml
+    exclude: # exclude these globs
+        - ~/.kube/kubie.yaml
+prompt: # prompt settings
+    show_depth: true # show depth
+```
 
 ## Future plans
 * Integration with vault to automatically download k8s configs from a vault server

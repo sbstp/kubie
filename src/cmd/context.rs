@@ -6,10 +6,11 @@ use anyhow::{anyhow, Result};
 use crate::fzf;
 use crate::kubeconfig::{self, Installed};
 use crate::kubectl;
+use crate::settings::Settings;
 use crate::tempfile::Tempfile;
 use crate::vars;
 
-fn spawn_shell(config: kubeconfig::KubeConfig, depth: u32) -> Result<()> {
+fn spawn_shell(settings: &Settings, config: kubeconfig::KubeConfig, depth: u32) -> Result<()> {
     let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
     config.write_to(&*temp_config_file)?;
 
@@ -46,7 +47,7 @@ unset PROMPT
 "#,
         temp_config_file.path().display(),
         vars::generate_path()?,
-        vars::generate_ps1(depth + 1),
+        vars::generate_ps1(settings, depth + 1),
     )?;
 
     let mut child = Command::new("bash")
@@ -62,7 +63,12 @@ unset PROMPT
     Ok(())
 }
 
-fn enter_context(installed: Installed, context_name: &str, namespace_name: Option<&str>) -> Result<()> {
+fn enter_context(
+    settings: &Settings,
+    installed: Installed,
+    context_name: &str,
+    namespace_name: Option<&str>,
+) -> Result<()> {
     let depth = vars::get_depth();
     let kubeconfig = installed.make_kubeconfig_for_context(&context_name, namespace_name)?;
 
@@ -73,15 +79,15 @@ fn enter_context(installed: Installed, context_name: &str, namespace_name: Optio
         }
     }
 
-    spawn_shell(kubeconfig, depth)?;
+    spawn_shell(settings, kubeconfig, depth)?;
     Ok(())
 }
 
-pub fn context(context_name: Option<String>, namespace_name: Option<String>) -> Result<()> {
-    let mut installed = kubeconfig::get_installed_contexts()?;
+pub fn context(settings: &Settings, context_name: Option<String>, namespace_name: Option<String>) -> Result<()> {
+    let mut installed = kubeconfig::get_installed_contexts(settings)?;
 
     if let Some(context_name) = context_name {
-        enter_context(installed, &context_name, namespace_name.as_deref())?;
+        enter_context(settings, installed, &context_name, namespace_name.as_deref())?;
     } else {
         installed.contexts.sort_by(|a, b| a.name.cmp(&b.name));
 
@@ -90,7 +96,7 @@ pub fn context(context_name: Option<String>, namespace_name: Option<String>) -> 
         if atty::is(atty::Stream::Stdout) && fzf::is_available() {
             match crate::fzf::select(installed.contexts.iter().map(|c| &c.name))? {
                 Some(context_name) => {
-                    enter_context(installed, &context_name, None)?;
+                    enter_context(settings, installed, &context_name, None)?;
                 }
                 None => {
                     println!("Selection cancelled.");
