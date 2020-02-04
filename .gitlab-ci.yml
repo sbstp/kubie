@@ -1,0 +1,10 @@
+image: rust:1-stretch
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - cargo test
+  tags:
+    - harbour-fleet
