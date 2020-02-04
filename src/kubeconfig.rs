@@ -8,6 +8,8 @@ use anyhow::{anyhow, Context as _, Result};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 
+use crate::settings::Settings;
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct KubeConfig {
     pub clusters: Vec<NamedCluster>,
@@ -122,50 +124,14 @@ impl Installed {
     }
 }
 
-fn get_installed_configs_paths() -> Result<Vec<PathBuf>> {
-    let mut configs = vec![];
-    let home_dir = dirs::home_dir().ok_or(anyhow!("Could not get home directory"))?;
-
-    let mut config_file = home_dir.clone();
-    config_file.push(".kube");
-    config_file.push("config");
-
-    if config_file.exists() {
-        configs.push(config_file);
-    }
-
-    let mut config_dir = home_dir.clone();
-    config_dir.push(".kube");
-    config_dir.push("kubie");
-
-    let dir_iter = config_dir
-        .read_dir()
-        .context(format!("Could not list list files in {}", config_dir.display()))?;
-
-    for entry in dir_iter {
-        let entry = entry?;
-        let path = entry.path();
-
-        if entry.file_type()?.is_file() {
-            if let Some(ext) = path.extension().and_then(|s| s.to_str()).map(|s| s.to_lowercase()) {
-                if ext == "yml" || ext == "yaml" {
-                    configs.push(path);
-                }
-            }
-        }
-    }
-
-    Ok(configs)
-}
-
-pub fn get_installed_contexts() -> Result<Installed> {
+pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
     let mut installed = Installed {
         clusters: vec![],
         contexts: vec![],
         users: vec![],
     };
 
-    for path in get_installed_configs_paths()? {
+    for path in settings.get_kube_configs_paths()? {
         match load(&path) {
             Ok(mut kubeconfig) => {
                 installed.clusters.extend(kubeconfig.clusters.drain(..));

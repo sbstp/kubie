@@ -3,6 +3,8 @@ use std::fmt::{self, Display};
 
 use anyhow::{anyhow, Context, Result};
 
+use crate::settings::Settings;
+
 struct Command {
     content: String,
 }
@@ -72,13 +74,15 @@ const BLUE: u32 = 34;
 ///
 /// Makes sure to protect the escape sequences to that the shell will not count the escape
 /// sequences in the length calculation of the prompt.
-pub fn generate_ps1(depth: u32) -> String {
-    format!(
-        "[{}|{}|{}]",
-        Color::new(RED, Command::new("kubie info ctx")),
-        Color::new(GREEN, Command::new("kubie info ns")),
-        Color::new(BLUE, depth),
-    )
+pub fn generate_ps1(settings: &Settings, depth: u32) -> String {
+    let mut parts = vec![];
+    parts.push(Color::new(RED, Command::new("kubie info ctx")).to_string());
+    parts.push(Color::new(GREEN, Command::new("kubie info ns")).to_string());
+    if settings.prompt.show_depth {
+        parts.push(Color::new(BLUE, depth).to_string());
+    }
+
+    format!("[{}]", parts.join("|"))
 }
 
 /// Generates a PATH variable which contains the directory inside of which kubie resides.
