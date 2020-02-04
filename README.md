@@ -24,8 +24,8 @@ and informs you of what they are.
 ## Installation
 First, clone the gitlab repo: `git@gitlab-ncsa.ubisoft.org:sbernierstpierre/kubie.git`.
 
-If you have `rust` and `cargo` on your machine, you can use `cargo install` to build the project and install it in
-`~/.cargo/bin`. Make sure `~/.cargo/bin` is in your PATH variable.
+If you have `rust` and `cargo` on your machine, you can use `cargo install --path .` to build the project and install
+it in `~/.cargo/bin`. Make sure `~/.cargo/bin` is in your PATH variable.
 
 If you don't have Rust installed you can simply copy one of the pre-built binaries available in the releases folder to
 one of the directories in your PATH variable. For instance you can do `sudo cp releases/linux/amd64/v0.3.0/kubie /usr/local/bin`
