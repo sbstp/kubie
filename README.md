@@ -34,6 +34,12 @@ from the git repo.
 You may also create a bash alias such as `alias kubectx='kubie ctx'` and `alias kubens='kubie ns` since old habits die
 hard.
 
+### Bash autocomplete
+If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script :
+```
+sudo cp ./completion/kubie.bash $(pkg-config --variable=completionsdir bash-completion)/kubie.bash
+```
+
 ## Usage
 Note that if you have [`fzf`](https://github.com/junegunn/fzf) installed, the experience will be greatly improved.
 Selectable menus will be available when using `kubie ctx` and `kubie ns`.
