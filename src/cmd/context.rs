@@ -87,12 +87,12 @@ pub fn context(settings: &Settings, context_name: Option<String>, namespace_name
     if let Some(context_name) = context_name {
         enter_context(settings, installed, &context_name, namespace_name.as_deref())?;
     } else {
-        installed.contexts.sort_by(|a, b| a.name.cmp(&b.name));
+        installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
 
         // We only select the context with fzf if stdout is a terminal and if
         // fzf is present on the machine.
         if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-            match crate::fzf::select(installed.contexts.iter().map(|c| &c.name))? {
+            match crate::fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
                 Some(context_name) => {
                     enter_context(settings, installed, &context_name, None)?;
                 }
@@ -101,9 +101,9 @@ pub fn context(settings: &Settings, context_name: Option<String>, namespace_name
                 }
             }
         } else {
-            installed.contexts.sort_by(|a, b| a.name.cmp(&b.name));
+            installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
             for c in installed.contexts {
-                println!("{}", c.name);
+                println!("{}", c.item.name);
             }
         }
     }

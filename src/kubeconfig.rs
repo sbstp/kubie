@@ -3,6 +3,7 @@ use std::env;
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 use anyhow::{anyhow, Context as _, Result};
 use serde::{Deserialize, Serialize};
@@ -51,11 +52,26 @@ fn default_namespace() -> String {
     "default".to_string()
 }
 
+#[derive(Clone, Debug)]
+pub struct Sourced<T> {
+    pub source: Rc<PathBuf>,
+    pub item: T,
+}
+
+impl<T> Sourced<T> {
+    pub fn new(source: &Rc<PathBuf>, item: T) -> Self {
+        Sourced {
+            source: source.clone(),
+            item,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Installed {
-    pub clusters: Vec<NamedCluster>,
-    pub users: Vec<NamedUser>,
-    pub contexts: Vec<NamedContext>,
+    pub clusters: Vec<Sourced<NamedCluster>>,
+    pub users: Vec<Sourced<NamedUser>>,
+    pub contexts: Vec<Sourced<NamedContext>>,
 }
 
 impl KubeConfig {
@@ -66,53 +82,64 @@ impl KubeConfig {
 }
 
 impl Installed {
-    pub fn find_cluster_by_name(&self, name: &str) -> Option<&NamedCluster> {
-        self.clusters.iter().find(|c| c.name == name)
+    pub fn find_cluster_by_name(&self, name: &str, source: &Path) -> Option<&Sourced<NamedCluster>> {
+        self.clusters
+            .iter()
+            .find(|s| s.item.name == name && *s.source == source)
     }
 
-    pub fn find_user_by_name(&self, name: &str) -> Option<&NamedUser> {
-        self.users.iter().find(|u| u.name == name)
+    pub fn find_user_by_name(&self, name: &str, source: &Path) -> Option<&Sourced<NamedUser>> {
+        self.users.iter().find(|s| s.item.name == name && *s.source == source)
     }
 
-    pub fn find_contexts_by_cluster(&self, name: &str) -> Vec<&NamedContext> {
-        self.contexts.iter().filter(|c| c.context.cluster == name).collect()
+    pub fn find_contexts_by_cluster(&self, name: &str, source: &Path) -> Vec<&Sourced<NamedContext>> {
+        self.contexts
+            .iter()
+            .filter(|s| s.item.context.cluster == name && *s.source == source)
+            .collect()
     }
 
-    pub fn find_contexts_by_user(&self, name: &str) -> Vec<&NamedContext> {
-        self.contexts.iter().filter(|c| c.context.user == name).collect()
+    pub fn find_contexts_by_user(&self, name: &str, source: &Path) -> Vec<&Sourced<NamedContext>> {
+        self.contexts
+            .iter()
+            .filter(|s| s.item.context.user == name && *s.source == source)
+            .collect()
     }
 
     pub fn make_kubeconfig_for_context(&self, context_name: &str, namespace_name: Option<&str>) -> Result<KubeConfig> {
-        let mut context = self
+        let mut context_src = self
             .contexts
             .iter()
-            .find(|c| c.name == context_name)
+            .find(|c| c.item.name == context_name)
             .cloned()
             .ok_or(anyhow!("Could not find context {}", context_name))?;
 
         if let Some(namespace_name) = namespace_name {
-            context.context.namespace = namespace_name.to_string();
+            context_src.item.context.namespace = namespace_name.to_string();
         }
 
         let cluster = self
-            .find_cluster_by_name(&context.context.cluster)
+            .find_cluster_by_name(&context_src.item.context.cluster, &context_src.source)
             .cloned()
             .ok_or(anyhow!(
                 "Could not find cluster {} referenced by context {}",
-                context.context.cluster,
+                context_src.item.context.cluster,
                 context_name,
             ))?;
 
-        let user = self.find_user_by_name(&context.context.user).cloned().ok_or(anyhow!(
-            "Could not find user {} referenced by context {}",
-            context.context.user,
-            context_name,
-        ))?;
+        let user = self
+            .find_user_by_name(&context_src.item.context.user, &context_src.source)
+            .cloned()
+            .ok_or(anyhow!(
+                "Could not find user {} referenced by context {}",
+                context_src.item.context.user,
+                context_name,
+            ))?;
 
         Ok(KubeConfig {
-            clusters: vec![cluster],
-            contexts: vec![context],
-            users: vec![user],
+            clusters: vec![cluster.item],
+            contexts: vec![context_src.item],
+            users: vec![user.item],
             current_context: Some(context_name.into()),
             others: {
                 let mut m: HashMap<String, Value> = HashMap::new();
@@ -134,9 +161,16 @@ pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
     for path in settings.get_kube_configs_paths()? {
         match load(&path) {
             Ok(mut kubeconfig) => {
-                installed.clusters.extend(kubeconfig.clusters.drain(..));
-                installed.contexts.extend(kubeconfig.contexts.drain(..));
-                installed.users.extend(kubeconfig.users.drain(..));
+                let path = Rc::new(path.to_owned());
+                installed
+                    .clusters
+                    .extend(kubeconfig.clusters.drain(..).map(|x| Sourced::new(&path, x)));
+                installed
+                    .contexts
+                    .extend(kubeconfig.contexts.drain(..).map(|x| Sourced::new(&path, x)));
+                installed
+                    .users
+                    .extend(kubeconfig.users.drain(..).map(|x| Sourced::new(&path, x)));
             }
             Err(err) => {
                 eprintln!("Error loading kubeconfig {}: {}", path.display(), err);

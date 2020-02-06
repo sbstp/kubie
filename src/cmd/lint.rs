@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::path::Path;
 
 use anyhow::Result;
 
@@ -6,34 +7,57 @@ use crate::kubeconfig::{self, Installed};
 use crate::settings::Settings;
 
 fn lint_clusters(installed: &Installed) {
-    let mut set = HashSet::new();
+    let mut set: HashSet<(&str, &Path)> = HashSet::new();
 
-    for cluster in &installed.clusters {
-        if installed.find_contexts_by_cluster(&cluster.name).is_empty() {
-            println!("Cluster '{}' has no context referencing it.", cluster.name);
-        }
-        if set.contains(&cluster.name) {
+    for cluster_src in &installed.clusters {
+        let named = &cluster_src.item;
+
+        if installed
+            .find_contexts_by_cluster(&named.name, &cluster_src.source)
+            .is_empty()
+        {
             println!(
-                "A cluster named '{}' appears more than once in the configs.",
-                cluster.name
+                "Cluster '{}' has no context referencing it in file {}",
+                named.name,
+                cluster_src.source.display(),
+            );
+        }
+        if set.contains(&(&named.name, &cluster_src.source)) {
+            println!(
+                "A cluster named '{}' appears more than once in file {}",
+                named.name,
+                cluster_src.source.display(),
             );
         } else {
-            set.insert(&cluster.name);
+            set.insert((&named.name, &cluster_src.source));
         }
     }
 }
 
 fn lint_users(installed: &Installed) {
-    let mut set = HashSet::new();
+    let mut set: HashSet<(&str, &Path)> = HashSet::new();
 
-    for user in &installed.users {
-        if installed.find_contexts_by_user(&user.name).is_empty() {
-            println!("User '{}' has no context referencing it.", user.name);
+    for user_src in &installed.users {
+        let named = &user_src.item;
+
+        if installed
+            .find_contexts_by_user(&named.name, &user_src.source)
+            .is_empty()
+        {
+            println!(
+                "User '{}' has no context referencing it in file {}",
+                named.name,
+                user_src.source.display(),
+            );
         }
-        if set.contains(&user.name) {
-            println!("A user named '{}' appears more than once in the configs.", user.name);
+        if set.contains(&(&named.name, &user_src.source)) {
+            println!(
+                "A user named '{}' appears more than once in file {}",
+                named.name,
+                user_src.source.display(),
+            );
         } else {
-            set.insert(&user.name);
+            set.insert((&named.name, &user_src.source));
         }
     }
 }
@@ -41,26 +65,39 @@ fn lint_users(installed: &Installed) {
 fn lint_contexts(installed: &Installed) {
     let mut set = HashSet::new();
 
-    for context in &installed.contexts {
-        if installed.find_cluster_by_name(&context.context.cluster).is_none() {
+    for context_src in &installed.contexts {
+        let named = &context_src.item;
+
+        if installed
+            .find_cluster_by_name(&named.context.cluster, &context_src.source)
+            .is_none()
+        {
             println!(
-                "Context '{}' references unknown cluster '{}'.",
-                context.name, context.context.cluster
+                "Context '{}' references unknown cluster '{}' in file {}",
+                named.name,
+                named.context.cluster,
+                context_src.source.display(),
             );
         }
-        if installed.find_user_by_name(&context.context.user).is_none() {
+        if installed
+            .find_user_by_name(&named.context.user, &context_src.source)
+            .is_none()
+        {
             println!(
-                "Context '{}' references unknown users '{}'.",
-                context.name, context.context.user
+                "Context '{}' references unknown users '{}' in file {}",
+                named.name,
+                named.context.user,
+                context_src.source.display(),
             );
         }
-        if set.contains(&context.name) {
+        if set.contains(&named.name) {
             println!(
-                "A context name '{}' appears more than once in the configs.",
-                context.name
+                "A context name '{}' appears more than once in file {}",
+                named.name,
+                context_src.source.display()
             );
         } else {
-            set.insert(&context.name);
+            set.insert(&named.name);
         }
     }
 }
