@@ -31,7 +31,7 @@ If you don't have Rust installed you can simply copy one of the pre-built binari
 one of the directories in your PATH variable. For instance you can do `sudo cp releases/linux/amd64/v0.3.0/kubie /usr/local/bin`
 from the git repo.
 
-You may also create a bash alias such as `alias kubectx='kubie ctx'` and `alias kubens='kubie ns` since old habits die
+You may also create a bash alias such as `alias kubectx='kubie ctx'` and `alias kubens='kubie ns'` since old habits die
 hard.
 
 ### Bash autocomplete
