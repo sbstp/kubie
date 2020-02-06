@@ -20,10 +20,8 @@ fn spawn_shell(settings: &Settings, config: kubeconfig::KubeConfig, depth: u32) 
         r#"
 if [ -f "$HOME/.bashrc" ] ; then
     source "$HOME/.bashrc"
-fi
-
-if [ -f "/etc/skel/.bashrc" ] ; then
-    source "/etc/skel/.bashrc"
+elif [ -f "/etc/skel/.bashrc" ] ; then
+    source /etc/skel/.bashrc
 fi
 
 function kubectx {{
