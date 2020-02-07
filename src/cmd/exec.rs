@@ -25,7 +25,13 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
     Ok(status.code().unwrap_or(0))
 }
 
-pub fn exec(settings: &Settings, context_name: String, namespace_name: String, args: Vec<String>) -> Result<()> {
+pub fn exec(
+    settings: &Settings,
+    context_name: String,
+    namespace_name: String,
+    exit_early: bool,
+    args: Vec<String>,
+) -> Result<()> {
     if args.len() == 0 {
         return Ok(());
     }
@@ -36,7 +42,7 @@ pub fn exec(settings: &Settings, context_name: String, namespace_name: String, a
         let kubeconfig = installed.make_kubeconfig_for_context(&context_src.item.name, Some(&namespace_name))?;
         let return_code = run_in_context(&kubeconfig, &args)?;
 
-        if return_code != 0 {
+        if return_code != 0 && exit_early {
             std::process::exit(return_code);
         }
     }

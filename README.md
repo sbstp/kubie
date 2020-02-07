@@ -22,7 +22,7 @@ namespace without having to spawn a shell. There's also `kubie lint` which scans
 and informs you of what they are.
 
 ## Installation
-First, clone the gitlab repo: `https://github.com/sbstp/kubie.git`.
+First, clone the repo.
 
 If you have `rust` and `cargo` on your machine, you can use `cargo install --path .` to build the project and install
 it in `~/.cargo/bin`. Make sure `~/.cargo/bin` is in your PATH variable.
@@ -55,9 +55,9 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 * `kubie ns <namespace> -r` spawn a recursive shell in the given namespace
 * `kubie exec <context> <namespace> <cmd> <args>...` execute a command in the given context and namespace
 * `kubie exec <wildcard> <namespace> <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
-  in the given namespace.
+  in the given namespace
 * `kubie exec <wildcard> <namespace> -e <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
-  in the given namespace but fail early if any of the commands executed return a non-zero exit code.
+  in the given namespace but fail early if any of the commands executed return a non-zero exit code
 * `kubie lint` lint k8s config files for issues
 * `kubie info ctx` print name of current context
 * `kubie info ns` print name of current namespace
