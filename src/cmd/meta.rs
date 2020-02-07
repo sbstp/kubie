@@ -59,8 +59,8 @@ pub struct KubieInfo {
     pub kind: KubieInfoKind,
 }
 
-#[derive(Debug, StructOpt)]
 /// Type of info the user is requesting.
+#[derive(Debug, StructOpt)]
 pub enum KubieInfoKind {
     /// Get the current shell's context name.
     #[structopt(name = "ctx")]

@@ -31,9 +31,15 @@ pub fn exec(settings: &Settings, context_name: String, namespace_name: String, a
     }
 
     let installed = kubeconfig::get_installed_contexts(settings)?;
-    let kubeconfig = installed.make_kubeconfig_for_context(&context_name, Some(&namespace_name))?;
 
-    let return_code = run_in_context(&kubeconfig, &args)?;
+    for context_src in installed.get_contexts_matching(&context_name) {
+        let kubeconfig = installed.make_kubeconfig_for_context(&context_src.item.name, Some(&namespace_name))?;
+        let return_code = run_in_context(&kubeconfig, &args)?;
 
-    std::process::exit(return_code)
+        if return_code != 0 {
+            std::process::exit(return_code);
+        }
+    }
+
+    std::process::exit(0);
 }

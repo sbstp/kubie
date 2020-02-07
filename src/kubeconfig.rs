@@ -8,6 +8,7 @@ use std::rc::Rc;
 use anyhow::{anyhow, Context as _, Result};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
+use wildmatch::WildMatch;
 
 use crate::settings::Settings;
 
@@ -103,6 +104,14 @@ impl Installed {
         self.contexts
             .iter()
             .filter(|s| s.item.context.user == name && *s.source == source)
+            .collect()
+    }
+
+    pub fn get_contexts_matching(&self, pattern: &str) -> Vec<&Sourced<NamedContext>> {
+        let matcher = WildMatch::new(pattern);
+        self.contexts
+            .iter()
+            .filter(|s| matcher.is_match(&s.item.name))
             .collect()
     }
 
