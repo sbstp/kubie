@@ -5,10 +5,13 @@ use anyhow::{anyhow, Result};
 use crate::fzf;
 use crate::kubeconfig;
 use crate::kubectl;
+use crate::settings::Settings;
+use crate::shell::spawn_shell;
 use crate::vars;
 
-pub fn namespace(namespace_name: Option<String>) -> Result<()> {
+pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive: bool) -> Result<()> {
     vars::ensure_kubie_active()?;
+
     let namespaces = kubectl::get_namespaces(None)?;
 
     let enter_namespace = |namespace_name: String| -> Result<()> {
@@ -19,8 +22,12 @@ pub fn namespace(namespace_name: Option<String>) -> Result<()> {
         let mut config = kubeconfig::get_current_config()?;
         config.contexts[0].context.namespace = namespace_name;
 
-        let config_file = File::create(kubeconfig::get_kubeconfig_path()?)?;
-        config.write_to(config_file)?;
+        if recursive {
+            spawn_shell(settings, config)?;
+        } else {
+            let config_file = File::create(kubeconfig::get_kubeconfig_path()?)?;
+            config.write_to(config_file)?;
+        }
 
         Ok(())
     };

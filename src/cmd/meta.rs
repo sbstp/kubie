@@ -9,8 +9,13 @@ pub enum Kubie {
     #[structopt(name = "ctx")]
     Context {
         /// Specify in which namespace of the context the shell is spawned.
-        #[structopt(short = "n", long = "--namespace")]
+        #[structopt(short = "n", long = "namespace")]
         namespace_name: Option<String>,
+
+        /// Enter the context by spawning a new recursive shell.
+        #[structopt(short = "r", long = "recursive")]
+        recursive: bool,
+
         /// Name of the context in which to spawn the shell.
         context_name: Option<String>,
     },
@@ -19,6 +24,10 @@ pub enum Kubie {
     /// not affect other shells.
     #[structopt(name = "ns")]
     Namespace {
+        /// Enter the namespace by spawning a new recursive shell.
+        #[structopt(short = "r", long = "recursive")]
+        recursive: bool,
+
         /// Name of the namespace to change to.
         namespace_name: Option<String>,
     },

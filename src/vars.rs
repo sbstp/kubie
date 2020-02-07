@@ -78,7 +78,7 @@ pub fn generate_ps1(settings: &Settings, depth: u32) -> String {
     let mut parts = vec![];
     parts.push(Color::new(RED, Command::new("kubie info ctx")).to_string());
     parts.push(Color::new(GREEN, Command::new("kubie info ns")).to_string());
-    if settings.prompt.show_depth {
+    if settings.prompt.show_depth && depth > 1 {
         parts.push(Color::new(BLUE, depth).to_string());
     }
 
@@ -124,15 +124,15 @@ pub fn get_depth() -> u32 {
         .unwrap_or(0)
 }
 
-/// Get the next depth if a context is created.
-pub fn get_next_depth() -> String {
-    format!("{}", get_depth() + 1)
+/// Check if we're in a kubie shell.
+pub fn is_kubie_active() -> bool {
+    let active = env::var("KUBIE_ACTIVE").unwrap_or("0".into());
+    return active == "1";
 }
 
 /// Ensure that we're inside a kubie shell, returning an error if we aren't.
 pub fn ensure_kubie_active() -> Result<()> {
-    let active = env::var("KUBIE_ACTIVE").unwrap_or("0".into());
-    if active != "1" {
+    if !is_kubie_active() {
         return Err(anyhow!("Not in a kubie shell!"));
     }
     Ok(())

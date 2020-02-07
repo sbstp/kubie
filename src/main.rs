@@ -1,17 +1,17 @@
 mod cmd;
-mod commands;
 mod fzf;
 mod kubeconfig;
 mod kubectl;
 mod settings;
+mod shell;
 mod tempfile;
 mod vars;
 
 use anyhow::Result;
-use settings::Settings;
 use structopt::StructOpt;
 
-use commands::Kubie;
+use cmd::meta::Kubie;
+use settings::Settings;
 
 fn main() -> Result<()> {
     let settings = Settings::load()?;
@@ -21,11 +21,15 @@ fn main() -> Result<()> {
         Kubie::Context {
             namespace_name,
             context_name,
+            recursive,
         } => {
-            cmd::context::context(&settings, context_name, namespace_name)?;
+            cmd::context::context(&settings, context_name, namespace_name, recursive)?;
         }
-        Kubie::Namespace { namespace_name } => {
-            cmd::namespace::namespace(namespace_name)?;
+        Kubie::Namespace {
+            namespace_name,
+            recursive,
+        } => {
+            cmd::namespace::namespace(&settings, namespace_name, recursive)?;
         }
         Kubie::Info(info) => {
             cmd::info::info(info)?;
