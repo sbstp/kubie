@@ -1,73 +1,21 @@
-use std::io::Write;
-use std::process::Command;
+use std::fs::File;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 use crate::fzf;
 use crate::kubeconfig::{self, Installed};
 use crate::kubectl;
 use crate::settings::Settings;
-use crate::tempfile::Tempfile;
+use crate::shell::spawn_shell;
 use crate::vars;
-
-fn spawn_shell(settings: &Settings, config: kubeconfig::KubeConfig, depth: u32) -> Result<()> {
-    let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
-    config.write_to(&*temp_config_file)?;
-
-    let mut temp_rc_file = Tempfile::new("/tmp", "kubie-bashrc-", ".bash")?;
-    write!(
-        temp_rc_file,
-        r#"
-if [ -f "$HOME/.bashrc" ] ; then
-    source "$HOME/.bashrc"
-elif [ -f "/etc/skel/.bashrc" ] ; then
-    source /etc/skel/.bashrc
-fi
-
-function kubectx {{
-    echo "kubectx disabled to prevent misuse."
-}}
-
-function kubens {{
-    echo "kubens disabled to prevent misuse."
-}}
-
-function k {{
-    echo "k on disabled to prevent misuse."
-}}
-
-export KUBECONFIG="{}"
-export PATH="{}"
-
-PROMPT='{}'
-export PS1="$PROMPT ${{PS1}}"
-unset PROMPT
-"#,
-        temp_config_file.path().display(),
-        vars::generate_path()?,
-        vars::generate_ps1(settings, depth + 1),
-    )?;
-
-    let mut child = Command::new("bash")
-        .arg("--rcfile")
-        .arg(temp_rc_file.path())
-        .env("KUBIE_ACTIVE", "1")
-        .env("KUBIE_DEPTH", vars::get_next_depth())
-        .spawn()?;
-    child.wait()?;
-
-    println!("Kubie depth is now {}", depth);
-
-    Ok(())
-}
 
 fn enter_context(
     settings: &Settings,
     installed: Installed,
     context_name: &str,
     namespace_name: Option<&str>,
+    recursive: bool,
 ) -> Result<()> {
-    let depth = vars::get_depth();
     let kubeconfig = installed.make_kubeconfig_for_context(&context_name, namespace_name)?;
 
     if let Some(namespace_name) = namespace_name {
@@ -77,15 +25,27 @@ fn enter_context(
         }
     }
 
-    spawn_shell(settings, kubeconfig, depth)?;
+    if vars::is_kubie_active() && !recursive {
+        let path = kubeconfig::get_kubeconfig_path()?;
+        let file = File::create(&path).context("could not write in temporary KUBECONFIG file")?;
+        kubeconfig.write_to(file)?;
+    } else {
+        spawn_shell(settings, kubeconfig)?;
+    }
+
     Ok(())
 }
 
-pub fn context(settings: &Settings, context_name: Option<String>, namespace_name: Option<String>) -> Result<()> {
+pub fn context(
+    settings: &Settings,
+    context_name: Option<String>,
+    namespace_name: Option<String>,
+    recursive: bool,
+) -> Result<()> {
     let mut installed = kubeconfig::get_installed_contexts(settings)?;
 
     if let Some(context_name) = context_name {
-        enter_context(settings, installed, &context_name, namespace_name.as_deref())?;
+        enter_context(settings, installed, &context_name, namespace_name.as_deref(), recursive)?;
     } else {
         installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
 
@@ -94,7 +54,7 @@ pub fn context(settings: &Settings, context_name: Option<String>, namespace_name
         if atty::is(atty::Stream::Stdout) && fzf::is_available() {
             match crate::fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
                 Some(context_name) => {
-                    enter_context(settings, installed, &context_name, None)?;
+                    enter_context(settings, installed, &context_name, None, recursive)?;
                 }
                 None => {
                     println!("Selection cancelled.");

@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::commands::{KubieInfo, KubieInfoKind};
+use crate::cmd::meta::{KubieInfo, KubieInfoKind};
 use crate::kubeconfig;
 use crate::vars;
 

@@ -11,11 +11,14 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
     let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
     kubeconfig.write_to(&*temp_config_file)?;
 
+    let depth = vars::get_depth();
+    let next_depth = depth + 1;
+
     let mut proc = Command::new(&args[0])
         .args(&args[1..])
         .env("KUBECONFIG", temp_config_file.path())
         .env("KUBIE_ACTIVE", "1")
-        .env("KUBIE_DEPTH", vars::get_next_depth())
+        .env("KUBIE_DEPTH", next_depth.to_string())
         .spawn()?;
     let status = proc.wait()?;
 
