@@ -44,6 +44,9 @@ pub enum Kubie {
         context_name: String,
         /// Namespace in which to run the command. This is mandatory to avoid potential errors.
         namespace_name: String,
+        /// Exit early if a command fails when using a wildcard context.
+        #[structopt(short = "e", long = "exit-early")]
+        exit_early: bool,
         /// Command to run as well as its arguments.
         args: Vec<String>,
     },
@@ -59,8 +62,8 @@ pub struct KubieInfo {
     pub kind: KubieInfoKind,
 }
 
-#[derive(Debug, StructOpt)]
 /// Type of info the user is requesting.
+#[derive(Debug, StructOpt)]
 pub enum KubieInfoKind {
     /// Get the current shell's context name.
     #[structopt(name = "ctx")]

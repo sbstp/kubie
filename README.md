@@ -22,7 +22,7 @@ namespace without having to spawn a shell. There's also `kubie lint` which scans
 and informs you of what they are.
 
 ## Installation
-First, clone the gitlab repo: `git@gitlab-ncsa.ubisoft.org:sbernierstpierre/kubie.git`.
+First, clone the repo.
 
 If you have `rust` and `cargo` on your machine, you can use `cargo install --path .` to build the project and install
 it in `~/.cargo/bin`. Make sure `~/.cargo/bin` is in your PATH variable.
@@ -35,7 +35,7 @@ You may also create a bash alias such as `alias kubectx='kubie ctx'` and `alias 
 hard.
 
 ### Bash autocomplete
-If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script :
+If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script:
 ```
 sudo cp ./completion/kubie.bash $(pkg-config --variable=completionsdir bash-completion)/kubie.bash
 ```
@@ -47,11 +47,17 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 ---
 
 * `kubie ctx` show the list of available contexts (if fzf is installed, display a selectable menu of contexts)
-* `kubie ctx <context>` spawn a shell in the given context
+* `kubie ctx <context>` switch the current shell to the given context (spawns a shell if not a kubie shell)
+* `kubie ctx <context> -r` spawn a recursive shell in the given context
 * `kubie ctx <context> -n <namespace>` spawn a shell in the given context and namespace
 * `kubie ns` show the list of available namespaces (if fzf is installed, display a selectable menu of namespaces)
 * `kubie ns <namespace>` switch the current shell to the given namespace
+* `kubie ns <namespace> -r` spawn a recursive shell in the given namespace
 * `kubie exec <context> <namespace> <cmd> <args>...` execute a command in the given context and namespace
+* `kubie exec <wildcard> <namespace> <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
+  in the given namespace
+* `kubie exec <wildcard> <namespace> -e <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
+  in the given namespace but fail early if any of the commands executed return a non-zero exit code
 * `kubie lint` lint k8s config files for issues
 * `kubie info ctx` print name of current context
 * `kubie info ns` print name of current namespace
