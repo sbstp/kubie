@@ -54,6 +54,13 @@ pub enum Kubie {
     /// Check the Kubernetes config files for issues.
     #[structopt(name = "lint")]
     Lint,
+
+    /// Edit the given context.
+    #[structopt(name = "edit")]
+    Edit {
+        /// Name of the context to edit.
+        context_name: Option<String>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

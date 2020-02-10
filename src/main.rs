@@ -45,6 +45,9 @@ fn main() -> Result<()> {
         Kubie::Lint => {
             cmd::lint::lint(&settings)?;
         }
+        Kubie::Edit { context_name } => {
+            cmd::edit::edit(&settings, context_name)?;
+        }
     }
 
     Ok(())

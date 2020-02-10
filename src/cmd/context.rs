@@ -52,7 +52,7 @@ pub fn context(
         // We only select the context with fzf if stdout is a terminal and if
         // fzf is present on the machine.
         if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-            match crate::fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
+            match fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
                 Some(context_name) => {
                     enter_context(settings, installed, &context_name, None, recursive)?;
                 }

@@ -1,4 +1,5 @@
 pub mod context;
+pub mod edit;
 pub mod exec;
 pub mod info;
 pub mod lint;

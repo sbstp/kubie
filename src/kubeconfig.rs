@@ -83,6 +83,10 @@ impl KubeConfig {
 }
 
 impl Installed {
+    pub fn find_context_by_name(&self, name: &str) -> Option<&Sourced<NamedContext>> {
+        self.contexts.iter().find(|s| s.item.name == name)
+    }
+
     pub fn find_cluster_by_name(&self, name: &str, source: &Path) -> Option<&Sourced<NamedCluster>> {
         self.clusters
             .iter()

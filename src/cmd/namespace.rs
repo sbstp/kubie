@@ -38,7 +38,7 @@ pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive:
         // We only select the context with fzf if stdout is a terminal and if
         // fzf is present on the machine.
         if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-            match crate::fzf::select(namespaces.iter())? {
+            match fzf::select(namespaces.iter())? {
                 Some(namespace_name) => {
                     enter_namespace(namespace_name)?;
                 }
