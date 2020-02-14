@@ -38,7 +38,7 @@ function k {{
 }}
 
 function kubectl {{
-    KUBECONFIG="${{KUBIE_KUBECONFIG}}" $(which kubectl) "$@"
+    KUBECONFIG="${{KUBIE_KUBECONFIG}}" "$(which kubectl)" "$@"
 }}
 
 PROMPT='{}'
