@@ -33,9 +33,13 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn load() -> Result<Settings> {
+    pub fn path() -> String {
         let home_dir: &String = &*HOME_DIR;
-        let settings_path_str = format!("{}/.kube/kubie.yaml", home_dir);
+        format!("{}/.kube/kubie.yaml", home_dir)
+    }
+
+    pub fn load() -> Result<Settings> {
+        let settings_path_str = Self::path();
         let settings_path = Path::new(&settings_path_str);
 
         let mut settings = if settings_path.exists() {

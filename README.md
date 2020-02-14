@@ -58,6 +58,9 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
   in the given namespace
 * `kubie exec <wildcard> <namespace> -e <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
   in the given namespace but fail early if any of the commands executed return a non-zero exit code
+* `kubie edit` if fzf is installed, display a selectable menu of contexts to edit
+* `kubie edit <context>` edit file that contains this context
+* `kubie edit-config` edit kubie's own config file
 * `kubie lint` lint k8s config files for issues
 * `kubie info ctx` print name of current context
 * `kubie info ns` print name of current namespace

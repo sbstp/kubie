@@ -24,7 +24,7 @@ fn get_editor() -> Result<PathBuf> {
         .ok_or_else(|| anyhow!("Could not find any editor to use"))
 }
 
-pub fn edit(settings: &Settings, context_name: Option<String>) -> Result<()> {
+pub fn edit_context(settings: &Settings, context_name: Option<String>) -> Result<()> {
     let mut installed = kubeconfig::get_installed_contexts(settings)?;
     installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
 
@@ -43,6 +43,16 @@ pub fn edit(settings: &Settings, context_name: Option<String>) -> Result<()> {
     let editor = get_editor()?;
 
     let mut job = Command::new(editor).arg(context_src.source.as_ref()).spawn()?;
+    job.wait()?;
+
+    Ok(())
+}
+
+pub fn edit_config() -> Result<()> {
+    let editor = get_editor()?;
+    let settings_path = Settings::path();
+
+    let mut job = Command::new(editor).arg(settings_path).spawn()?;
     job.wait()?;
 
     Ok(())
