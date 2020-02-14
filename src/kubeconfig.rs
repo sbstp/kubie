@@ -202,7 +202,7 @@ pub fn load(path: impl AsRef<Path>) -> anyhow::Result<KubeConfig> {
 }
 
 pub fn get_kubeconfig_path() -> Result<PathBuf> {
-    let path = env::var_os("KUBECONFIG").context("KUBECONFIG not found")?;
+    let path = env::var_os("KUBIE_KUBECONFIG").context("KUBIE_CONFIG not found")?;
     Ok(PathBuf::from(path))
 }
 

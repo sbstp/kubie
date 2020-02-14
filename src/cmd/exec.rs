@@ -17,6 +17,7 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
     let mut proc = Command::new(&args[0])
         .args(&args[1..])
         .env("KUBECONFIG", temp_config_file.path())
+        .env("KUBIE_KUBECONFIG", temp_config_file.path())
         .env("KUBIE_ACTIVE", "1")
         .env("KUBIE_DEPTH", next_depth.to_string())
         .spawn()?;

@@ -1,7 +1,7 @@
 use std::env;
 use std::fmt::{self, Display};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 
 use crate::settings::Settings;
 
@@ -75,45 +75,17 @@ const BLUE: u32 = 34;
 /// Makes sure to protect the escape sequences to that the shell will not count the escape
 /// sequences in the length calculation of the prompt.
 pub fn generate_ps1(settings: &Settings, depth: u32) -> String {
+    let current_exe_path = env::current_exe().expect("could not get own binary path");
+    let current_exe_path_str = current_exe_path.to_str().expect("binary path is not unicode");
+
     let mut parts = vec![];
-    parts.push(Color::new(RED, Command::new("kubie info ctx")).to_string());
-    parts.push(Color::new(GREEN, Command::new("kubie info ns")).to_string());
+    parts.push(Color::new(RED, Command::new(format!("{} info ctx", current_exe_path_str))).to_string());
+    parts.push(Color::new(GREEN, Command::new(format!("{} info ns", current_exe_path_str))).to_string());
     if settings.prompt.show_depth && depth > 1 {
         parts.push(Color::new(BLUE, depth).to_string());
     }
 
     format!("[{}]", parts.join("|"))
-}
-
-/// Generates a PATH variable which contains the directory inside of which kubie resides.
-///
-/// This is required by the PS1 variable which makes calls to kubie to display information.
-/// This function also makes sure to not insert the directory again in the PATH to avoid
-/// wasteful growth of the PATH variable.
-///
-/// The downside of this function is that it requires the PATH to be unicode.
-pub fn generate_path() -> Result<String> {
-    let path = match env::var("PATH") {
-        Ok(path) => path,
-        Err(env::VarError::NotPresent) => "".into(),
-        Err(env::VarError::NotUnicode { .. }) => return Err(anyhow!("PATH variable contains non unicode bytes")),
-    };
-    let kubie_exe = env::current_exe().context("Could not get current exe path")?;
-    let kubie_exe = kubie_exe
-        .canonicalize()
-        .context("Could not get absolute path of current exe")?;
-    let kubie_dir = kubie_exe.parent().expect("Kubie executable has not parent directory");
-    let kubie_dir = kubie_dir
-        .to_str()
-        .context("Kubie parent folder contains non unicode bytes")?;
-
-    let mut directories: Vec<_> = path.split(':').collect();
-
-    if !directories.contains(&kubie_dir) {
-        directories.insert(0, kubie_dir);
-    }
-
-    Ok(directories.join(":"))
 }
 
 /// Get the current depth of shells.
