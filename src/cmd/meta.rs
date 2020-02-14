@@ -61,6 +61,10 @@ pub enum Kubie {
         /// Name of the context to edit.
         context_name: Option<String>,
     },
+
+    /// Edit kubie's config file.
+    #[structopt(name = "edit-config")]
+    EditConfig,
 }
 
 #[derive(Debug, StructOpt)]

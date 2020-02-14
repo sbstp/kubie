@@ -10,15 +10,18 @@ _kubiecomplete()
 
     case ${COMP_CWORD} in
         1)
-            cmds="ctx exec help info lint ns"
+            cmds="ctx edit edit-config exec help info lint ns"
             COMPREPLY=($(printf "%s\n" $cmds | grep -e "^$cur" | xargs))
             ;;
         2)
             case ${prev} in
-                exec)
+                ctx)
                     COMPREPLY=($(kubie ctx | grep -e "^$cur" | xargs))
                     ;;
-                ctx)
+                edit)
+                    COMPREPLY=($(kubie ctx | grep -e "^$cur" | xargs))
+                    ;;
+                exec)
                     COMPREPLY=($(kubie ctx | grep -e "^$cur" | xargs))
                     ;;
                 ns)
