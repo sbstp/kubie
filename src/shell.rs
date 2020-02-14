@@ -37,15 +37,14 @@ function k {{
     echo "k on disabled to prevent misuse."
 }}
 
-export KUBECONFIG="{}"
-export PATH="{}"
+function kubectl {{
+    KUBECONFIG="${{KUBIE_KUBECONFIG}}" "$(which kubectl)" "$@"
+}}
 
 PROMPT='{}'
 export PS1="$PROMPT ${{PS1}}"
 unset PROMPT
 "#,
-        temp_config_file.path().display(),
-        vars::generate_path()?,
         vars::generate_ps1(settings, next_depth),
     )?;
 
@@ -54,6 +53,7 @@ unset PROMPT
         .arg(temp_rc_file.path())
         .env("KUBIE_ACTIVE", "1")
         .env("KUBIE_DEPTH", next_depth.to_string())
+        .env("KUBIE_KUBECONFIG", temp_config_file.path())
         .spawn()?;
     child.wait()?;
 
