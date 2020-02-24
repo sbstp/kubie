@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 use crate::fzf;
 use crate::kubeconfig;
@@ -15,15 +15,21 @@ pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive:
 
     let namespaces = kubectl::get_namespaces(None)?;
 
-    let enter_namespace = |namespace_name: String| -> Result<()> {
-        if !namespaces.contains(&namespace_name) {
+    let enter_namespace = |mut namespace_name: String| -> Result<()> {
+        let mut session = Session::load()?;
+
+        if namespace_name == "-" {
+            namespace_name = session
+                .get_last_namespace()
+                .context("There is not previous namespace to switch to.")?
+                .to_string();
+        } else if !namespaces.contains(&namespace_name) {
             return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
         }
 
         let mut config = kubeconfig::get_current_config()?;
         config.contexts[0].context.namespace = namespace_name.clone();
 
-        let mut session = Session::load()?;
         session.add_history_entry(&config.contexts[0].name, namespace_name);
 
         if recursive {

@@ -17,9 +17,16 @@ fn enter_context(
     namespace_name: Option<&str>,
     recursive: bool,
 ) -> Result<()> {
-    let kubeconfig = installed.make_kubeconfig_for_context(&context_name, namespace_name)?;
-
     let mut session = Session::load()?;
+    let kubeconfig = if context_name == "-" {
+        let previous_ctx = session
+            .get_last_context()
+            .context("There is not previous context to switch to.")?;
+        installed.make_kubeconfig_for_context(&previous_ctx.context, Some(&previous_ctx.namespace))?
+    } else {
+        installed.make_kubeconfig_for_context(&context_name, namespace_name)?
+    };
+
     session.add_history_entry(&kubeconfig.contexts[0].name, &kubeconfig.contexts[0].context.namespace);
 
     if let Some(namespace_name) = namespace_name {

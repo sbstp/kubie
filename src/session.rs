@@ -56,10 +56,33 @@ impl Session {
             namespace: namespace.into(),
         })
     }
+
+    pub fn get_last_context(&self) -> Option<&HistoryEntry> {
+        let current_context = self.history.last()?;
+        for entry in self.history.iter().rev().skip(1) {
+            if current_context.context != entry.context {
+                return Some(entry);
+            }
+        }
+        None
+    }
+
+    pub fn get_last_namespace(&self) -> Option<&str> {
+        let current_context = self.history.last()?;
+        for entry in self.history.iter().rev().skip(1) {
+            if current_context.context != entry.context {
+                return None;
+            }
+            if current_context.namespace != entry.namespace {
+                return Some(&entry.namespace);
+            }
+        }
+        None
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct HistoryEntry {
-    context: String,
-    namespace: String,
+    pub context: String,
+    pub namespace: String,
 }
