@@ -2,6 +2,7 @@ mod cmd;
 mod fzf;
 mod kubeconfig;
 mod kubectl;
+mod session;
 mod settings;
 mod shell;
 mod tempfile;

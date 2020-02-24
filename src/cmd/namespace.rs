@@ -5,6 +5,7 @@ use anyhow::{anyhow, Result};
 use crate::fzf;
 use crate::kubeconfig;
 use crate::kubectl;
+use crate::session::Session;
 use crate::settings::Settings;
 use crate::shell::spawn_shell;
 use crate::vars;
@@ -20,13 +21,17 @@ pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive:
         }
 
         let mut config = kubeconfig::get_current_config()?;
-        config.contexts[0].context.namespace = namespace_name;
+        config.contexts[0].context.namespace = namespace_name.clone();
+
+        let mut session = Session::load()?;
+        session.add_history_entry(&config.contexts[0].name, namespace_name);
 
         if recursive {
-            spawn_shell(settings, config)?;
+            spawn_shell(settings, config, &session)?;
         } else {
             let config_file = File::create(kubeconfig::get_kubeconfig_path()?)?;
             config.write_to(config_file)?;
+            session.save(None)?;
         }
 
         Ok(())

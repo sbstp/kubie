@@ -4,13 +4,17 @@ use std::process::Command;
 use anyhow::Result;
 
 use crate::kubeconfig::KubeConfig;
+use crate::session::Session;
 use crate::settings::Settings;
 use crate::tempfile::Tempfile;
 use crate::vars;
 
-pub fn spawn_shell(settings: &Settings, config: KubeConfig) -> Result<()> {
+pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -> Result<()> {
     let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
     config.write_to(&*temp_config_file)?;
+
+    let temp_session_file = Tempfile::new("/tmp", "kubie-session", ".yaml")?;
+    session.save(Some(temp_session_file.path()))?;
 
     let depth = vars::get_depth();
     let next_depth = depth + 1;
@@ -54,6 +58,7 @@ unset PROMPT
         .env("KUBIE_ACTIVE", "1")
         .env("KUBIE_DEPTH", next_depth.to_string())
         .env("KUBIE_KUBECONFIG", temp_config_file.path())
+        .env("KUBIE_SESSION", temp_session_file.path())
         .spawn()?;
     child.wait()?;
 
