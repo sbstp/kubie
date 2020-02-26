@@ -48,10 +48,12 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 
 * `kubie ctx` show the list of available contexts (if fzf is installed, display a selectable menu of contexts)
 * `kubie ctx <context>` switch the current shell to the given context (spawns a shell if not a kubie shell)
+* `kubie ctx -` switch back to the previous context
 * `kubie ctx <context> -r` spawn a recursive shell in the given context
 * `kubie ctx <context> -n <namespace>` spawn a shell in the given context and namespace
 * `kubie ns` show the list of available namespaces (if fzf is installed, display a selectable menu of namespaces)
 * `kubie ns <namespace>` switch the current shell to the given namespace
+* `kubie ns -` switch back to the previous namespace
 * `kubie ns <namespace> -r` spawn a recursive shell in the given namespace
 * `kubie exec <context> <namespace> <cmd> <args>...` execute a command in the given context and namespace
 * `kubie exec <wildcard> <namespace> <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
