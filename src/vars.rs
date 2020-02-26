@@ -1,5 +1,6 @@
 use std::env;
 use std::fmt::{self, Display};
+use std::path::PathBuf;
 
 use anyhow::{anyhow, Result};
 
@@ -108,4 +109,8 @@ pub fn ensure_kubie_active() -> Result<()> {
         return Err(anyhow!("Not in a kubie shell!"));
     }
     Ok(())
+}
+
+pub fn get_session_path() -> Option<PathBuf> {
+    env::var_os("KUBIE_SESSION").map(PathBuf::from)
 }

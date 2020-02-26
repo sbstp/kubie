@@ -16,7 +16,7 @@ pub enum Kubie {
         #[structopt(short = "r", long = "recursive")]
         recursive: bool,
 
-        /// Name of the context in which to spawn the shell.
+        /// Name of the context to enter. Use '-' to switch back to the previous context.
         context_name: Option<String>,
     },
 
@@ -28,7 +28,7 @@ pub enum Kubie {
         #[structopt(short = "r", long = "recursive")]
         recursive: bool,
 
-        /// Name of the namespace to change to.
+        /// Name of the namespace to enter. Use '-' to switch back to the previous namespace.
         namespace_name: Option<String>,
     },
 

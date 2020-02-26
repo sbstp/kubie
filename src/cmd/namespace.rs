@@ -1,10 +1,11 @@
 use std::fs::File;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 use crate::fzf;
 use crate::kubeconfig;
 use crate::kubectl;
+use crate::session::Session;
 use crate::settings::Settings;
 use crate::shell::spawn_shell;
 use crate::vars;
@@ -14,19 +15,29 @@ pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive:
 
     let namespaces = kubectl::get_namespaces(None)?;
 
-    let enter_namespace = |namespace_name: String| -> Result<()> {
-        if !namespaces.contains(&namespace_name) {
+    let enter_namespace = |mut namespace_name: String| -> Result<()> {
+        let mut session = Session::load()?;
+
+        if namespace_name == "-" {
+            namespace_name = session
+                .get_last_namespace()
+                .context("There is not previous namespace to switch to.")?
+                .to_string();
+        } else if !namespaces.contains(&namespace_name) {
             return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
         }
 
         let mut config = kubeconfig::get_current_config()?;
-        config.contexts[0].context.namespace = namespace_name;
+        config.contexts[0].context.namespace = namespace_name.clone();
+
+        session.add_history_entry(&config.contexts[0].name, namespace_name);
 
         if recursive {
-            spawn_shell(settings, config)?;
+            spawn_shell(settings, config, &session)?;
         } else {
             let config_file = File::create(kubeconfig::get_kubeconfig_path()?)?;
             config.write_to(config_file)?;
+            session.save(None)?;
         }
 
         Ok(())

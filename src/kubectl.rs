@@ -1,7 +1,8 @@
+use std::env;
 use std::process::Command;
 use std::str;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 
 use crate::kubeconfig::KubeConfig;
 use crate::tempfile::Tempfile;
@@ -17,6 +18,11 @@ pub fn get_namespaces<'a>(kubeconfig: impl Into<Option<&'a KubeConfig>>) -> anyh
         temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
         kubeconfig.write_to(&*temp_config_file)?;
         cmd.env("KUBECONFIG", temp_config_file.path());
+    } else {
+        cmd.env(
+            "KUBECONFIG",
+            env::var("KUBIE_KUBECONFIG").context("KUBIE_KUBECONFIG variable is not set")?,
+        );
     }
 
     let result = cmd.output()?;
