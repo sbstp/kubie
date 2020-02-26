@@ -1,25 +1,17 @@
 # Kubie
-`kubie` is an alternative to `kubectx`, `kubens` and `k on`. It offers context switching, namespace switching and
-prompt modification in an isolated fashion.
+`kubie` is an alternative to `kubectx`, `kubens` and the `k on` prompt modification script. It offers context switching,
+namespace switching and prompt modification in a way that makes each shell independent from others. It also has
+support for split configuration files, meaning it can load Kubernetes contexts from multiple files. You can configure
+the paths where kubie will look for contexts, see the [settings](#settings) section.
 
-* [Primer](#primer)
+Kubie also has other nice features such as `kubie exec` which allows you to execute commands in a context and a
+namespace without having to spawn a shell and `kubie lint` which scans your k8s config files for issues and informs
+you of what they are.
+
 * [Installation](#installation)
 * [Usage](#usage)
 * [Settings](#settings)
 * [Future plans](#future-plans)
-
-## Primer
-The main design goal of kubie is to isolate kubernetes environments from each other. Kubie will never modify your k8s
-config files. Before spawning a shell in a new context, it will create a temporary config file which contains the
-context you wish to use. The namespace changes are made in that temporary config file, leaving your original config
-files untouched. This is how Kubie achieves isolation.
-
-Kubie also supports recursive contexts. The depth of the context recursion if displayed in the shell prompt, the third
-component of the prompt: `[context|namespace|depth]` for instance `[dev|services|3]`.
-
-Kubie also has other nice features such as `kubie exec` which allows you to execute commands in a context and a
-namespace without having to spawn a shell. There's also `kubie lint` which scans your k8s config files for issues
-and informs you of what they are.
 
 ## Installation
 First, clone the repo.
@@ -61,7 +53,7 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 * `kubie exec <wildcard> <namespace> -e <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
   in the given namespace but fail early if any of the commands executed return a non-zero exit code
 * `kubie edit` if fzf is installed, display a selectable menu of contexts to edit
-* `kubie edit <context>` edit file that contains this context
+* `kubie edit <context>` edit the file that contains this context
 * `kubie edit-config` edit kubie's own config file
 * `kubie lint` lint k8s config files for issues
 * `kubie info ctx` print name of current context
