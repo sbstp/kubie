@@ -21,6 +21,9 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
         signal_hook::SIGTERM,
         signal_hook::SIGINT,
         signal_hook::SIGQUIT,
+        signal_hook::SIGWINCH,
+        signal_hook::SIGUSR1,
+        signal_hook::SIGUSR2,
     ])
     .expect("could not install signal handler");
 
