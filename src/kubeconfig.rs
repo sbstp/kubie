@@ -5,7 +5,7 @@ use std::io::{BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
-use anyhow::{anyhow, Context as _, Result};
+use anyhow::{anyhow, bail, Context as _, Result};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use wildmatch::WildMatch;
@@ -189,6 +189,10 @@ pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
                 eprintln!("Error loading kubeconfig {}: {}", path.display(), err);
             }
         }
+    }
+
+    if installed.contexts.is_empty() {
+        bail!("Could not find any contexts on the machine!");
     }
 
     Ok(installed)
