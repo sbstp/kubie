@@ -30,20 +30,22 @@ elif [ -f "/etc/skel/.bashrc" ] ; then
 fi
 
 function kubectx {{
-    echo "kubectx disabled to prevent misuse."
+    kubie ctx "$@"
 }}
 
 function kubens {{
-    echo "kubens disabled to prevent misuse."
+    kubie ns "$@"
 }}
 
 function k {{
     echo "k on disabled to prevent misuse."
 }}
 
-function kubectl {{
-    KUBECONFIG="${{KUBIE_KUBECONFIG}}" "$(which kubectl)" "$@"
+function __kubie_cmd_pre_exec__() {{
+    export KUBECONFIG="$KUBIE_KUBECONFIG"
 }}
+
+trap '__kubie_cmd_pre_exec__' DEBUG
 
 PROMPT='{}'
 export PS1="$PROMPT ${{PS1}}"
