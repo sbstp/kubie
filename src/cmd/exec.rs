@@ -1,6 +1,8 @@
 use std::process::Command;
+use std::thread;
 
 use anyhow::Result;
+use signal_hook::iterator::Signals;
 
 use crate::kubeconfig::{self, KubeConfig};
 use crate::settings::Settings;
@@ -14,14 +16,35 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
     let depth = vars::get_depth();
     let next_depth = depth + 1;
 
-    let mut proc = Command::new(&args[0])
+    let mut child = Command::new(&args[0])
         .args(&args[1..])
         .env("KUBECONFIG", temp_config_file.path())
         .env("KUBIE_KUBECONFIG", temp_config_file.path())
         .env("KUBIE_ACTIVE", "1")
         .env("KUBIE_DEPTH", next_depth.to_string())
         .spawn()?;
-    let status = proc.wait()?;
+
+    let child_pid = child.id();
+
+    thread::spawn(move || {
+        let signals = Signals::new(&[
+            signal_hook::SIGHUP,
+            signal_hook::SIGTERM,
+            signal_hook::SIGINT,
+            signal_hook::SIGQUIT,
+        ])
+        .expect("could not install signal handler");
+
+        loop {
+            for sig in signals.pending() {
+                unsafe {
+                    libc::kill(child_pid as libc::pid_t, sig as libc::c_int);
+                }
+            }
+        }
+    });
+
+    let status = child.wait()?;
 
     Ok(status.code().unwrap_or(0))
 }
