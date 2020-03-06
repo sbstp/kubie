@@ -59,6 +59,7 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 * `kubie info ctx` print name of current context
 * `kubie info ns` print name of current namespace
 * `kubie info depth` print depth of recursive contexts
+* `kubie update` will check the latest kubie version and update your local installation if needed
 
 ## Settings
 You can customize kubie's behavior with the `~/.kube/kubie.yaml` file. The settings available and their defaults are
