@@ -7,6 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+attohttpc = { version = "0.11.1", features = ["json"] }
 anyhow = "1"
 atty = "0.2"
 dirs = "2"
@@ -14,6 +15,7 @@ glob = "0.3"
 lazy_static = "1"
 libc = "0.2"
 serde = { version = "1", features = ["derive"] }
+serde_json = "1.0"
 serde_yaml = "0.8"
 signal-hook = "0.1"
 structopt = "0.3"
