@@ -27,8 +27,8 @@ struct KubieVersion {
 }
 
 pub fn update() -> Result<()> {
-    let latest_version = get_latest_version();
-    if latest_version.contains(VERSION) {
+    let latest_version = get_latest_version()?;
+    if latest_version.eq(&format!("v{}",VERSION)) {
         println!("Kubie is up-to-date : v{}", VERSION);
     } else {
         println!("A new version of Kubie is available ({}), the new version will be automatically installed...", latest_version);
@@ -48,11 +48,11 @@ pub fn update() -> Result<()> {
     Ok(())
 }
 
-pub fn get_latest_version() -> String {
-    let tree_url : Vec<TreeUrl> = attohttpc::get(&RELEASES_LIST).send().unwrap().json().unwrap();
-    let tree : Tree = attohttpc::get(&tree_url[0].git_url).send().unwrap().json().unwrap();
+pub fn get_latest_version() -> Result<String> {
+    let tree_url : Vec<TreeUrl> = attohttpc::get(&RELEASES_LIST).send()?.json()?;
+    let tree : Tree = attohttpc::get(&tree_url[0].git_url).send()?.json()?;
     let latest_version = &tree.tree.last().unwrap().path;
-    return latest_version.to_string();
+    Ok(latest_version.to_string())
 }
 
 pub fn replace_file(old_file: String, new_file: String) -> std::io::Result<()> {
