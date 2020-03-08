@@ -47,7 +47,7 @@ pub fn update() -> Result<()> {
                 Ok(_) => {
                     println!(
                         "Kubie has been updated successfully. Enjoy :) ({})",
-                        old_file.to_string_lossy()
+                        Path::display(&old_file)
                     );
                 }
                 Err(err) => {
