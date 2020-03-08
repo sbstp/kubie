@@ -1,8 +1,10 @@
+use std::env;
 use std::fs;
-use std::fs::File;
 use std::fs::Permissions;
 use std::os::unix::prelude::*;
+use std::path::Path;
 
+use crate::tempfile::Tempfile;
 use anyhow::Result;
 use serde::Deserialize;
 
@@ -37,17 +39,20 @@ pub fn update() -> Result<()> {
         );
         let resp = attohttpc::get(format!("{}/{}/{}", RELEASE_BASE_URL, latest_version, FILENAME)).send()?;
         if resp.is_success() {
-            let file = File::create(FILENAME)?;
-            let _n = resp.write_to(file)?;
-            let old_file = which::which(FILENAME).unwrap();
-            let res = replace_file(old_file.to_string_lossy().to_string(), FILENAME.to_string());
-            if res.is_ok() {
-                println!("Kubie has been updated successfully. Enjoy :)");
-            } else {
-                println!(
-                    "The update failed : ({}), maybe consider using sudo ?",
-                    res.err().unwrap()
-                );
+            let tmp_file = Tempfile::new("/tmp", "kubie", "")?;
+            resp.write_to(&*tmp_file)?;
+            let old_file = env::current_exe().expect("could not get own binary path");
+            let res = replace_file(&old_file, tmp_file.path());
+            match res {
+                Ok(_) => {
+                    println!(
+                        "Kubie has been updated successfully. Enjoy :) ({})",
+                        old_file.to_string_lossy()
+                    );
+                }
+                Err(err) => {
+                    println!("Updated failed... {}", err);
+                }
             }
         }
     }
@@ -61,8 +66,8 @@ pub fn get_latest_version() -> Result<String> {
     Ok(latest_version.to_string())
 }
 
-pub fn replace_file(old_file: String, new_file: String) -> std::io::Result<()> {
-    fs::set_permissions(&new_file, Permissions::from_mode(0o755))?;
+pub fn replace_file(old_file: &Path, new_file: &Path) -> std::io::Result<()> {
+    fs::set_permissions(new_file, Permissions::from_mode(0o755))?;
     fs::rename(&new_file, old_file)?;
     Ok(())
 }
