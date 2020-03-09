@@ -5,7 +5,7 @@ use std::os::unix::prelude::*;
 use std::path::Path;
 
 use crate::tempfile::Tempfile;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::Deserialize;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -42,18 +42,11 @@ pub fn update() -> Result<()> {
             let tmp_file = Tempfile::new("/tmp", "kubie", "")?;
             resp.write_to(&*tmp_file)?;
             let old_file = env::current_exe().expect("could not get own binary path");
-            let res = replace_file(&old_file, tmp_file.path());
-            match res {
-                Ok(_) => {
-                    println!(
-                        "Kubie has been updated successfully. Enjoy :) ({})",
-                        Path::display(&old_file)
-                    );
-                }
-                Err(err) => {
-                    println!("Updated failed... {}", err);
-                }
-            }
+            replace_file(&old_file, tmp_file.path()).context("Update failed. Consider using sudo?")?;
+            println!(
+                "Kubie has been updated successfully. Enjoy :) ({})",
+                Path::display(&old_file)
+            );
         }
     }
     Ok(())
