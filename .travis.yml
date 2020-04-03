@@ -1,0 +1,12 @@
+os:
+  - linux
+  - osx
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+jobs:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
