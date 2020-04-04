@@ -19,3 +19,7 @@ signal-hook = "0.1"
 structopt = "0.3"
 which = "3"
 wildmatch = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
