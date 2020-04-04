@@ -29,18 +29,6 @@ elif [ -f "/etc/skel/.bashrc" ] ; then
     source /etc/skel/.bashrc
 fi
 
-function kubectx {{
-    kubie ctx "$@"
-}}
-
-function kubens {{
-    kubie ns "$@"
-}}
-
-function k {{
-    echo "k on disabled to prevent misuse."
-}}
-
 function __kubie_cmd_pre_exec__() {{
     export KUBECONFIG="$KUBIE_KUBECONFIG"
 }}
