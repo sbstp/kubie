@@ -62,7 +62,7 @@ struct Asset {
 
 pub fn update() -> Result<()> {
     let latest_release: Release = get_latest_release()?;
-    if latest_release.tag_name == format!("v{}", VERSION) {
+    if latest_release.tag_name == format!("v{}s", VERSION) {
         println!("Kubie is up-to-date : v{}", VERSION);
     } else {
         println!(
@@ -92,6 +92,7 @@ pub fn get_latest_release() -> Result<Release> {
 
 pub fn replace_file(old_file: &Path, new_file: &Path) -> std::io::Result<()> {
     fs::set_permissions(new_file, Permissions::from_mode(0o755))?;
+    fs::remove_file(old_file)?;
     fs::copy(&new_file, old_file)?;
     Ok(())
 }
