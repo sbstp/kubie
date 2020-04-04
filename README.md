@@ -14,17 +14,16 @@ you of what they are.
 * [Future plans](#future-plans)
 
 ## Installation
-First, clone the repo.
+You can download a binary for Linux or OS X on the [GitHub releases page](https://github.com/sbstp/kubie/releases). You
+can use `curl` or `wget` to download it. Don't forget to `chmod +x` the file!
 
-If you have `rust` and `cargo` on your machine, you can use `cargo install --path .` to build the project and install
-it in `~/.cargo/bin`. Make sure `~/.cargo/bin` is in your PATH variable.
+You can build `kubie` from source using `cargo` and crates.io. If you do not have a Rust compiler installed, go to
+[rustup.rs](https://rustup.rs) to get one. Then you can run `cargo install kubie` and kubie will be downloaded from
+crates.io and then built.
 
-If you don't have Rust installed you can simply copy one of the pre-built binaries available in the releases folder to
-one of the directories in your PATH variable. For instance you can do `sudo cp releases/linux/amd64/v0.3.0/kubie /usr/local/bin`
-from the git repo.
+There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
-You may also create a bash alias such as `alias kubectx='kubie ctx'` and `alias kubens='kubie ns'` since old habits die
-hard.
+Homebrew support [is pending](https://github.com/Homebrew/homebrew-core/pull/52502).
 
 ### Bash autocomplete
 If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script:
