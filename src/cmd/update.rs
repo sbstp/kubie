@@ -37,10 +37,6 @@ pub fn update() -> Result<()> {
             "A new version of Kubie is available ({}), the new version will be automatically installed...",
             latest_version
         );
-        println!(
-            "Downloading at {} or {}",
-            latest_release.assets[0].browser_download_url, latest_release.assets[1].browser_download_url
-        );
         let mut linux_download_url = String::new();
         let mut macos_download_url = String::new();
         for asset in latest_release.assets {
