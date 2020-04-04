@@ -1,11 +1,11 @@
-os:
-  - linux
-  - osx
 language: rust
 rust:
   - stable
-  - beta
-  - nightly
+os:
+  - linux
+  - osx
+script:
+  - cargo test --all --all-features
 jobs:
   allow_failures:
     - rust: nightly
