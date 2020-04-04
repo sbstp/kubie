@@ -14,6 +14,7 @@ dirs = "2"
 glob = "0.3"
 lazy_static = "1"
 libc = "0.2"
+os_info = "2.0.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.8"
