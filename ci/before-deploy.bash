@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux
+set -Eeuxo pipefail
 
 if [[ "$OSTYPE" == "linux-gnu" ]] ; then
     KUBIE_OS="linux"
@@ -15,7 +15,7 @@ OSARCH=$(uname -m)
 if [[ "$OSARCH" == "x86_64" ]] ; then
     KUBIE_ARCH="amd64"
 else
-    echo "Unsupported arch '$OSARCH'" >?2
+    echo "Unsupported arch '$OSARCH'" >&2
     exit 1
 fi
 
