@@ -1,4 +1,5 @@
-use std::fs::{self, File};
+use std::fs::{self, Permissions, File};
+use std::os::unix::prelude::*;
 use std::ops::{Deref, DerefMut, Drop};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -22,6 +23,7 @@ impl Tempfile {
         let filename = format!("{}{}{}", prefix.as_ref(), nanos, suffix.as_ref());
         let path = base_dir.as_ref().join(filename);
         let file = File::create(&path)?;
+        fs::set_permissions(&path, Permissions::from_mode(0o600))?;
         Ok(Tempfile {
             file: Some(file),
             path: path,
