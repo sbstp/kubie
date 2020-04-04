@@ -65,6 +65,11 @@ pub enum Kubie {
     /// Edit kubie's config file.
     #[structopt(name = "edit-config")]
     EditConfig,
+
+    /// Check for a Kubie update and replace Kubie's binary if needed.
+    /// This function can ask for sudo-mode.
+    #[structopt(name = "update")]
+    Update,
 }
 
 #[derive(Debug, StructOpt)]

@@ -5,3 +5,4 @@ pub mod info;
 pub mod lint;
 pub mod meta;
 pub mod namespace;
+pub mod update;
