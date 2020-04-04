@@ -92,6 +92,6 @@ pub fn get_latest_release() -> Result<Release> {
 
 pub fn replace_file(old_file: &Path, new_file: &Path) -> std::io::Result<()> {
     fs::set_permissions(new_file, Permissions::from_mode(0o755))?;
-    fs::rename(&new_file, old_file)?;
+    fs::copy(&new_file, old_file)?;
     Ok(())
 }
