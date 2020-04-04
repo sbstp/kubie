@@ -5,8 +5,7 @@ use std::os::unix::prelude::*;
 use std::path::Path;
 
 use crate::tempfile::Tempfile;
-use anyhow::{anyhow, Context, Result};
-use os_info::{Info, Type};
+use anyhow::{Context, Result};
 use serde::Deserialize;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -20,6 +19,40 @@ pub struct Release {
     assets: Vec<Asset>,
 }
 
+impl Release {
+    fn get_linux_binary_url(&self) -> Option<&str> {
+        for asset in self.assets.iter() {
+            if asset.browser_download_url.contains("linux-amd64") {
+                return Some(&asset.browser_download_url);
+            }
+        }
+        None
+    }
+
+    fn get_macos_binary_url(&self) -> Option<&str> {
+        for asset in self.assets.iter() {
+            if asset.browser_download_url.contains("darwin-amd64") {
+                return Some(&asset.browser_download_url);
+            }
+        }
+        None
+    }
+
+    pub fn get_binary_url(&self) -> Option<&str> {
+        match os_info::get().os_type() {
+             os_info::Type::Macos => {
+                return self.get_macos_binary_url();
+            }
+            os_info::Type::Windows => {
+                None
+            }
+            _ => {
+                return self.get_linux_binary_url();
+            }
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 struct Asset {
     name: String,
@@ -29,47 +62,17 @@ struct Asset {
 
 pub fn update() -> Result<()> {
     let latest_release: Release = get_latest_release()?;
-    let latest_version = latest_release.tag_name;
-    if latest_version.eq(&format!("v{}", VERSION)) {
+    if latest_release.tag_name == format!("v{}", VERSION) {
         println!("Kubie is up-to-date : v{}", VERSION);
     } else {
         println!(
             "A new version of Kubie is available ({}), the new version will be automatically installed...",
-            latest_version
+            latest_release.tag_name
         );
-        let mut linux_download_url = String::new();
-        let mut macos_download_url = String::new();
-        for asset in latest_release.assets {
-            if asset.browser_download_url.contains("linux-amd64") {
-                linux_download_url = asset.browser_download_url;
-            } else if asset.browser_download_url.contains("darwin-amd64") {
-                macos_download_url = asset.browser_download_url;
-            }
-        }
-        let mut download_url = String::new();
-        match os_info::get().os_type() {
-            os_info::Type::Macos => {
-                if &macos_download_url != "" {
-                    download_url = macos_download_url;
-                } else {
-                    return Err(anyhow!("Sorry, this release has no build for OSX, please create an issue : https://github.com/sbstp/kubie/issues"));
-                }
-            }
-            os_info::Type::Windows => {
-                println!("Your operating system is not supported.");
-            }
-            _ => {
-                //The fallback is Linux
-                if &linux_download_url != "" {
-                    download_url = linux_download_url;
-                } else {
-                    return Err(anyhow!("Sorry, this release has no build for Linux, please create an issue : https://github.com/sbstp/kubie/issues"));
-                }
-            }
-        }
+        let download_url = latest_release.get_binary_url().context("Sorry, this release has no build for your OS, please create an issue : https://github.com/sbstp/kubie/issues")?;
         let resp = attohttpc::get(download_url).send()?;
         if resp.is_success() {
-            let tmp_file = Tempfile::new("/tmp", "kubie", "")?;
+            let tmp_file = Tempfile::new("/tmp", FILENAME, "")?;
             resp.write_to(&*tmp_file)?;
             let old_file = env::current_exe().expect("could not get own binary path");
             replace_file(&old_file, tmp_file.path()).context("Update failed. Consider using sudo?")?;
