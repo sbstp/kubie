@@ -29,6 +29,8 @@ pub struct Settings {
     #[serde(default)]
     pub shell: Option<String>,
     #[serde(default)]
+    pub zsh_use_rps1: bool,
+    #[serde(default)]
     pub configs: Configs,
     #[serde(default)]
     pub prompt: Prompt,
@@ -81,6 +83,7 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             shell: Default::default(),
+            zsh_use_rps1: false,
             configs: Configs::default(),
             prompt: Prompt::default(),
         }

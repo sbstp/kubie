@@ -18,7 +18,7 @@ pub fn spawn_shell(info: &ShellInfo) -> Result<()> {
 if [ -f "$HOME/.zshrc" ] ; then
     source "$HOME/.zshrc"
 fi
-autoload -Uz add-zsh-hook
+
 function __kubie_cmd_pre_exec__() {{
     export KUBECONFIG="$KUBIE_KUBECONFIG"
 }}
@@ -26,23 +26,28 @@ function __kubie_cmd_pre_exec__() {{
 autoload -Uz add-zsh-hook
 add-zsh-hook preexec __kubie_cmd_pre_exec__
 
-function kubie() {{
-    echo "hello"
-}}
-
 setopt PROMPT_SUBST
-RPS1='[$(kubie info ctx)|$(kubie info ns)]'
-#RPS1="$KUBIE_PROMPT
+KUBIE_PROMPT='[$(kubie info ctx)|$(kubie info ns)]'
+
+if [ "$KUBIE_ZSH_USE_RPS1" = "1" ] ; then
+    RPS1="$KUBIE_PROMPT $RPS1"
+else
+    PS1="$KUBIE_PROMPT $PS1"
+fi
+
+unset KUBIE_PROMPT
 "#
         )?;
     }
 
     let mut child = Command::new("zsh")
         .env("ZDOTDIR", dir.path())
+        .env("PATH", &info.path)
         .env("KUBIE_ACTIVE", "1")
         .env("KUBIE_DEPTH", info.next_depth.to_string())
         .env("KUBIE_KUBECONFIG", info.temp_config_file.path())
         .env("KUBIE_SESSION", info.temp_session_file.path())
+        .env("KUBIE_ZSH_USE_RPS1", if info.settings.zsh_use_rps1 { "1" } else { "0" })
         .spawn()?;
     child.wait()?;
     Ok(())

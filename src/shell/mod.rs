@@ -1,8 +1,6 @@
-mod bash;
-mod detect;
-mod zsh;
+use std::env;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 use self::detect::{detect, ShellKind};
 use crate::kubeconfig::KubeConfig;
@@ -11,14 +9,36 @@ use crate::settings::Settings;
 use crate::tempfile::Tempfile;
 use crate::vars;
 
+mod bash;
+mod detect;
+mod zsh;
+
 pub struct ShellInfo<'a> {
     settings: &'a Settings,
-    session: &'a Session,
-    config: KubeConfig,
     temp_config_file: Tempfile,
     temp_session_file: Tempfile,
-    depth: u32,
     next_depth: u32,
+    path: String,
+}
+
+fn add_kubie_to_path_var() -> Result<String> {
+    let current_exe_path = env::current_exe().context("Could not get current exe path")?;
+    let current_exe_parent = current_exe_path
+        .parent()
+        .ok_or_else(|| anyhow!("Current exe path has no parent"))?;
+    let kubie_dir = current_exe_parent
+        .to_str()
+        .ok_or_else(|| anyhow!("Current exe path contains non-unicode characters"))?
+        .to_owned();
+
+    let path_var = env::var("PATH").unwrap_or("".into());
+
+    let mut dirs: Vec<&str> = path_var.split(":").collect();
+    if !dirs.contains(&kubie_dir.as_str()) {
+        dirs.insert(0, kubie_dir.as_str());
+    }
+
+    Ok(dirs.join(":"))
 }
 
 pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -> Result<()> {
@@ -38,12 +58,10 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
 
     let info = ShellInfo {
         settings,
-        session,
-        config,
         temp_config_file,
         temp_session_file,
-        depth,
         next_depth,
+        path: add_kubie_to_path_var()?,
     };
 
     match kind {
