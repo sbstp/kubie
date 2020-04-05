@@ -1,4 +1,7 @@
+use std::collections::HashMap;
 use std::env;
+use std::ffi::OsString;
+use std::process::Command;
 
 use anyhow::{anyhow, Context, Result};
 
@@ -11,14 +14,32 @@ use crate::vars;
 
 mod bash;
 mod detect;
+mod prompt;
 mod zsh;
 
-pub struct ShellInfo<'a> {
-    settings: &'a Settings,
-    temp_config_file: Tempfile,
-    temp_session_file: Tempfile,
-    next_depth: u32,
-    path: String,
+pub struct EnvVars<'n> {
+    vars: HashMap<&'n str, OsString>,
+}
+
+impl<'n> EnvVars<'n> {
+    pub fn new() -> EnvVars<'n> {
+        EnvVars { vars: HashMap::new() }
+    }
+
+    pub fn insert(&mut self, name: &'n str, value: impl Into<OsString>) {
+        self.vars.insert(name, value.into());
+    }
+
+    pub fn apply(&self, cmd: &mut Command) {
+        for (name, value) in &self.vars {
+            cmd.env(name, value);
+        }
+    }
+}
+
+pub struct ShellSpawnInfo<'n> {
+    env_vars: EnvVars<'n>,
+    prompt: String,
 }
 
 fn add_kubie_to_path_var() -> Result<String> {
@@ -56,12 +77,32 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     let depth = vars::get_depth();
     let next_depth = depth + 1;
 
-    let info = ShellInfo {
-        settings,
-        temp_config_file,
-        temp_session_file,
-        next_depth,
-        path: add_kubie_to_path_var()?,
+    let mut env_vars = EnvVars::new();
+    env_vars.insert("PATH", add_kubie_to_path_var()?);
+    env_vars.insert("KUBIE_ACTIVE", "1");
+    env_vars.insert("KUBIE_DEPTH", next_depth.to_string());
+    env_vars.insert("KUBIE_KUBECONFIG", temp_config_file.path());
+    env_vars.insert("KUBIE_SESSION", temp_session_file.path());
+    env_vars.insert(
+        "KUBIE_ZSH_USE_RPS1",
+        if settings.prompt.zsh_use_rps1 { "1" } else { "0" },
+    );
+
+    match kind {
+        ShellKind::Bash => {
+            env_vars.insert("KUBIE_SHELL", "bash");
+        }
+        ShellKind::Fish => {
+            env_vars.insert("KUBIE_SHELL", "fish");
+        }
+        ShellKind::Zsh => {
+            env_vars.insert("KUBIE_SHELL", "zsh");
+        }
+    }
+
+    let info = ShellSpawnInfo {
+        env_vars,
+        prompt: prompt::generate_ps1(settings, next_depth, kind),
     };
 
     match kind {

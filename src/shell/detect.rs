@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::str;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ShellKind {
@@ -22,7 +22,7 @@ impl ShellKind {
 }
 
 fn run_ps(args: &[&str]) -> Result<Vec<String>> {
-    let result = Command::new("ps").args(args).output()?;
+    let result = Command::new("ps").args(args).output().context("Could not spawn ps")?;
 
     if !result.status.success() {
         let stderr = str::from_utf8(&result.stderr).unwrap_or("Could not decode stderr of ps as utf-8");
@@ -58,6 +58,17 @@ fn parse_command(cmd: &str) -> &str {
     binary
 }
 
+/// Detect from which kind of shell kubie was spawned.
+///
+/// This function walks up the process tree and finds all the ancestors to kubie.
+/// If any of kubie's ancestor is a known shell, we have found which shell is in
+/// use.
+///
+/// This functions depends on the `ps` command being installed and available in
+/// the PATH variable.
+///
+/// The SHELL environment variable corresponds to the user's configured SHELL, not
+/// the shell currently in use.
 pub fn detect() -> Result<ShellKind> {
     let kubie_pid = format!("{}", std::process::id());
     let mut parent_pid = parent_of(&kubie_pid)?;

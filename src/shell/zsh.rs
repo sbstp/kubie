@@ -5,9 +5,9 @@ use std::process::Command;
 use anyhow::{Context, Result};
 use tempfile::tempdir;
 
-use super::ShellInfo;
+use super::ShellSpawnInfo;
 
-pub fn spawn_shell(info: &ShellInfo) -> Result<()> {
+pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     let dir = tempdir()?;
     {
         let zshrc_path = dir.path().join(".zshrc");
@@ -27,7 +27,7 @@ autoload -Uz add-zsh-hook
 add-zsh-hook preexec __kubie_cmd_pre_exec__
 
 setopt PROMPT_SUBST
-KUBIE_PROMPT='[$(kubie info ctx)|$(kubie info ns)]'
+KUBIE_PROMPT=$'{}'
 
 if [ "$KUBIE_ZSH_USE_RPS1" = "1" ] ; then
   if [ -z "$RPS1" ] ; then
@@ -40,22 +40,16 @@ else
 fi
 
 unset KUBIE_PROMPT
-"#
+"#,
+            info.prompt
         )?;
     }
 
-    let mut child = Command::new("zsh")
-        .env("ZDOTDIR", dir.path())
-        .env("PATH", &info.path)
-        .env("KUBIE_ACTIVE", "1")
-        .env("KUBIE_DEPTH", info.next_depth.to_string())
-        .env("KUBIE_KUBECONFIG", info.temp_config_file.path())
-        .env("KUBIE_SESSION", info.temp_session_file.path())
-        .env(
-            "KUBIE_ZSH_USE_RPS1",
-            if info.settings.prompt.zsh_use_rps1 { "1" } else { "0" },
-        )
-        .spawn()?;
+    let mut cmd = Command::new("zsh");
+    cmd.env("ZDOTDIR", dir.path());
+    info.env_vars.apply(&mut cmd);
+
+    let mut child = cmd.spawn()?;
     child.wait()?;
     Ok(())
 }

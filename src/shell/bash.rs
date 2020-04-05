@@ -3,11 +3,10 @@ use std::process::Command;
 
 use anyhow::Result;
 
-use super::ShellInfo;
+use super::ShellSpawnInfo;
 use crate::tempfile::Tempfile;
-use crate::vars;
 
-pub fn spawn_shell(info: &ShellInfo) -> Result<()> {
+pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     let mut temp_rc_file = Tempfile::new("/tmp", "kubie-bashrc-", ".bash")?;
     write!(
         temp_rc_file,
@@ -28,17 +27,16 @@ KUBIE_PROMPT='{}'
 PS1="$KUBIE_PROMPT $PS1"
 unset KUBIE_PROMPT
 "#,
-        vars::generate_ps1(info.settings, info.next_depth),
+        info.prompt,
     )?;
+    temp_rc_file.flush()?;
 
-    let mut child = Command::new("bash")
-        .arg("--rcfile")
-        .arg(temp_rc_file.path())
-        .env("KUBIE_ACTIVE", "1")
-        .env("KUBIE_DEPTH", info.next_depth.to_string())
-        .env("KUBIE_KUBECONFIG", info.temp_config_file.path())
-        .env("KUBIE_SESSION", info.temp_session_file.path())
-        .spawn()?;
+    let mut cmd = Command::new("bash");
+    cmd.arg("--rcfile");
+    cmd.arg(temp_rc_file.path());
+    info.env_vars.apply(&mut cmd);
+
+    let mut child = cmd.spawn()?;
     child.wait()?;
 
     Ok(())
