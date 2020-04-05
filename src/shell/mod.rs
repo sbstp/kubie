@@ -1,9 +1,8 @@
 use std::collections::HashMap;
-use std::env;
 use std::ffi::OsString;
 use std::process::Command;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 
 use self::detect::{detect, ShellKind};
 use crate::kubeconfig::KubeConfig;
@@ -42,26 +41,6 @@ pub struct ShellSpawnInfo<'n> {
     prompt: String,
 }
 
-fn add_kubie_to_path_var() -> Result<String> {
-    let current_exe_path = env::current_exe().context("Could not get current exe path")?;
-    let current_exe_parent = current_exe_path
-        .parent()
-        .ok_or_else(|| anyhow!("Current exe path has no parent"))?;
-    let kubie_dir = current_exe_parent
-        .to_str()
-        .ok_or_else(|| anyhow!("Current exe path contains non-unicode characters"))?
-        .to_owned();
-
-    let path_var = env::var("PATH").unwrap_or("".into());
-
-    let mut dirs: Vec<&str> = path_var.split(":").collect();
-    if !dirs.contains(&kubie_dir.as_str()) {
-        dirs.insert(0, kubie_dir.as_str());
-    }
-
-    Ok(dirs.join(":"))
-}
-
 pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -> Result<()> {
     let kind = match &settings.shell {
         Some(shell) => ShellKind::from_str(&shell).ok_or_else(|| anyhow!("Invalid shell setting: {}", shell))?,
@@ -78,7 +57,6 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     let next_depth = depth + 1;
 
     let mut env_vars = EnvVars::new();
-    env_vars.insert("PATH", add_kubie_to_path_var()?);
     env_vars.insert("KUBIE_ACTIVE", "1");
     env_vars.insert("KUBIE_DEPTH", next_depth.to_string());
     env_vars.insert("KUBIE_KUBECONFIG", temp_config_file.path());
