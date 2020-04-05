@@ -6,12 +6,14 @@ use signal_hook::iterator::Signals;
 
 use crate::kubeconfig::{self, KubeConfig};
 use crate::settings::Settings;
-use crate::tempfile::Tempfile;
 use crate::vars;
 
 fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i32> {
-    let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
-    kubeconfig.write_to(&*temp_config_file)?;
+    let temp_config_file = tempfile::Builder::new()
+        .prefix("kubie-config")
+        .suffix(".yaml")
+        .tempfile()?;
+    kubeconfig.write_to(&temp_config_file)?;
 
     let depth = vars::get_depth();
     let next_depth = depth + 1;

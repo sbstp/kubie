@@ -27,6 +27,8 @@ pub fn expanduser(path: &str) -> String {
 #[derive(Debug, Deserialize)]
 pub struct Settings {
     #[serde(default)]
+    pub shell: Option<String>,
+    #[serde(default)]
     pub configs: Configs,
     #[serde(default)]
     pub prompt: Prompt,
@@ -78,6 +80,7 @@ impl Settings {
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            shell: Default::default(),
             configs: Configs::default(),
             prompt: Prompt::default(),
         }
@@ -122,16 +125,25 @@ fn default_exclude_path() -> Vec<String> {
 pub struct Prompt {
     #[serde(default = "def_bool_true")]
     pub show_depth: bool,
+    #[serde(default = "def_bool_false")]
+    pub zsh_use_rps1: bool,
 }
 
 impl Default for Prompt {
     fn default() -> Self {
-        Prompt { show_depth: true }
+        Prompt {
+            show_depth: true,
+            zsh_use_rps1: false,
+        }
     }
 }
 
 fn def_bool_true() -> bool {
     true
+}
+
+fn def_bool_false() -> bool {
+    false
 }
 
 #[test]
