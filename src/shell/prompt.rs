@@ -82,8 +82,8 @@ const BLUE: u32 = 34;
 /// Makes sure to protect the escape sequences so that the shell will not count the escape
 /// sequences in the length calculation of the prompt.
 pub fn generate_ps1(settings: &Settings, depth: u32, shell_kind: ShellKind) -> String {
-    let current_exe_path = env::current_exe().expect("could not get own binary path");
-    let current_exe_path_str = current_exe_path.to_str().expect("binary path is not unicode");
+    let current_exe_path = env::current_exe().expect("Could not get own binary path");
+    let current_exe_path_str = current_exe_path.to_str().expect("Binary path is not unicode");
 
     let mut parts = vec![];
     parts.push(
