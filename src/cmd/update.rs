@@ -58,7 +58,7 @@ struct Asset {
 
 pub fn update() -> Result<()> {
     let latest_release: Release = get_latest_release()?;
-    if latest_release.tag_name == format!("v{}s", VERSION) {
+    if latest_release.tag_name == format!("v{}", VERSION) {
         println!("Kubie is up-to-date : v{}", VERSION);
     } else {
         println!(
