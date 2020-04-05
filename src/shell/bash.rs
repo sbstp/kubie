@@ -4,10 +4,13 @@ use std::process::Command;
 use anyhow::Result;
 
 use super::ShellSpawnInfo;
-use crate::tempfile::Tempfile;
 
 pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
-    let mut temp_rc_file = Tempfile::new("/tmp", "kubie-bashrc-", ".bash")?;
+    let mut temp_rc_file = tempfile::Builder::new()
+        .prefix("kubie-bashrc")
+        .suffix(".bash")
+        .tempfile()?;
+
     write!(
         temp_rc_file,
         r#"

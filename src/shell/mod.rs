@@ -8,7 +8,6 @@ use self::detect::{detect, ShellKind};
 use crate::kubeconfig::KubeConfig;
 use crate::session::Session;
 use crate::settings::Settings;
-use crate::tempfile::Tempfile;
 use crate::vars;
 
 mod bash;
@@ -47,10 +46,16 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         None => detect()?,
     };
 
-    let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
-    config.write_to(&*temp_config_file)?;
+    let temp_config_file = tempfile::Builder::new()
+        .prefix("kubie-config")
+        .suffix(".yaml")
+        .tempfile()?;
+    config.write_to(&temp_config_file)?;
 
-    let temp_session_file = Tempfile::new("/tmp", "kubie-session", ".yaml")?;
+    let temp_session_file = tempfile::Builder::new()
+        .prefix("kubie-session")
+        .suffix(".yaml")
+        .tempfile()?;
     session.save(Some(temp_session_file.path()))?;
 
     let depth = vars::get_depth();

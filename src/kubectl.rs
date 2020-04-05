@@ -5,7 +5,6 @@ use std::str;
 use anyhow::{anyhow, Context};
 
 use crate::kubeconfig::KubeConfig;
-use crate::tempfile::Tempfile;
 
 pub fn get_namespaces<'a>(kubeconfig: impl Into<Option<&'a KubeConfig>>) -> anyhow::Result<Vec<String>> {
     let mut cmd = Command::new("kubectl");
@@ -15,8 +14,11 @@ pub fn get_namespaces<'a>(kubeconfig: impl Into<Option<&'a KubeConfig>>) -> anyh
     let temp_config_file;
 
     if let Some(kubeconfig) = kubeconfig.into() {
-        temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
-        kubeconfig.write_to(&*temp_config_file)?;
+        temp_config_file = tempfile::Builder::new()
+            .prefix("kubie-config")
+            .suffix(".yaml")
+            .tempfile()?;
+        kubeconfig.write_to(&temp_config_file)?;
         cmd.env("KUBECONFIG", temp_config_file.path());
     } else {
         cmd.env(

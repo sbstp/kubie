@@ -1,3 +1,9 @@
+use anyhow::Result;
+use structopt::StructOpt;
+
+use cmd::meta::Kubie;
+use settings::Settings;
+
 mod cmd;
 mod fzf;
 mod kubeconfig;
@@ -5,14 +11,7 @@ mod kubectl;
 mod session;
 mod settings;
 mod shell;
-mod tempfile;
 mod vars;
-
-use anyhow::Result;
-use structopt::StructOpt;
-
-use cmd::meta::Kubie;
-use settings::Settings;
 
 fn main() -> Result<()> {
     let settings = Settings::load()?;

@@ -4,13 +4,11 @@ use std::fs::Permissions;
 use std::os::unix::prelude::*;
 use std::path::Path;
 
-use crate::tempfile::Tempfile;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/sbstp/kubie/releases/latest";
-const FILENAME: &str = "kubie";
 
 #[derive(Debug, Deserialize)]
 pub struct Release {
@@ -40,12 +38,10 @@ impl Release {
 
     pub fn get_binary_url(&self) -> Option<&str> {
         match os_info::get().os_type() {
-             os_info::Type::Macos => {
+            os_info::Type::Macos => {
                 return self.get_macos_binary_url();
             }
-            os_info::Type::Windows => {
-                None
-            }
+            os_info::Type::Windows => None,
             _ => {
                 return self.get_linux_binary_url();
             }
@@ -72,10 +68,12 @@ pub fn update() -> Result<()> {
         let download_url = latest_release.get_binary_url().context("Sorry, this release has no build for your OS, please create an issue : https://github.com/sbstp/kubie/issues")?;
         let resp = attohttpc::get(download_url).send()?;
         if resp.is_success() {
-            let tmp_file = Tempfile::new("/tmp", FILENAME, "")?;
-            resp.write_to(&*tmp_file)?;
-            let old_file = env::current_exe().expect("could not get own binary path");
-            replace_file(&old_file, tmp_file.path()).context("Update failed. Consider using sudo?")?;
+            let temp_file = tempfile::Builder::new().prefix("kubie").tempfile()?;
+            resp.write_to(&temp_file)?;
+
+            let old_file = env::current_exe().expect("Could not get own binary path");
+            replace_file(&old_file, temp_file.path()).context("Update failed. Consider using sudo?")?;
+
             println!(
                 "Kubie has been updated successfully. Enjoy :) ({})",
                 Path::display(&old_file)
