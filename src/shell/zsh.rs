@@ -30,7 +30,11 @@ setopt PROMPT_SUBST
 KUBIE_PROMPT='[$(kubie info ctx)|$(kubie info ns)]'
 
 if [ "$KUBIE_ZSH_USE_RPS1" = "1" ] ; then
+  if [ -z "$RPS1" ] ; then
+    RPS1="$KUBIE_PROMPT"
+  else
     RPS1="$KUBIE_PROMPT $RPS1"
+  fi
 else
     PS1="$KUBIE_PROMPT $PS1"
 fi
@@ -47,7 +51,10 @@ unset KUBIE_PROMPT
         .env("KUBIE_DEPTH", info.next_depth.to_string())
         .env("KUBIE_KUBECONFIG", info.temp_config_file.path())
         .env("KUBIE_SESSION", info.temp_session_file.path())
-        .env("KUBIE_ZSH_USE_RPS1", if info.settings.zsh_use_rps1 { "1" } else { "0" })
+        .env(
+            "KUBIE_ZSH_USE_RPS1",
+            if info.settings.prompt.zsh_use_rps1 { "1" } else { "0" },
+        )
         .spawn()?;
     child.wait()?;
     Ok(())

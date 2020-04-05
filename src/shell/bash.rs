@@ -25,7 +25,7 @@ function __kubie_cmd_pre_exec__() {{
 trap '__kubie_cmd_pre_exec__' DEBUG
 
 KUBIE_PROMPT='{}'
-export PS1="$KUBIE_PROMPT $PS1"
+PS1="$KUBIE_PROMPT $PS1"
 unset KUBIE_PROMPT
 "#,
         vars::generate_ps1(info.settings, info.next_depth),

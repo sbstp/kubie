@@ -64,8 +64,17 @@ You can customize kubie's behavior with the `~/.kube/kubie.yaml` file. The setti
 available below.
 
 ```yaml
-configs: # configure where to lookup the kubernetes configs
-    include: # include these globs
+# Force kubie to use a particular shell, if unset detect shell currently in use.
+# Possible values: bash, dash, fish, zsh
+# Default: unset
+shell: bash
+
+# Configure where to look for kubernetes config files.
+configs:
+
+    # Include these globs.
+    # Default: values listed below.
+    include:
         - ~/.kube/config
         - ~/.kube/*.yml
         - ~/.kube/*.yaml
@@ -73,10 +82,22 @@ configs: # configure where to lookup the kubernetes configs
         - ~/.kube/configs/*.yaml
         - ~/.kube/kubie/*.yml
         - ~/.kube/kubie/*.yaml
-    exclude: # exclude these globs
+
+    # Exclude these globs.
+    # Default: values listed below.
+    # Note: kubie's own config file is always excluded.
+    exclude:
         - ~/.kube/kubie.yaml
-prompt: # prompt settings
-    show_depth: true # show depth
+
+# Prompt settings.
+prompt:
+    # When using recursive contexts, show depth when larger than 1.
+    # Default: true
+    show_depth: true
+
+    # When using zsh, show context and namespace on the right side using RPS1.
+    # Default: false
+    zsh_use_rps1: false
 ```
 
 ## Future plans
