@@ -55,7 +55,7 @@ fn parse_command(cmd: &str) -> &str {
     let binary_path = &cmd[..first_space];
     let last_path_sep = binary_path.rfind("/").map(|x| x + 1).unwrap_or(0);
     let binary = &binary_path[last_path_sep..];
-    binary
+    binary.trim_start_matches("-")
 }
 
 /// Detect from which kind of shell kubie was spawned.
@@ -105,4 +105,9 @@ fn test_parse_command_with_path() {
 #[test]
 fn test_parse_command_with_path_and_args() {
     assert_eq!(parse_command("/bin/bash --rcfile hello.sh"), "bash");
+}
+
+#[test]
+fn test_parse_command_login_shell() {
+    assert_eq!(parse_command("-zsh"), "zsh");
 }
