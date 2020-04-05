@@ -3,22 +3,11 @@ use std::process::Command;
 
 use anyhow::Result;
 
-use crate::kubeconfig::KubeConfig;
-use crate::session::Session;
-use crate::settings::Settings;
+use super::ShellInfo;
 use crate::tempfile::Tempfile;
 use crate::vars;
 
-pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -> Result<()> {
-    let temp_config_file = Tempfile::new("/tmp", "kubie-config", ".yaml")?;
-    config.write_to(&*temp_config_file)?;
-
-    let temp_session_file = Tempfile::new("/tmp", "kubie-session", ".yaml")?;
-    session.save(Some(temp_session_file.path()))?;
-
-    let depth = vars::get_depth();
-    let next_depth = depth + 1;
-
+pub fn spawn_shell(info: &ShellInfo) -> Result<()> {
     let mut temp_rc_file = Tempfile::new("/tmp", "kubie-bashrc-", ".bash")?;
     write!(
         temp_rc_file,
@@ -39,16 +28,16 @@ PROMPT='{}'
 export PS1="$PROMPT ${{PS1}}"
 unset PROMPT
 "#,
-        vars::generate_ps1(settings, next_depth),
+        vars::generate_ps1(info.settings, info.next_depth),
     )?;
 
     let mut child = Command::new("bash")
         .arg("--rcfile")
         .arg(temp_rc_file.path())
         .env("KUBIE_ACTIVE", "1")
-        .env("KUBIE_DEPTH", next_depth.to_string())
-        .env("KUBIE_KUBECONFIG", temp_config_file.path())
-        .env("KUBIE_SESSION", temp_session_file.path())
+        .env("KUBIE_DEPTH", info.next_depth.to_string())
+        .env("KUBIE_KUBECONFIG", info.temp_config_file.path())
+        .env("KUBIE_SESSION", info.temp_session_file.path())
         .spawn()?;
     child.wait()?;
 

@@ -15,8 +15,6 @@ use cmd::meta::Kubie;
 use settings::Settings;
 
 fn main() -> Result<()> {
-    println!("Shell: {:?}", shell::detect()?);
-
     let settings = Settings::load()?;
     let kubie = Kubie::from_args();
 

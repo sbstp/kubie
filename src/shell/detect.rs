@@ -10,6 +10,17 @@ pub enum ShellKind {
     Zsh,
 }
 
+impl ShellKind {
+    pub fn from_str(name: &str) -> Option<ShellKind> {
+        Some(match name {
+            "bash" | "dash" => ShellKind::Bash,
+            "fish" => ShellKind::Fish,
+            "zsh" => ShellKind::Zsh,
+            _ => return None,
+        })
+    }
+}
+
 fn run_ps(args: &[&str]) -> Result<Vec<String>> {
     let result = Command::new("ps").args(args).output()?;
 
@@ -56,11 +67,9 @@ pub fn detect() -> Result<ShellKind> {
         }
 
         let cmd = command_of(&parent_pid)?;
-        match parse_command(&cmd) {
-            "bash" | "dash" => return Ok(ShellKind::Bash),
-            "fish" => return Ok(ShellKind::Fish),
-            "zsh" => return Ok(ShellKind::Zsh),
-            _ => {}
+        let name = parse_command(&cmd);
+        if let Some(kind) = ShellKind::from_str(name) {
+            return Ok(kind);
         }
 
         parent_pid = parent_of(&parent_pid)?;

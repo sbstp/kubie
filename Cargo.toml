@@ -23,6 +23,7 @@ serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.8"
 signal-hook = "0.1"
 structopt = "0.3"
+tempfile = "3"
 which = "3"
 wildmatch = "1"
 

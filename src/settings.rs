@@ -27,6 +27,8 @@ pub fn expanduser(path: &str) -> String {
 #[derive(Debug, Deserialize)]
 pub struct Settings {
     #[serde(default)]
+    pub shell: Option<String>,
+    #[serde(default)]
     pub configs: Configs,
     #[serde(default)]
     pub prompt: Prompt,
@@ -78,6 +80,7 @@ impl Settings {
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            shell: Default::default(),
             configs: Configs::default(),
             prompt: Prompt::default(),
         }
