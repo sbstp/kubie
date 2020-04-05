@@ -79,7 +79,7 @@ const BLUE: u32 = 34;
 
 /// Generates a PS1 string that shows the current context, namespace and depth.
 ///
-/// Makes sure to protect the escape sequences to that the shell will not count the escape
+/// Makes sure to protect the escape sequences so that the shell will not count the escape
 /// sequences in the length calculation of the prompt.
 pub fn generate_ps1(settings: &Settings, depth: u32, shell_kind: ShellKind) -> String {
     let current_exe_path = env::current_exe().expect("could not get own binary path");
