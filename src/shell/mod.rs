@@ -62,6 +62,9 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     let next_depth = depth + 1;
 
     let mut env_vars = EnvVars::new();
+    // pre-insert the KUBECONFIG variable into the shell.
+    // This will make sure any shell plugins/add-ons which require this env variable will have it available at the beginninng of the .rc file
+    env_vars.insert("KUBECONFIG", temp_config_file.path());
     env_vars.insert("KUBIE_ACTIVE", "1");
     env_vars.insert("KUBIE_DEPTH", next_depth.to_string());
     env_vars.insert("KUBIE_KUBECONFIG", temp_config_file.path());
