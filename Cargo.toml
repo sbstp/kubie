@@ -7,13 +7,13 @@ description = "A more powerful alternative to kubectx and kubens."
 keywords = ["kubernetes", "kubectx", "kubens"]
 categories = ["command-line-utilities", "development-tools"]
 homepage = "https://github.com/sbstp/kubie"
-documentation = "https://github.com/sbstp/kubie"
+documentation = "https://github.com/sbstp/kubie/blob/master/README.md"
+repository = "https://github.com/sbstp/kubie"
 readme = "README.md"
 license = "Zlib"
 exclude = ["releases/**/*"]
 
 [dependencies]
-attohttpc = { version = "0.12", features = ["json"] }
 anyhow = "1"
 atty = "0.2"
 dirs = "2"
@@ -29,6 +29,11 @@ structopt = "0.3"
 tempfile = "3"
 which = "3"
 wildmatch = "1"
+
+[dependencies.attohttpc]
+version = "0.12"
+default-features = false
+features = ["compress", "json", "tls-rustls"]
 
 [profile.release]
 lto = true
