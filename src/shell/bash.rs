@@ -26,9 +26,12 @@ function __kubie_cmd_pre_exec__() {{
 
 trap '__kubie_cmd_pre_exec__' DEBUG
 
-KUBIE_PROMPT='{}'
-PS1="$KUBIE_PROMPT $PS1"
-unset KUBIE_PROMPT
+# Check if prompt is disabled.
+if [[ "$KUBIE_PROMPT_DISABLE" != "1" ]] ; then
+    KUBIE_PROMPT='{}'
+    PS1="$KUBIE_PROMPT $PS1"
+    unset KUBIE_PROMPT
+fi
 "#,
         info.prompt,
     )?;

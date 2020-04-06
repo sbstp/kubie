@@ -92,6 +92,11 @@ configs:
 
 # Prompt settings.
 prompt:
+    # Disable kubie's custom prompt inside of a kubie shell. This is useful
+    # when you already have a prompt displaying kubernetes information.
+    # Default: false
+    disable: true
+
     # When using recursive contexts, show depth when larger than 1.
     # Default: true
     show_depth: true
