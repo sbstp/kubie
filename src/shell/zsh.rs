@@ -28,7 +28,13 @@ function __kubie_cmd_pre_exec__() {{
 }}
 
 add-zsh-hook preexec __kubie_cmd_pre_exec__
+"#,
+        )?;
 
+        if !info.settings.prompt.disable {
+            write!(
+                zshrc,
+                r#"
 # Activate prompt substitution.
 setopt PROMPT_SUBST
 
@@ -62,8 +68,9 @@ function __kubie_cmd_pre_cmd__() {{
 # also add our own precmd hook which modifies PS1 after promptinit themes.
 add-zsh-hook precmd __kubie_cmd_pre_cmd__
 "#,
-            info.prompt
-        )?;
+                info.prompt
+            )?;
+        }
     }
 
     let mut cmd = Command::new("zsh");

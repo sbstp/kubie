@@ -123,6 +123,8 @@ fn default_exclude_path() -> Vec<String> {
 
 #[derive(Debug, Deserialize)]
 pub struct Prompt {
+    #[serde(default = "def_bool_false")]
+    pub disable: bool,
     #[serde(default = "def_bool_true")]
     pub show_depth: bool,
     #[serde(default = "def_bool_false")]
@@ -132,6 +134,7 @@ pub struct Prompt {
 impl Default for Prompt {
     fn default() -> Self {
         Prompt {
+            disable: false,
             show_depth: true,
             zsh_use_rps1: false,
         }

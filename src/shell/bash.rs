@@ -25,13 +25,21 @@ function __kubie_cmd_pre_exec__() {{
 }}
 
 trap '__kubie_cmd_pre_exec__' DEBUG
+"#
+    )?;
 
+    if !info.settings.prompt.disable {
+        write!(
+            temp_rc_file,
+            r#"
 KUBIE_PROMPT='{}'
 PS1="$KUBIE_PROMPT $PS1"
 unset KUBIE_PROMPT
 "#,
-        info.prompt,
-    )?;
+            info.prompt,
+        )?;
+    }
+
     temp_rc_file.flush()?;
 
     let mut cmd = Command::new("bash");

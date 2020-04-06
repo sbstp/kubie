@@ -35,7 +35,8 @@ impl<'n> EnvVars<'n> {
     }
 }
 
-pub struct ShellSpawnInfo<'n> {
+pub struct ShellSpawnInfo<'s, 'n> {
+    settings: &'s Settings,
     env_vars: EnvVars<'n>,
     prompt: String,
 }
@@ -62,13 +63,17 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     let next_depth = depth + 1;
 
     let mut env_vars = EnvVars::new();
-    // pre-insert the KUBECONFIG variable into the shell.
-    // This will make sure any shell plugins/add-ons which require this env variable will have it available at the beginninng of the .rc file
+
+    // Pre-insert the KUBECONFIG variable into the shell.
+    // This will make sure any shell plugins/add-ons which require this env variable
+    // will have it available at the beginninng of the .rc file
     env_vars.insert("KUBECONFIG", temp_config_file.path());
     env_vars.insert("KUBIE_ACTIVE", "1");
     env_vars.insert("KUBIE_DEPTH", next_depth.to_string());
     env_vars.insert("KUBIE_KUBECONFIG", temp_config_file.path());
     env_vars.insert("KUBIE_SESSION", temp_session_file.path());
+
+    env_vars.insert("KUBIE_PROMPT_DISABLE", if settings.prompt.disable { "1" } else { "0" });
     env_vars.insert(
         "KUBIE_ZSH_USE_RPS1",
         if settings.prompt.zsh_use_rps1 { "1" } else { "0" },
@@ -87,6 +92,7 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     }
 
     let info = ShellSpawnInfo {
+        settings,
         env_vars,
         prompt: prompt::generate_ps1(settings, next_depth, kind),
     };
