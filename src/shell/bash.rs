@@ -14,10 +14,20 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     write!(
         temp_rc_file,
         r#"
-if [ -f "$HOME/.bashrc" ] ; then
-    source "$HOME/.bashrc"
-elif [ -f "/etc/skel/.bashrc" ] ; then
-    source /etc/skel/.bashrc
+# OS X creates a login shell instead of a normal shell, which means that
+# a different set of files contain the bash configuration.
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    if [[ -f "$HOME/.bash_profile" ]] ; then
+        source "$HOME/.bash_profile"
+    elif [[ -f "/etc/profile" ]] ; then
+        source "/etc/profile"
+    fi
+else
+    if [[ -f "$HOME/.bashrc" ]] ; then
+        source "$HOME/.bashrc"
+    elif [[ -f "/etc/skel/.bashrc" ]] ; then
+        source "/etc/skel/.bashrc"
+    fi
 fi
 
 function __kubie_cmd_pre_exec__() {{
