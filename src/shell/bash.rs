@@ -25,8 +25,8 @@ if [[ "$OSTYPE" == "darwin"* ]] ; then
 else
     if [[ -f "$HOME/.bashrc" ]] ; then
         source "$HOME/.bashrc"
-    elif [[ -f "/etc/skel/.bashrc" ]] ; then
-        source "/etc/skel/.bashrc"
+    elif [[ -f "/etc/bash.bashrc" ]] ; then
+        source "/etc/bash.bashrc"
     fi
 fi
 
