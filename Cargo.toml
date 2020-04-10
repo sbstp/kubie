@@ -1,6 +1,6 @@
 [package]
 name = "kubie"
-version = "0.8.2"
+version = "0.8.3"
 authors = ["Simon Bernier St-Pierre <git@sbstp.ca>"]
 edition = "2018"
 description = "A more powerful alternative to kubectx and kubens."
