@@ -17,16 +17,24 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
 # OS X creates a login shell instead of a normal shell, which means that
 # a different set of files contain the bash configuration.
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    if [[ -f "$HOME/.bash_profile" ]] ; then
-        source "$HOME/.bash_profile"
-    elif [[ -f "/etc/profile" ]] ; then
+    if [[ -f "/etc/profile" ]] ; then
         source "/etc/profile"
     fi
+
+    if [[ -f "$HOME/.bash_profile" ]] ; then
+        source "$HOME/.bash_profile"
+    elif [[ -f "$HOME/.bash_login" ]] ; then
+        source "$HOME/.bash_login"
+    elif [[ -f "$HOME/.profile" ]] ; then
+        source "$HOME/.profile"
+    fi
 else
+    if [[ -f "/etc/bash.bashrc" ]] ; then
+        source "/etc/bash.bashrc"
+    fi
+
     if [[ -f "$HOME/.bashrc" ]] ; then
         source "$HOME/.bashrc"
-    elif [[ -f "/etc/bash.bashrc" ]] ; then
-        source "/etc/bash.bashrc"
     fi
 fi
 
