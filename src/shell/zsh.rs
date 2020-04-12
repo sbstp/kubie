@@ -15,8 +15,44 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
         write!(
             zshrc,
             r#"
+KUBIE_LOGIN_SHELL=0
+if [[ "$OSTYPE" == "darwin"* ]] ;
+    KUBIE_LOGIN_SHELL=1
+fi
+
+# Reference for loading behavior
+# https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
+
+if [[ -f "/etc/zshenv" ]] ; then
+    source "/etc/zshenv"
+fi
+
+if [[ -f "$HOME/.zshenv" ]] ; then
+    source "$HOME/.zshenv"
+fi
+
+if [[ -f "/etc/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "/etc/zprofile"
+fi
+
+if [[ -f "$HOME/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "$HOME/.zprofile"
+fi
+
+if [[ -f "/etc/zshrc" ]] ; then
+    source "/etc/zshrc"
+fi
+
 if [[ -f "$HOME/.zshrc" ]] ; then
     source "$HOME/.zshrc"
+fi
+
+if [[ -f "/etc/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "/etc/zlogin"
+fi
+
+if [[ -f "$HOME/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "$HOME/.zlogin"
 fi
 
 autoload -Uz add-zsh-hook

@@ -14,9 +14,16 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     write!(
         temp_rc_file,
         r#"
-# OS X creates a login shell instead of a normal shell, which means that
-# a different set of files contain the bash configuration.
-if [[ "$OSTYPE" == "darwin"* ]] ; then
+KUBIE_LOGIN_SHELL=0
+if [[ "$OSTYPE" == "darwin"* ]] ;
+    KUBIE_LOGIN_SHELL=1
+fi
+
+# Reference for loading behavior
+# https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
+
+
+if [[ "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
     if [[ -f "/etc/profile" ]] ; then
         source "/etc/profile"
     fi
