@@ -16,7 +16,7 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
             zshrc,
             r#"
 KUBIE_LOGIN_SHELL=0
-if [[ "$OSTYPE" == "darwin"* ]] ;
+if [[ "$OSTYPE" == "darwin"* ]] ; then
     KUBIE_LOGIN_SHELL=1
 fi
 
