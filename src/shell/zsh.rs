@@ -15,6 +15,12 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
         write!(
             zshrc,
             r#"
+
+# If a zsh_history file exists, copy it over before zsh initialization so history is maintained
+if [[ -f "$HOME/.zsh_history" ]] ; then
+    cp $HOME/.zsh_history $ZDOTDIR
+fi
+
 if [[ -f "$HOME/.zshrc" ]] ; then
     source "$HOME/.zshrc"
 fi
