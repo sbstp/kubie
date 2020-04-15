@@ -16,6 +16,11 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
         write!(
             zshrc_buf,
             r#"
+# If a zsh_history file exists, copy it over before zsh initialization so history is maintained
+if [[ -f "$HOME/.zsh_history" ]] ; then
+    cp $HOME/.zsh_history $ZDOTDIR
+fi
+
 KUBIE_LOGIN_SHELL=0
 if [[ "$OSTYPE" == "darwin"* ]] ; then
     KUBIE_LOGIN_SHELL=1
