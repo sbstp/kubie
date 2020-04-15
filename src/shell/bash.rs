@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{BufWriter, Write};
 use std::process::Command;
 
 use anyhow::Result;
@@ -6,13 +6,14 @@ use anyhow::Result;
 use super::ShellSpawnInfo;
 
 pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
-    let mut temp_rc_file = tempfile::Builder::new()
+    let temp_rc_file = tempfile::Builder::new()
         .prefix("kubie-bashrc")
         .suffix(".bash")
         .tempfile()?;
+    let mut temp_rc_file_buf = BufWriter::new(temp_rc_file.as_file());
 
     write!(
-        temp_rc_file,
+        temp_rc_file_buf,
         r#"
 KUBIE_LOGIN_SHELL=0
 if [[ "$OSTYPE" == "darwin"* ]] ; then
@@ -55,7 +56,7 @@ trap '__kubie_cmd_pre_exec__' DEBUG
 
     if !info.settings.prompt.disable {
         write!(
-            temp_rc_file,
+            temp_rc_file_buf,
             r#"
 KUBIE_PROMPT='{}'
 PS1="$KUBIE_PROMPT $PS1"
@@ -65,7 +66,7 @@ unset KUBIE_PROMPT
         )?;
     }
 
-    temp_rc_file.flush()?;
+    temp_rc_file_buf.flush()?;
 
     let mut cmd = Command::new("bash");
     cmd.arg("--rcfile");
