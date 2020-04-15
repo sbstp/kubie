@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::Write;
+use std::io::{BufWriter, Write};
 use std::process::Command;
 
 use anyhow::{Context, Result};
@@ -11,18 +11,64 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     let dir = tempdir()?;
     {
         let zshrc_path = dir.path().join(".zshrc");
-        let mut zshrc = File::create(zshrc_path).context("Could not open zshrc file")?;
+        let zshrc = File::create(zshrc_path).context("Could not open zshrc file")?;
+        let mut zshrc_buf = BufWriter::new(zshrc);
         write!(
-            zshrc,
+            zshrc_buf,
             r#"
-
 # If a zsh_history file exists, copy it over before zsh initialization so history is maintained
 if [[ -f "$HOME/.zsh_history" ]] ; then
     cp $HOME/.zsh_history $ZDOTDIR
 fi
 
+KUBIE_LOGIN_SHELL=0
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    KUBIE_LOGIN_SHELL=1
+fi
+
+# Reference for loading behavior
+# https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
+
+if [[ -f "/etc/zshenv" ]] ; then
+    source "/etc/zshenv"
+elif [[ -f "/etc/zsh/zshenv" ]] ; then
+    source "/etc/zsh/zshenv"
+fi
+
+# TODO: It is possible for users to modify ZDOTDIR in ~/.zshenv to put zsh files in another place.
+# TODO: Currently modification of this variable it not supported by kubie.
+if [[ -f "$HOME/.zshenv" ]] ; then
+    source "$HOME/.zshenv"
+fi
+
+if [[ -f "/etc/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "/etc/zprofile"
+elif [[ -f "/etc/zsh/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "/etc/zsh/zprofile"
+fi
+
+if [[ -f "$HOME/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "$HOME/.zprofile"
+fi
+
+if [[ -f "/etc/zshrc" ]] ; then
+    source "/etc/zshrc"
+elif [[ -f "/etc/zsh/zshrc" ]] ; then
+    source "/etc/zsh/zshrc"
+fi
+
 if [[ -f "$HOME/.zshrc" ]] ; then
     source "$HOME/.zshrc"
+fi
+
+if [[ -f "/etc/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "/etc/zlogin"
+elif [[ -f "/etc/zsh/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "/etc/zsh/zlogin"
+fi
+
+if [[ -f "$HOME/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "$HOME/.zlogin"
 fi
 
 autoload -Uz add-zsh-hook
@@ -39,7 +85,7 @@ add-zsh-hook preexec __kubie_cmd_pre_exec__
 
         if !info.settings.prompt.disable {
             write!(
-                zshrc,
+                zshrc_buf,
                 r#"
 # Activate prompt substitution.
 setopt PROMPT_SUBST
