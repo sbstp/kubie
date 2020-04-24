@@ -1,4 +1,6 @@
 # Kubie
+<img src="./assets/logo.svg" style="float: right">
+
 `kubie` is an alternative to `kubectx`, `kubens` and the `k on` prompt modification script. It offers context switching,
 namespace switching and prompt modification in a way that makes each shell independent from others. It also has
 support for split configuration files, meaning it can load Kubernetes contexts from multiple files. You can configure
