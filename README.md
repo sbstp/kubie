@@ -1,5 +1,8 @@
 # Kubie
-<img src="./assets/logo.svg" style="float: right">
+<div style="display: inline-block; float: right">
+  <img src="./assets/logo.svg" style="float: right">
+</div>
+
 
 `kubie` is an alternative to `kubectx`, `kubens` and the `k on` prompt modification script. It offers context switching,
 namespace switching and prompt modification in a way that makes each shell independent from others. It also has
