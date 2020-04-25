@@ -1,7 +1,8 @@
 # Kubie
-<div style="display: inline-block; float: right">
-  <img src="./assets/logo.svg" style="float: right">
-</div>
+<p align="right">
+  <img src="./assets/logo.svg" align="right" />
+  Thanks to @ahermant for the lovely logo!
+</p>
 
 
 `kubie` is an alternative to `kubectx`, `kubens` and the `k on` prompt modification script. It offers context switching,
