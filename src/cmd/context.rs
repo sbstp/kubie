@@ -2,7 +2,7 @@ use std::fs::File;
 
 use anyhow::{anyhow, Context, Result};
 
-use crate::cmd::{select_or_list, SelectResult};
+use crate::cmd::{select_or_list_context, SelectResult};
 use crate::kubeconfig::{self, Installed};
 use crate::kubectl;
 use crate::session::Session;
@@ -11,7 +11,7 @@ use crate::shell::spawn_shell;
 use crate::state::State;
 use crate::vars;
 
-fn enter_context<'a>(
+fn enter_context(
     settings: &Settings,
     installed: Installed,
     context_name: &str,
@@ -21,7 +21,7 @@ fn enter_context<'a>(
     let state = State::load()?;
     let mut session = Session::load()?;
 
-    let namespace = namespace_name.or(state.history.get(context_name).map(|s| s.as_ref()));
+    let namespace_name = namespace_name.or(state.history.get(context_name).map(|s| s.as_ref()));
 
     let kubeconfig = if context_name == "-" {
         let previous_ctx = session
@@ -29,15 +29,15 @@ fn enter_context<'a>(
             .context("There is not previous context to switch to.")?;
         installed.make_kubeconfig_for_context(&previous_ctx.context, Some(&previous_ctx.namespace))?
     } else {
-        installed.make_kubeconfig_for_context(&context_name, namespace)?
+        installed.make_kubeconfig_for_context(&context_name, namespace_name)?
     };
 
     session.add_history_entry(&kubeconfig.contexts[0].name, &kubeconfig.contexts[0].context.namespace);
 
-    if let Some(namespace) = namespace {
+    if let Some(namespace_name) = namespace_name {
         let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
-        if !namespaces.iter().any(|x| x == namespace) {
-            return Err(anyhow!("'{}' is not a valid namespace for the context", namespace));
+        if !namespaces.iter().any(|x| x == namespace_name) {
+            return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
         }
     }
 
@@ -63,7 +63,7 @@ pub fn context(
 
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match select_or_list(&mut installed)? {
+        None => match select_or_list_context(&mut installed)? {
             SelectResult::Selected(x) => {
                 namespace_name = None;
                 x

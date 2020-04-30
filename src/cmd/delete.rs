@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::cmd::{select_or_list, SelectResult};
+use crate::cmd::{select_or_list_context, SelectResult};
 use crate::kubeconfig;
 use crate::settings::Settings;
 
@@ -9,7 +9,7 @@ pub fn delete_context(settings: &Settings, context_name: Option<String>) -> Resu
 
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match select_or_list(&mut installed)? {
+        None => match select_or_list_context(&mut installed)? {
             SelectResult::Selected(x) => x,
             _ => return Ok(()),
         },
