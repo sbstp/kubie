@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env;
-use std::fs::{self, File};
-use std::io::{BufReader, BufWriter, Write};
+use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use wildmatch::WildMatch;
 
+use crate::ioutil;
 use crate::settings::Settings;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -124,7 +125,7 @@ impl Installed {
             .find_context_by_name(name)
             .ok_or_else(|| anyhow!("Context not found"))?;
 
-        let mut kubeconfig = load(context.source.as_ref())?;
+        let mut kubeconfig: KubeConfig = ioutil::read_yaml(context.source.as_ref())?;
 
         // Retain all contexts whose name is not our context.
         kubeconfig.contexts.retain(|x| x.name != context.item.name);
@@ -148,10 +149,8 @@ impl Installed {
             // If the kubeconfig is not empty, we rewrite it with the context and dangling references removed.
             println!("Updating kubeconfig {}.", context.source.display());
 
-            let file =
-                File::create(context.source.as_ref()).context("Could not open kubeconfig file to rewrite it.")?;
-            let writer = BufWriter::new(file);
-            serde_yaml::to_writer(writer, &kubeconfig)?;
+            ioutil::write_yaml(context.source.as_ref(), &kubeconfig)
+                .context("Could not open kubeconfig file to rewrite it.")?;
         }
 
         Ok(())
@@ -210,7 +209,9 @@ pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
     };
 
     for path in settings.get_kube_configs_paths()? {
-        match load(&path) {
+        let kubeconfig: Result<KubeConfig> = ioutil::read_yaml(&path);
+
+        match kubeconfig {
             Ok(mut kubeconfig) => {
                 let path = Rc::new(path.to_owned());
                 installed
@@ -236,18 +237,11 @@ pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
     Ok(installed)
 }
 
-pub fn load(path: impl AsRef<Path>) -> anyhow::Result<KubeConfig> {
-    let file = File::open(path.as_ref())?;
-    let reader = BufReader::new(file);
-    let obj = serde_yaml::from_reader(reader)?;
-    Ok(obj)
-}
-
 pub fn get_kubeconfig_path() -> Result<PathBuf> {
     let path = env::var_os("KUBIE_KUBECONFIG").context("KUBIE_CONFIG not found")?;
     Ok(PathBuf::from(path))
 }
 
 pub fn get_current_config() -> Result<KubeConfig> {
-    load(get_kubeconfig_path()?)
+    ioutil::read_yaml(get_kubeconfig_path()?)
 }

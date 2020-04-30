@@ -57,7 +57,7 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
 
     let temp_session_file = tempfile::Builder::new()
         .prefix("kubie-session")
-        .suffix(".yaml")
+        .suffix(".json")
         .tempfile()?;
     session.save(Some(temp_session_file.path()))?;
 

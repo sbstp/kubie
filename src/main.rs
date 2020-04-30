@@ -6,8 +6,10 @@ use settings::Settings;
 
 mod cmd;
 mod fzf;
+mod ioutil;
 mod kubeconfig;
 mod kubectl;
+mod persist;
 mod session;
 mod settings;
 mod shell;
