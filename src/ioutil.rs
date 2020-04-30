@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{DirBuilder, File};
 use std::io::{BufReader, BufWriter};
 use std::path::Path;
 
@@ -21,7 +21,11 @@ where
     P: AsRef<Path>,
     T: Serialize,
 {
-    let file = File::create(path.as_ref())?;
+    let path = path.as_ref();
+    DirBuilder::new()
+        .recursive(true)
+        .create(path.parent().expect("path has no parent"))?;
+    let file = File::create(path)?;
     let writer = BufWriter::new(file);
     serde_json::to_writer(writer, obj)?;
     Ok(())
@@ -43,7 +47,11 @@ where
     P: AsRef<Path>,
     T: Serialize,
 {
-    let file = File::create(path.as_ref())?;
+    let path = path.as_ref();
+    DirBuilder::new()
+        .recursive(true)
+        .create(path.parent().expect("path has no parent"))?;
+    let file = File::create(path)?;
     let writer = BufWriter::new(file);
     serde_yaml::to_writer(writer, obj)?;
     Ok(())

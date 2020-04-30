@@ -9,10 +9,10 @@ mod fzf;
 mod ioutil;
 mod kubeconfig;
 mod kubectl;
-mod persist;
 mod session;
 mod settings;
 mod shell;
+mod state;
 mod vars;
 
 fn main() -> Result<()> {

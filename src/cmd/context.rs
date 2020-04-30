@@ -8,31 +8,36 @@ use crate::kubectl;
 use crate::session::Session;
 use crate::settings::Settings;
 use crate::shell::spawn_shell;
+use crate::state::State;
 use crate::vars;
 
-fn enter_context(
+fn enter_context<'a>(
     settings: &Settings,
     installed: Installed,
     context_name: &str,
     namespace_name: Option<&str>,
     recursive: bool,
 ) -> Result<()> {
+    let state = State::load()?;
     let mut session = Session::load()?;
+
+    let namespace = namespace_name.or(state.history.get(context_name).map(|s| s.as_ref()));
+
     let kubeconfig = if context_name == "-" {
         let previous_ctx = session
             .get_last_context()
             .context("There is not previous context to switch to.")?;
         installed.make_kubeconfig_for_context(&previous_ctx.context, Some(&previous_ctx.namespace))?
     } else {
-        installed.make_kubeconfig_for_context(&context_name, namespace_name)?
+        installed.make_kubeconfig_for_context(&context_name, namespace)?
     };
 
     session.add_history_entry(&kubeconfig.contexts[0].name, &kubeconfig.contexts[0].context.namespace);
 
-    if let Some(namespace_name) = namespace_name {
+    if let Some(namespace) = namespace {
         let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
-        if !namespaces.contains(&namespace_name.to_string()) {
-            return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
+        if !namespaces.iter().any(|x| x == namespace) {
+            return Err(anyhow!("'{}' is not a valid namespace for the context", namespace));
         }
     }
 
