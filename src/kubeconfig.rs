@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env;
-use std::fs::File;
-use std::io::{BufReader, Write};
+use std::fs::{self, File};
+use std::io::{BufReader, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
@@ -117,6 +117,44 @@ impl Installed {
             .iter()
             .filter(|s| matcher.is_match(&s.item.name))
             .collect()
+    }
+
+    pub fn delete_context(&mut self, name: &str) -> Result<()> {
+        let context = self
+            .find_context_by_name(name)
+            .ok_or_else(|| anyhow!("Context not found"))?;
+
+        let mut kubeconfig = load(context.source.as_ref())?;
+
+        // Retain all contexts whose name is not our context.
+        kubeconfig.contexts.retain(|x| x.name != context.item.name);
+
+        // Retain all clusters whose name is not our context's cluster reference.
+        kubeconfig.clusters.retain(|x| x.name != context.item.context.cluster);
+
+        // Retain all users whose name is not our context's user reference.
+        kubeconfig.users.retain(|x| x.name != context.item.context.user);
+
+        if kubeconfig.contexts.is_empty() && kubeconfig.clusters.is_empty() && kubeconfig.users.is_empty() {
+            // If the kubeconfig is empty after removing the context and dangling references,
+            // we simply remove the file.
+            println!(
+                "Deleting kubeconfig {} because is it now empty.",
+                context.source.display()
+            );
+
+            fs::remove_file(context.source.as_ref()).context("Could not delete empty kubeconfig file")?;
+        } else {
+            // If the kubeconfig is not empty, we rewrite it with the context and dangling references removed.
+            println!("Updating kubeconfig {}.", context.source.display());
+
+            let file =
+                File::create(context.source.as_ref()).context("Could not open kubeconfig file to rewrite it.")?;
+            let writer = BufWriter::new(file);
+            serde_yaml::to_writer(writer, &kubeconfig)?;
+        }
+
+        Ok(())
     }
 
     pub fn make_kubeconfig_for_context(&self, context_name: &str, namespace_name: Option<&str>) -> Result<KubeConfig> {

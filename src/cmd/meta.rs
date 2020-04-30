@@ -70,6 +70,14 @@ pub enum Kubie {
     /// This function can ask for sudo-mode.
     #[structopt(name = "update")]
     Update,
+
+    /// Delete a context. Automatic garbage collection will be performed.
+    /// Dangling users and clusters will be removed.
+    #[structopt(name = "delete")]
+    Delete {
+        /// Name of the context to edit.
+        context_name: Option<String>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

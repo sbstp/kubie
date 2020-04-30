@@ -2,7 +2,7 @@ use std::fs::File;
 
 use anyhow::{anyhow, Context, Result};
 
-use crate::fzf;
+use crate::cmd::{select_or_list, SelectResult};
 use crate::kubeconfig::{self, Installed};
 use crate::kubectl;
 use crate::session::Session;
@@ -51,34 +51,21 @@ fn enter_context(
 pub fn context(
     settings: &Settings,
     context_name: Option<String>,
-    namespace_name: Option<String>,
+    mut namespace_name: Option<String>,
     recursive: bool,
 ) -> Result<()> {
     let mut installed = kubeconfig::get_installed_contexts(settings)?;
 
-    if let Some(context_name) = context_name {
-        enter_context(settings, installed, &context_name, namespace_name.as_deref(), recursive)?;
-    } else {
-        installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
-
-        // We only select the context with fzf if stdout is a terminal and if
-        // fzf is present on the machine.
-        if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-            match fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
-                Some(context_name) => {
-                    enter_context(settings, installed, &context_name, None, recursive)?;
-                }
-                None => {
-                    println!("Selection cancelled.");
-                }
+    let context_name = match context_name {
+        Some(context_name) => context_name,
+        None => match select_or_list(&mut installed)? {
+            SelectResult::Selected(x) => {
+                namespace_name = None;
+                x
             }
-        } else {
-            installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
-            for c in installed.contexts {
-                println!("{}", c.item.name);
-            }
-        }
-    }
+            _ => return Ok(()),
+        },
+    };
 
-    Ok(())
+    enter_context(settings, installed, &context_name, namespace_name.as_deref(), recursive)
 }
