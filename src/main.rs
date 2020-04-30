@@ -54,6 +54,9 @@ fn main() -> Result<()> {
         Kubie::Update => {
             cmd::update::update()?;
         }
+        Kubie::Delete { context_name } => {
+            cmd::delete::delete_context(&settings, context_name)?;
+        }
     }
 
     Ok(())

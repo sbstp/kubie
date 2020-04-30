@@ -2,10 +2,10 @@ use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 use which::which;
 
-use crate::fzf;
+use crate::cmd::{select_or_list, SelectResult};
 use crate::kubeconfig;
 use crate::settings::Settings;
 
@@ -30,9 +30,9 @@ pub fn edit_context(settings: &Settings, context_name: Option<String>) -> Result
 
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match fzf::select(installed.contexts.iter().map(|s| &s.item.name))? {
-            Some(context_name) => context_name,
-            None => bail!("No context selected"),
+        None => match select_or_list(&mut installed)? {
+            SelectResult::Selected(x) => x,
+            _ => return Ok(()),
         },
     };
 
