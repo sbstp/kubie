@@ -41,7 +41,6 @@ pub fn select_or_list_context(installed: &mut Installed) -> Result<SelectResult>
     })
 }
 
-
 pub fn select_or_list_namespace() -> Result<SelectResult> {
     let mut namespaces = kubectl::get_namespaces(None)?;
     namespaces.sort();
@@ -50,9 +49,7 @@ pub fn select_or_list_namespace() -> Result<SelectResult> {
     // fzf is present on the machine.
     Ok(if atty::is(atty::Stream::Stdout) && fzf::is_available() {
         match fzf::select(namespaces.iter())? {
-            Some(namespace_name) => {
-                SelectResult::Selected(namespace_name)
-            }
+            Some(namespace_name) => SelectResult::Selected(namespace_name),
             None => {
                 println!("Selection cancelled.");
                 SelectResult::Cancelled
