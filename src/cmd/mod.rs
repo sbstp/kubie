@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 
 use crate::fzf;
 use crate::kubeconfig::Installed;
@@ -23,6 +23,14 @@ pub enum SelectResult {
 pub fn select_or_list_context(installed: &mut Installed) -> Result<SelectResult> {
     installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
 
+    if installed.contexts.is_empty() {
+        bail!("No contexts found");
+    }
+
+    if installed.contexts.len() == 1 {
+        return Ok(SelectResult::Selected(installed.contexts[0].item.name.clone()));
+    }
+
     // We only select the context with fzf if stdout is a terminal and if
     // fzf is present on the machine.
     Ok(if atty::is(atty::Stream::Stdout) && fzf::is_available() {
@@ -44,6 +52,10 @@ pub fn select_or_list_context(installed: &mut Installed) -> Result<SelectResult>
 pub fn select_or_list_namespace() -> Result<SelectResult> {
     let mut namespaces = kubectl::get_namespaces(None)?;
     namespaces.sort();
+
+    if namespaces.is_empty() {
+        bail!("No namespaces found");
+    }
 
     // We only select the namespace with fzf if stdout is a terminal and if
     // fzf is present on the machine.

@@ -201,14 +201,19 @@ impl Installed {
     }
 }
 
-pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
+fn load_kubeconfigs<I, P>(kubeconfigs: I) -> Result<Installed>
+where
+    I: IntoIterator<Item = P>,
+    P: AsRef<Path>,
+{
     let mut installed = Installed {
         clusters: vec![],
         contexts: vec![],
         users: vec![],
     };
 
-    for path in settings.get_kube_configs_paths()? {
+    for path in kubeconfigs.into_iter() {
+        let path = path.as_ref();
         let kubeconfig: Result<KubeConfig> = ioutil::read_yaml(&path);
 
         match kubeconfig {
@@ -235,6 +240,14 @@ pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
     }
 
     Ok(installed)
+}
+
+pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
+    load_kubeconfigs(settings.get_kube_configs_paths()?)
+}
+
+pub fn get_kubeconfigs_contexts(kubeconfigs: &Vec<String>) -> Result<Installed> {
+    load_kubeconfigs(kubeconfigs)
 }
 
 pub fn get_kubeconfig_path() -> Result<PathBuf> {
