@@ -16,6 +16,7 @@ lazy_static! {
         .to_string();
 }
 
+#[inline]
 fn home_dir() -> &'static str {
     &*HOME_DIR
 }
