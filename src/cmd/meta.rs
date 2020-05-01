@@ -12,6 +12,10 @@ pub enum Kubie {
         #[structopt(short = "n", long = "namespace")]
         namespace_name: Option<String>,
 
+        /// Specify files from which to load contexts instead of using the installed ones.
+        #[structopt(short = "f", long = "kubeconfig")]
+        kubeconfigs: Vec<String>,
+
         /// Enter the context by spawning a new recursive shell.
         #[structopt(short = "r", long = "recursive")]
         recursive: bool,

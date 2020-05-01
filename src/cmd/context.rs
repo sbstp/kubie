@@ -57,9 +57,14 @@ pub fn context(
     settings: &Settings,
     context_name: Option<String>,
     mut namespace_name: Option<String>,
+    kubeconfigs: Vec<String>,
     recursive: bool,
 ) -> Result<()> {
-    let mut installed = kubeconfig::get_installed_contexts(settings)?;
+    let mut installed = if kubeconfigs.is_empty() {
+        kubeconfig::get_installed_contexts(settings)?
+    } else {
+        kubeconfig::get_kubeconfigs_contexts(&kubeconfigs)?
+    };
 
     let context_name = match context_name {
         Some(context_name) => context_name,
