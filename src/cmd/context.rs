@@ -21,7 +21,7 @@ fn enter_context(
     let state = State::load()?;
     let mut session = Session::load()?;
 
-    let namespace_name = namespace_name.or(state.history.get(context_name).map(|s| s.as_ref()));
+    let namespace_name = namespace_name.or(state.namespace_history.get(context_name).map(|s| s.as_ref()));
 
     let kubeconfig = if context_name == "-" {
         let previous_ctx = session

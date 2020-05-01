@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 use lazy_static::lazy_static;
@@ -15,21 +15,27 @@ lazy_static! {
     static ref KUBIE_STATE_PATH: PathBuf = KUBIE_DATA_DIR.join("state.json");
 }
 
+#[inline]
+pub fn path() -> &'static Path {
+    &*KUBIE_STATE_PATH
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct State {
-    pub history: HashMap<String, String>,
+    /// This map stores the last namespace in which a context was used, in order to restore the namespace
+    /// when the context is entered again.
+    pub namespace_history: HashMap<String, String>,
 }
 
 impl State {
     pub fn load() -> Result<State> {
-        let path = &*KUBIE_STATE_PATH;
-        if !path.exists() {
+        if !path().exists() {
             return Ok(State::default());
         }
-        ioutil::read_json(path)
+        ioutil::read_json(path())
     }
 
     pub fn save(&self) -> Result<()> {
-        ioutil::write_json(&*KUBIE_STATE_PATH, self)
+        ioutil::write_json(path(), self)
     }
 }
