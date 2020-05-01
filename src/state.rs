@@ -24,6 +24,8 @@ pub fn path() -> &'static Path {
 pub struct State {
     /// This map stores the last namespace in which a context was used, in order to restore the namespace
     /// when the context is entered again.
+    ///
+    /// The key represents the name of the context and the value is the namespace's name.
     pub namespace_history: HashMap<String, String>,
 }
 
