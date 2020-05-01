@@ -6,11 +6,13 @@ use settings::Settings;
 
 mod cmd;
 mod fzf;
+mod ioutil;
 mod kubeconfig;
 mod kubectl;
 mod session;
 mod settings;
 mod shell;
+mod state;
 mod vars;
 
 fn main() -> Result<()> {

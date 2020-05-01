@@ -16,9 +16,14 @@ lazy_static! {
         .to_string();
 }
 
+#[inline]
+fn home_dir() -> &'static str {
+    &*HOME_DIR
+}
+
 pub fn expanduser(path: &str) -> String {
     if path.starts_with("~/") {
-        format!("{}/{}", &*HOME_DIR, &path[2..])
+        format!("{}/{}", home_dir(), &path[2..])
     } else {
         path.to_string()
     }
@@ -36,8 +41,7 @@ pub struct Settings {
 
 impl Settings {
     pub fn path() -> String {
-        let home_dir: &String = &*HOME_DIR;
-        format!("{}/.kube/kubie.yaml", home_dir)
+        format!("{}/.kube/kubie.yaml", home_dir())
     }
 
     pub fn load() -> Result<Settings> {
@@ -105,7 +109,7 @@ impl Default for Configs {
 }
 
 fn default_include_path() -> Vec<String> {
-    let home_dir: &String = &*HOME_DIR;
+    let home_dir = home_dir();
     vec![
         format!("{}/.kube/config", home_dir),
         format!("{}/.kube/*.yml", home_dir),
@@ -153,6 +157,6 @@ fn def_bool_false() -> bool {
 fn test_expanduser() {
     assert_eq!(
         expanduser("~/hello/world/*.foo"),
-        format!("{}/hello/world/*.foo", &*HOME_DIR)
+        format!("{}/hello/world/*.foo", home_dir())
     );
 }

@@ -1,13 +1,15 @@
-use std::fs::File;
-use std::io::{BufReader, BufWriter};
 use std::path::Path;
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use serde_yaml;
 
+use crate::ioutil;
 use crate::vars;
 
+/// Session contains information which is scoped to a kubie shell.
+///
+/// Currently it stores the history of contexts and namespaces entered to allow
+/// users to switch back to the previous context with `-`.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Session {
     history: Vec<HistoryEntry>,
@@ -30,10 +32,7 @@ impl Session {
             return Ok(Default::default());
         }
 
-        let file = File::open(session_path)?;
-        let reader = BufReader::new(file);
-        let sess = serde_yaml::from_reader(reader)?;
-        Ok(sess)
+        ioutil::read_json(session_path)
     }
 
     pub fn save(&self, path: Option<&Path>) -> Result<()> {
@@ -42,12 +41,7 @@ impl Session {
             None => vars::get_session_path().context("KUBIE_SESSION env variable missing")?,
         };
 
-        let file = File::create(session_path)?;
-        let writer = BufWriter::new(file);
-
-        serde_yaml::to_writer(writer, self)?;
-
-        Ok(())
+        ioutil::write_json(session_path, self)
     }
 
     pub fn add_history_entry(&mut self, context: impl Into<String>, namespace: impl Into<String>) {
