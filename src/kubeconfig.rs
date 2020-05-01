@@ -235,19 +235,23 @@ where
         }
     }
 
-    if installed.contexts.is_empty() {
-        bail!("Could not find any contexts on the machine!");
-    }
-
     Ok(installed)
 }
 
 pub fn get_installed_contexts(settings: &Settings) -> Result<Installed> {
-    load_kubeconfigs(settings.get_kube_configs_paths()?)
+    let installed = load_kubeconfigs(settings.get_kube_configs_paths()?)?;
+    if installed.contexts.is_empty() {
+        bail!("Could not find any contexts in the Kubie kubeconfig directories!");
+    }
+    Ok(installed)
 }
 
 pub fn get_kubeconfigs_contexts(kubeconfigs: &Vec<String>) -> Result<Installed> {
-    load_kubeconfigs(kubeconfigs)
+    let installed = load_kubeconfigs(kubeconfigs)?;
+    if installed.contexts.is_empty() {
+        bail!("Could not find any contexts in the given set of files!");
+    }
+    Ok(installed)
 }
 
 pub fn get_kubeconfig_path() -> Result<PathBuf> {
