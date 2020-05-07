@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 
 use crate::cmd::{select_or_list_context, SelectResult};
 use crate::kubeconfig::{self, Installed};
@@ -37,7 +37,7 @@ fn enter_context(
     if let Some(namespace_name) = namespace_name {
         let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
         if !namespaces.iter().any(|x| x == namespace_name) {
-            return Err(anyhow!("'{}' is not a valid namespace for the context", namespace_name));
+            eprintln!("Warning: namespace {} does not exist.", namespace_name);
         }
     }
 
