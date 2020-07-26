@@ -61,7 +61,7 @@ fn main() -> Result<()> {
             cmd::delete::delete_context(&settings, context_name)?;
         }
         Kubie::GetCompletions { comp_cword, comp_line } => {
-            cmd::get_completions::get_completions(comp_cword, comp_line);
+            cmd::get_completions::get_completions(&settings, comp_cword, comp_line)?;
         }
     }
 
