@@ -82,6 +82,14 @@ pub enum Kubie {
         /// Name of the context to edit.
         context_name: Option<String>,
     },
+
+    #[structopt(name = "get-completions", setting(clap::AppSettings::Hidden))]
+    GetCompletions {
+        #[structopt(long = "comp-cword")]
+        comp_cword: usize,
+        #[structopt(long = "comp-line")]
+        comp_line: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

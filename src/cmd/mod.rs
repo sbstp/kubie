@@ -8,6 +8,7 @@ pub mod context;
 pub mod delete;
 pub mod edit;
 pub mod exec;
+pub mod get_completions;
 pub mod info;
 pub mod lint;
 pub mod meta;
