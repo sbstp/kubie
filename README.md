@@ -18,16 +18,21 @@ you of what they are.
 Thanks to [@ahermant](https://github.com/ahermant) for the lovely logo!
 
 ## Installation
+
+### Binary
 You can download a binary for Linux or OS X on the [GitHub releases page](https://github.com/sbstp/kubie/releases). You
 can use `curl` or `wget` to download it. Don't forget to `chmod +x` the file!
 
+### Cargo
 You can build `kubie` from source using `cargo` and crates.io. If you do not have a Rust compiler installed, go to
 [rustup.rs](https://rustup.rs) to get one. Then you can run `cargo install kubie` and kubie will be downloaded from
 crates.io and then built.
 
-There is a `kubie` Nix package maintained by @illiusdope that you can install.
+### Homebrew
+You can install `kubie` from Homebrew by running `brew install kubie`.
 
-Homebrew support [is pending](https://github.com/Homebrew/homebrew-core/pull/52502).
+### Nix
+There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
 ### Bash autocomplete
 If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script:
