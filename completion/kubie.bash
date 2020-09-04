@@ -2,8 +2,9 @@
 
 _kubie_complete()
 {
+    { \unalias command; \unset -f command; } >/dev/null 2>&1 || true
     local IFS=$'\n'
-    COMPREPLY=($(kubie get-completions --comp-cword="$COMP_CWORD" --comp-line="$COMP_LINE"))
+    COMPREPLY=($(command kubie get-completions --comp-cword="$COMP_CWORD" --comp-line="$COMP_LINE"))
 }
 
 export PATH="$PWD/target/debug:$PATH"
