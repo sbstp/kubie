@@ -8,31 +8,33 @@ _kubiecomplete()
     prev=${COMP_WORDS[COMP_CWORD-1]}
     prevprev=${COMP_WORDS[COMP_CWORD-2]}
 
+    { \unalias command; \unset -f command; } >/dev/null 2>&1 || true
+
     case ${COMP_CWORD} in
         1)
             cmds="ctx edit edit-config exec help info lint ns"
-            COMPREPLY=($(printf "%s\n" $cmds | grep -e "^$cur" | xargs))
+            COMPREPLY=($(command printf "%s\n" $cmds | command grep -e "^$cur" | command xargs))
             ;;
         2)
             case ${prev} in
                 ctx)
-                    COMPREPLY=($(kubie ctx | grep -e "^$cur" | xargs))
+                    COMPREPLY=($(command kubie ctx | command grep -e "^$cur" | command xargs))
                     ;;
                 edit)
-                    COMPREPLY=($(kubie ctx | grep -e "^$cur" | xargs))
+                    COMPREPLY=($(command kubie ctx | command grep -e "^$cur" | command xargs))
                     ;;
                 exec)
-                    COMPREPLY=($(kubie ctx | grep -e "^$cur" | xargs))
+                    COMPREPLY=($(command kubie ctx | command grep -e "^$cur" | command xargs))
                     ;;
                 ns)
-                    COMPREPLY=($(kubie ns | grep -e "^$cur" | xargs))
+                    COMPREPLY=($(command kubie ns | command grep -e "^$cur" | command xargs))
                     ;;
             esac
             ;;
         3)
             case ${prevprev} in
                 exec)
-                    COMPREPLY=($(kubie exec ${prev} default kubectl get namespaces|tail -n+2|awk '{print $1}'| grep -e "^$cur" |xargs))
+                    COMPREPLY=($(command kubie exec ${prev} default kubectl get namespaces|command tail -n+2|command awk '{print $1}'| command grep -e "^$cur" |command xargs))
                     ;;
             esac
             ;;
