@@ -36,8 +36,13 @@ There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
 ### Bash autocomplete
 If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script:
+```bash
+sudo cp ./completion/kubie.bash /etc/bash_completion.d/kubie
 ```
-sudo cp ./completion/kubie.bash $(pkg-config --variable=completionsdir bash-completion)/kubie.bash
+
+Then spawn new shell or source copied file:
+```bash
+. /etc/bash_completion.d/kubie
 ```
 
 ## Usage
