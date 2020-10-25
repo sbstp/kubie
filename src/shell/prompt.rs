@@ -6,19 +6,24 @@ use crate::shell::ShellKind;
 
 struct Command {
     content: String,
+    shell_kind: ShellKind,
 }
 
 impl Command {
-    fn new(content: impl Into<String>) -> Command {
+    fn new(content: impl Into<String>, shell_kind: ShellKind) -> Command {
         Command {
             content: content.into(),
+            shell_kind,
         }
     }
 }
 
 impl fmt::Display for Command {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "$({})", self.content)
+        match self.shell_kind {
+            ShellKind::Fish => write!(f, "({})", self.content),
+            _ => write!(f, "$({})", self.content),
+        }
     }
 }
 
@@ -47,6 +52,7 @@ where
         E: Display,
     {
         match self.shell_kind {
+            ShellKind::Fish => write!(f, "{}", content),
             ShellKind::Zsh => write!(f, "%{{{}%}}", content),
             _ => write!(f, "\\[{}\\]", content),
         }
@@ -89,7 +95,7 @@ pub fn generate_ps1(settings: &Settings, depth: u32, shell_kind: ShellKind) -> S
     parts.push(
         Color::new(
             RED,
-            Command::new(format!("{} info ctx", current_exe_path_str)),
+            Command::new(format!("{} info ctx", current_exe_path_str), shell_kind),
             shell_kind,
         )
         .to_string(),
@@ -97,7 +103,7 @@ pub fn generate_ps1(settings: &Settings, depth: u32, shell_kind: ShellKind) -> S
     parts.push(
         Color::new(
             GREEN,
-            Command::new(format!("{} info ns", current_exe_path_str)),
+            Command::new(format!("{} info ns", current_exe_path_str), shell_kind),
             shell_kind,
         )
         .to_string(),
