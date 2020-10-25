@@ -14,6 +14,7 @@ use crate::vars;
 
 mod bash;
 mod detect;
+mod fish;
 mod prompt;
 mod zsh;
 
@@ -103,7 +104,7 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
 
     match kind {
         ShellKind::Bash => bash::spawn_shell(&info),
+        ShellKind::Fish => fish::spawn_shell(&info),
         ShellKind::Zsh => zsh::spawn_shell(&info),
-        _ => bash::spawn_shell(&info),
     }
 }
