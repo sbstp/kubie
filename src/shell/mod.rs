@@ -83,6 +83,10 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         "KUBIE_ZSH_USE_RPS1",
         if settings.prompt.zsh_use_rps1 { "1" } else { "0" },
     );
+    env_vars.insert(
+        "KUBIE_FISH_USE_RPROMPT",
+        if settings.prompt.fish_use_rprompt { "1" } else { "0" },
+    );
 
     match kind {
         ShellKind::Bash => {

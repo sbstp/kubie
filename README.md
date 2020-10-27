@@ -115,9 +115,13 @@ prompt:
     # Default: true
     show_depth: true
 
-    # When using zsh, show context and namespace on the right side using RPS1.
+    # When using zsh, show context and namespace on the right-hand side using RPS1.
     # Default: false
     zsh_use_rps1: false
+
+    # When using fish, show context and namespace on the right-hand side.
+    # Default: false
+    fish_use_rprompt: false
 ```
 
 ## Future plans
