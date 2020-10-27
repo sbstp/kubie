@@ -133,6 +133,8 @@ pub struct Prompt {
     pub show_depth: bool,
     #[serde(default = "def_bool_false")]
     pub zsh_use_rps1: bool,
+    #[serde(default = "def_bool_false")]
+    pub fish_use_rprompt: bool,
 }
 
 impl Default for Prompt {
@@ -141,6 +143,7 @@ impl Default for Prompt {
             disable: false,
             show_depth: true,
             zsh_use_rps1: false,
+            fish_use_rprompt: false,
         }
     }
 }
