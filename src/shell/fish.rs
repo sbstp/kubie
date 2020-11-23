@@ -6,7 +6,8 @@ use super::ShellSpawnInfo;
 
 pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     let mut cmd = Command::new("fish");
-    cmd.arg("-C");
+    // run fish as an interactive login shell
+    cmd.arg("-ilC");
     cmd.arg(format!(
         r#"
 # Set the proper KUBECONFIG variable before each command runs,
