@@ -31,8 +31,9 @@ fn main() -> Result<()> {
         Kubie::Namespace {
             namespace_name,
             recursive,
+            unset,
         } => {
-            cmd::namespace::namespace(&settings, namespace_name, recursive)?;
+            cmd::namespace::namespace(&settings, namespace_name, recursive, unset)?;
         }
         Kubie::Info(info) => {
             cmd::info::info(info)?;

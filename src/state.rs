@@ -26,7 +26,7 @@ pub struct State {
     /// when the context is entered again.
     ///
     /// The key represents the name of the context and the value is the namespace's name.
-    pub namespace_history: HashMap<String, String>,
+    pub namespace_history: HashMap<String, Option<String>>,
 }
 
 impl State {

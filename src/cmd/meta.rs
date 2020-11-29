@@ -32,6 +32,10 @@ pub enum Kubie {
         #[structopt(short = "r", long = "recursive")]
         recursive: bool,
 
+        /// Unsets the namespace in the currently active context.
+        #[structopt(short = "u", long = "unset")]
+        unset: bool,
+
         /// Name of the namespace to enter. Use '-' to switch back to the previous namespace.
         namespace_name: Option<String>,
     },

@@ -14,7 +14,7 @@ pub fn info(info: KubieInfo) -> Result<()> {
         KubieInfoKind::Namespace => {
             vars::ensure_kubie_active()?;
             let conf = kubeconfig::get_current_config()?;
-            println!("{}", conf.contexts[0].context.namespace);
+            println!("{}", conf.contexts[0].context.namespace.as_deref().unwrap_or("default"));
         }
         KubieInfoKind::Depth => {
             vars::ensure_kubie_active()?;
