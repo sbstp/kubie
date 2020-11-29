@@ -45,13 +45,8 @@ pub struct NamedContext {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Context {
     pub cluster: String,
-    #[serde(default = "default_namespace")]
-    pub namespace: String,
+    pub namespace: Option<String>,
     pub user: String,
-}
-
-fn default_namespace() -> String {
-    "default".to_string()
 }
 
 #[derive(Clone, Debug)]
@@ -156,7 +151,11 @@ impl Installed {
         Ok(())
     }
 
-    pub fn make_kubeconfig_for_context(&self, context_name: &str, namespace_name: Option<&str>) -> Result<KubeConfig> {
+    pub fn make_kubeconfig_for_context(
+        &self,
+        context_name: &str,
+        namespace_name: Option<impl Into<String>>,
+    ) -> Result<KubeConfig> {
         let mut context_src = self
             .contexts
             .iter()
@@ -164,9 +163,7 @@ impl Installed {
             .cloned()
             .ok_or(anyhow!("Could not find context {}", context_name))?;
 
-        if let Some(namespace_name) = namespace_name {
-            context_src.item.context.namespace = namespace_name.to_string();
-        }
+        context_src.item.context.namespace = namespace_name.map(Into::into);
 
         let cluster = self
             .find_cluster_by_name(&context_src.item.context.cluster, &context_src.source)

@@ -44,10 +44,10 @@ impl Session {
         ioutil::write_json(session_path, self)
     }
 
-    pub fn add_history_entry(&mut self, context: impl Into<String>, namespace: impl Into<String>) {
+    pub fn add_history_entry(&mut self, context: impl Into<String>, namespace: Option<impl Into<String>>) {
         self.history.push(HistoryEntry {
             context: context.into(),
-            namespace: namespace.into(),
+            namespace: namespace.map(Into::into),
         })
     }
 
@@ -68,7 +68,7 @@ impl Session {
                 return None;
             }
             if current_context.namespace != entry.namespace {
-                return Some(&entry.namespace);
+                return entry.namespace.as_deref();
             }
         }
         None
@@ -78,5 +78,5 @@ impl Session {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct HistoryEntry {
     pub context: String,
-    pub namespace: String,
+    pub namespace: Option<String>,
 }

@@ -21,18 +21,21 @@ fn enter_context(
     let state = State::load()?;
     let mut session = Session::load()?;
 
-    let namespace_name = namespace_name.or(state.namespace_history.get(context_name).map(|s| s.as_ref()));
+    let namespace_name = namespace_name.or(state.namespace_history.get(context_name).and_then(|s| s.as_deref()));
 
     let kubeconfig = if context_name == "-" {
         let previous_ctx = session
             .get_last_context()
-            .context("There is not previous context to switch to.")?;
-        installed.make_kubeconfig_for_context(&previous_ctx.context, Some(&previous_ctx.namespace))?
+            .context("There is no previous context to switch to.")?;
+        installed.make_kubeconfig_for_context(&previous_ctx.context, previous_ctx.namespace.as_deref())?
     } else {
         installed.make_kubeconfig_for_context(&context_name, namespace_name)?
     };
 
-    session.add_history_entry(&kubeconfig.contexts[0].name, &kubeconfig.contexts[0].context.namespace);
+    session.add_history_entry(
+        &kubeconfig.contexts[0].name,
+        kubeconfig.contexts[0].context.namespace.as_deref(),
+    );
 
     if let Some(namespace_name) = namespace_name {
         let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
