@@ -40,3 +40,5 @@ jobs:
         with:
           command: build
           args: --release
+      - run: strip target/x86_64-unknown-linux-musl/release/kubie
+      - run: ls target/x86_64-unknown-linux-musl/release/
