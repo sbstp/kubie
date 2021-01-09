@@ -28,13 +28,3 @@ jobs:
         with:
           command: test
           args: --all-features
-
-  build-macos-arm64:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: aarch64-apple-darwin
-      - run: SDKROOT=$(xcrun -sdk macosx10.15 --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx10.15 --show-sdk-platform-version) cargo build --release --target aarch64-apple-darwin
