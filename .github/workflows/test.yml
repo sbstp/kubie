@@ -10,6 +10,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+
       - uses: actions-rs/cargo@v1
         with:
           command: test
@@ -22,7 +23,22 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features
+
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target aarch64-apple-darwin
