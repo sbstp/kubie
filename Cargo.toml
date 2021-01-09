@@ -1,17 +1,17 @@
 [package]
-name = "kubie"
-version = "0.11.1"
 authors = ["Simon Bernier St-Pierre <git@sbstp.ca>"]
-edition = "2018"
-description = "A more powerful alternative to kubectx and kubens."
-keywords = ["kubernetes", "kubectx", "kubens"]
 categories = ["command-line-utilities", "development-tools"]
-homepage = "https://github.com/sbstp/kubie"
+description = "A more powerful alternative to kubectx and kubens."
 documentation = "https://github.com/sbstp/kubie/blob/master/README.md"
-repository = "https://github.com/sbstp/kubie"
-readme = "README.md"
-license = "Zlib"
+edition = "2018"
 exclude = ["releases/**/*"]
+homepage = "https://github.com/sbstp/kubie"
+keywords = ["kubernetes", "kubectx", "kubens"]
+license = "Zlib"
+name = "kubie"
+readme = "README.md"
+repository = "https://github.com/sbstp/kubie"
+version = "0.11.1"
 
 [dependencies]
 anyhow = "1"
@@ -21,7 +21,7 @@ glob = "0.3"
 lazy_static = "1"
 libc = "0.2"
 os_info = "2"
-serde = { version = "1", features = ["derive"] }
+serde = {version = "1", features = ["derive"]}
 serde_json = "1"
 serde_yaml = "0.8"
 signal-hook = "0.1"
@@ -31,10 +31,10 @@ which = "3"
 wildmatch = "1"
 
 [dependencies.attohttpc]
-version = "0.12"
 default-features = false
 features = ["compress", "json", "tls-rustls"]
+version = "0.16"
 
 [profile.release]
-lto = true
 codegen-units = 1
+lto = true
