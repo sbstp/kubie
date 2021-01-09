@@ -1,4 +1,4 @@
-name: CI
+name: Test
 
 on: push
 
@@ -26,19 +26,3 @@ jobs:
         with:
           command: test
           args: --all-features
-
-  build-musl:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: x86_64-unknown-linux-musl
-      - run: sudo apt-get update && sudo apt-get install -y musl-tools
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --target x86_64-unknown-linux-musl
-      - run: strip target/x86_64-unknown-linux-musl/release/kubie
-      - run: ls -lh target/x86_64-unknown-linux-musl/release/
