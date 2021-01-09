@@ -1,5 +1,5 @@
 name: main
-on: [push, pull-request]
+on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
