@@ -11,16 +11,16 @@ license = "Zlib"
 name = "kubie"
 readme = "README.md"
 repository = "https://github.com/sbstp/kubie"
-version = "0.12.0"
+version = "0.12.1"
 
 [dependencies]
 anyhow = "1"
 atty = "0.2"
+cfg-if = "1"
 dirs = "2"
 glob = "0.3"
 lazy_static = "1"
 libc = "0.2"
-os_info = "2"
 serde = {version = "1", features = ["derive"]}
 serde_json = "1"
 serde_yaml = "0.8"

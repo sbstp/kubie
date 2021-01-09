@@ -335,16 +335,16 @@ dependencies = [
 
 [[package]]
 name = "kubie"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "anyhow",
  "attohttpc",
  "atty",
+ "cfg-if 1.0.0",
  "dirs",
  "glob",
  "lazy_static",
  "libc",
- "os_info",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -409,17 +409,6 @@ name = "once_cell"
 version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13bd41f508810a131401606d54ac32a467c97172d74ba7662562ebba5ad07fa0"
-
-[[package]]
-name = "os_info"
-version = "2.0.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2cc1b4330bb29087e791ae2a5cf56be64fb8946a4ff5aec2ba11c6ca51f5d60"
-dependencies = [
- "log",
- "serde",
- "winapi",
-]
 
 [[package]]
 name = "percent-encoding"
