@@ -15,7 +15,7 @@ jobs:
           command: test
           args: --all-features
 
-  test-linux:
+  test-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
