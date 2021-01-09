@@ -24,8 +24,7 @@ jobs:
       - run: strip target/x86_64-unknown-linux-musl/release/kubie
       - run: ls -lh target/x86_64-unknown-linux-musl/release/
 
-      - name: Upload files to a GitHub release
-        uses: svenstaro/upload-release-action@v2
+      - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/x86_64-unknown-linux-musl/release/kubie
@@ -45,12 +44,33 @@ jobs:
           with:
             command: build
             args: --release
+        - run: strip target/release/kubie
         - run: ls -lh target/release/
 
-        - name: Upload files to a GitHub release
-          uses: svenstaro/upload-release-action@v2
+        - uses: svenstaro/upload-release-action@v2
           with:
             repo_token: ${{ secrets.GITHUB_TOKEN }}
             file: target/release/kubie
             asset_name: kubie-darwin-amd64
             tag: ${{ github.ref }}
+
+  build-macos-arm64:
+    runs-on: macos-11.0
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+
+      - run: SDKROOT=$(xcrun -sdk macosx11.0 --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.0 --show-sdk-platform-version) cargo build --release --target aarch64-apple-darwin
+      - run: strip target/aarch64-apple-darwin/release/kubie
+      - run: ls -lh target/aarch64-apple-darwin/release/
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/aarch64-apple-darwin/release/kubie
+          asset_name: kubie-darwin-arm64
+          tag: ${{ github.ref }}
+
