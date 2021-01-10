@@ -1,47 +1,54 @@
-#Kubie completion script
+# Kubie completion script
 
-_kubiecomplete()
+_kubie_complete()
 {
-    local cur prev
+    local cmd
+    local prev
+    local cur
 
-    cur=${COMP_WORDS[COMP_CWORD]}
-    prev=${COMP_WORDS[COMP_CWORD-1]}
-    prevprev=${COMP_WORDS[COMP_CWORD-2]}
+    function set_result() {
+        local line
+        COMPREPLY=()
+        while IFS='' read -r line; do COMPREPLY+=("$line"); done <<< "$1"
+    }
 
     { \unalias command; \unset -f command; } >/dev/null 2>&1 || true
 
     case ${COMP_CWORD} in
         1)
-            cmds="ctx edit edit-config exec help info lint ns"
-            COMPREPLY=($(command printf "%s\n" $cmds | command grep -e "^$cur" | command xargs))
+            cur="${COMP_WORDS[COMP_CWORD]}"
+            set_result "$(command compgen -W "ctx edit edit-config help info lint ns update" -- "$cur")"
             ;;
         2)
-            case ${prev} in
+            cmd="${COMP_WORDS[COMP_CWORD-1]}"
+            cur="${COMP_WORDS[COMP_CWORD]}"
+            case $cmd in
                 ctx)
-                    COMPREPLY=($(command kubie ctx | command grep -e "^$cur" | command xargs))
+                    set_result "$(command compgen -W "$(kubie ctx) -f --kubeconfig" -- "$cur")"
                     ;;
-                edit)
-                    COMPREPLY=($(command kubie ctx | command grep -e "^$cur" | command xargs))
-                    ;;
-                exec)
-                    COMPREPLY=($(command kubie ctx | command grep -e "^$cur" | command xargs))
+                edit|exec)
+                    set_result "$(command compgen -W "$(kubie ctx)" -- "$cur")"
                     ;;
                 ns)
-                    COMPREPLY=($(command kubie ns | command grep -e "^$cur" | command xargs))
-                    ;;
-            esac
-            ;;
-        3)
-            case ${prevprev} in
-                exec)
-                    COMPREPLY=($(command kubie exec ${prev} default kubectl get namespaces|command tail -n+2|command awk '{print $1}'| command grep -e "^$cur" |command xargs))
+                    set_result "$(command compgen -W "$(kubie ns 2> /dev/null || true)" -- "$cur")"
                     ;;
             esac
             ;;
         *)
-            COMPREPLY=()
+            cmd="${COMP_WORDS[1]}"
+            prev="${COMP_WORDS[COMP_CWORD-1]}"
+            cur="${COMP_WORDS[COMP_CWORD]}"
+            case $cmd in
+                ctx)
+                    case $prev in
+                        -f|--kubeconfig)
+                            set_result "$(command compgen -f -- "$cur")"
+                        ;;
+                    esac
+                    ;;
+            esac
             ;;
     esac
 }
 
-complete -F _kubiecomplete kubie
+complete -F _kubie_complete kubie
