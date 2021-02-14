@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-linux-amd64-static:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
 
@@ -32,30 +32,30 @@ jobs:
           tag: ${{ github.ref }}
 
   build-macos-amd64:
-      runs-on: macos-latest
-      steps:
-        - uses: actions/checkout@v2
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
 
-        - uses: actions-rs/toolchain@v1
-          with:
-            toolchain: stable
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
-        - uses: actions-rs/cargo@v1
-          with:
-            command: build
-            args: --release
-        - run: strip target/release/kubie
-        - run: ls -lh target/release/
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - run: strip target/release/kubie
+      - run: ls -lh target/release/
 
-        - uses: svenstaro/upload-release-action@v2
-          with:
-            repo_token: ${{ secrets.GITHUB_TOKEN }}
-            file: target/release/kubie
-            asset_name: kubie-darwin-amd64
-            tag: ${{ github.ref }}
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/kubie
+          asset_name: kubie-darwin-amd64
+          tag: ${{ github.ref }}
 
   build-macos-arm64:
-    runs-on: macos-11.0
+    runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
