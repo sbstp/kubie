@@ -37,10 +37,12 @@ fn enter_context(
         kubeconfig.contexts[0].context.namespace.as_deref(),
     );
 
-    if let Some(namespace_name) = namespace_name {
-        let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
-        if !namespaces.iter().any(|x| x == namespace_name) {
-            eprintln!("Warning: namespace {} does not exist.", namespace_name);
+    if settings.behavior.validate_namespaces {
+        if let Some(namespace_name) = namespace_name {
+            let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
+            if !namespaces.iter().any(|x| x == namespace_name) {
+                eprintln!("Warning: namespace {} does not exist.", namespace_name);
+            }
         }
     }
 
