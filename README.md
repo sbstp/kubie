@@ -122,6 +122,13 @@ prompt:
     # When using fish, show context and namespace on the right-hand side.
     # Default: false
     fish_use_rprompt: false
+
+# Behavior
+behavior:
+    # Make sure the namespace exists with `kubectl get namespaces` when switching
+    # namespaces. If you do not have the right to list namespaces, disable this.
+    # Default: true
+    validate_namespaces: true
 ```
 
 ## Future plans

@@ -37,6 +37,8 @@ pub struct Settings {
     pub configs: Configs,
     #[serde(default)]
     pub prompt: Prompt,
+    #[serde(default)]
+    pub behavior: Behavior,
 }
 
 impl Settings {
@@ -87,6 +89,7 @@ impl Default for Settings {
             shell: Default::default(),
             configs: Configs::default(),
             prompt: Prompt::default(),
+            behavior: Behavior::default(),
         }
     }
 }
@@ -144,6 +147,20 @@ impl Default for Prompt {
             show_depth: true,
             zsh_use_rps1: false,
             fish_use_rprompt: false,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Behavior {
+    #[serde(default = "def_bool_true")]
+    pub validate_namespaces: bool,
+}
+
+impl Default for Behavior {
+    fn default() -> Self {
+        Behavior {
+            validate_namespaces: true,
         }
     }
 }
