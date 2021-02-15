@@ -20,7 +20,11 @@ pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive:
         return enter_namespace(settings, &mut session, recursive, None);
     }
 
-    let namespaces = kubectl::get_namespaces(None)?;
+    let namespaces = if settings.behavior.validate_namespaces {
+        kubectl::get_namespaces(None)?
+    } else {
+        vec![]
+    };
 
     let namespace_name = match namespace_name {
         Some(s) if s == "-" => Some(
