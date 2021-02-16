@@ -33,7 +33,9 @@ jobs:
           command: test
           args: --all-features
 
-  test-macos-arm64:
+  # We use an amd64 machine to cross compile for arm64. We cannot run the tests,
+  # only verify that the project compiles well.
+  build-macos-arm64:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -42,4 +44,4 @@ jobs:
           toolchain: stable
           target: aarch64-apple-darwin
 
-      - run: SDKROOT=$(xcrun -sdk macosx --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=11.0 cargo test --all-features --target aarch64-apple-darwin
+      - run: SDKROOT=$(xcrun --sdk macosx --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=11.0 cargo build --all-features --target aarch64-apple-darwin
