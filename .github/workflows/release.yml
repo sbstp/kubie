@@ -63,7 +63,7 @@ jobs:
           toolchain: stable
           target: aarch64-apple-darwin
 
-      - run: SDKROOT=$(xcrun -sdk macosx11.0 --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.0 --show-sdk-platform-version) cargo build --release --target aarch64-apple-darwin
+      - run: SDKROOT=$(xcrun --sdk macosx --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=11.0 cargo build --release --target aarch64-apple-darwin
       - run: strip target/aarch64-apple-darwin/release/kubie
       - run: ls -lh target/aarch64-apple-darwin/release/
 

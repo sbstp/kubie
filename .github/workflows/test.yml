@@ -1,9 +1,13 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
-  test-linux:
+  test-linux-amd64:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +20,7 @@ jobs:
           command: test
           args: --all-features
 
-  test-macos:
+  test-macos-amd64:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -28,3 +32,16 @@ jobs:
         with:
           command: test
           args: --all-features
+
+  # We use an amd64 machine to cross compile for arm64. We cannot run the tests,
+  # only verify that the project compiles well.
+  build-macos-arm64:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+
+      - run: SDKROOT=$(xcrun --sdk macosx --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=11.0 cargo build --all-features --target aarch64-apple-darwin
