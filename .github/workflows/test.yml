@@ -38,6 +38,6 @@ jobs:
           toolchain: stable
           target: aarch64-apple-darwin
 
-      - run: ll /Library/Developer/CommandLineTools/SDKs || true
+      - run: ls -lh /Library/Developer/CommandLineTools/SDKs || true
       - run: xcrun --sdk macosx --show-sdk-path
       - run: xcrun --sdk macosx --show-sdk-platform-version
