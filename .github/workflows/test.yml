@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -17,7 +17,7 @@ jobs:
           args: --all-features
 
   test-macos:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
