@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::thread;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use signal_hook::iterator::Signals;
 
 use crate::kubeconfig::{self, KubeConfig};
@@ -64,8 +64,13 @@ pub fn exec(
     }
 
     let installed = kubeconfig::get_installed_contexts(settings)?;
+    let matching = installed.get_contexts_matching(&context_name);
 
-    for context_src in installed.get_contexts_matching(&context_name) {
+    if matching.len() == 0 {
+        return Err(anyhow!("No context matching {}", context_name));
+    }
+
+    for context_src in matching {
         let kubeconfig = installed.make_kubeconfig_for_context(&context_src.item.name, Some(&namespace_name))?;
         let return_code = run_in_context(&kubeconfig, &args)?;
 
