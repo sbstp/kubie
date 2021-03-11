@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -35,9 +35,11 @@ impl State {
             return Ok(State::default());
         }
         ioutil::read_json(path())
+            .with_context(|| format!("Failed to read state from '{}'", KUBIE_STATE_PATH.to_str().unwrap()))
     }
 
     pub fn save(&self) -> Result<()> {
         ioutil::write_json(path(), self)
+            .with_context(|| format!("Failed to write state to '{}'", KUBIE_STATE_PATH.to_str().unwrap()))
     }
 }
