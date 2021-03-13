@@ -58,11 +58,14 @@ fn enter_namespace(
     let context_name = &config.contexts[0].name;
 
     // Update the state, set the last namespace used for the context.
-    let mut state = State::load().context("Could not load state file.")?;
-    state
-        .namespace_history
-        .insert(context_name.into(), namespace_name.clone());
-    state.save()?;
+    // We take out a file lock here to avoid concurrent kubie processes
+    // corrupting the state file
+    State::modify(|state| {
+        state
+            .namespace_history
+            .insert(context_name.into(), namespace_name.clone());
+        Ok(())
+    })?;
 
     // Update the history, add the context and namespace to it.
     session.add_history_entry(context_name, namespace_name);
