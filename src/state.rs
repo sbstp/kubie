@@ -55,7 +55,7 @@ impl State {
     }
 
     fn access<R, F: FnOnce(State) -> Result<R>>(func: F) -> Result<R> {
-        let path = KUBIE_STATE_LOCK_PATH.to_str().unwrap();
+        let path = KUBIE_STATE_LOCK_PATH.display();
 
         // Acquire the lock
         let flock = File::create(lock_path())?;
@@ -65,7 +65,7 @@ impl State {
 
         // Do the work
         let state = State::read_and_parse()
-            .with_context(|| format!("Could not load state file: {}", KUBIE_STATE_PATH.to_str().unwrap()));
+            .with_context(|| format!("Could not load state file: {}", KUBIE_STATE_PATH.display()));
         let result = match state {
             Ok(s) => func(s),
             Err(e) => Err(e),
@@ -82,12 +82,11 @@ impl State {
         if !path().exists() {
             return Ok(State::default());
         }
-        ioutil::read_json(path())
-            .with_context(|| format!("Failed to read state from '{}'", KUBIE_STATE_PATH.to_str().unwrap()))
+        ioutil::read_json(path()).with_context(|| format!("Failed to read state from '{}'", KUBIE_STATE_PATH.display()))
     }
 
     fn save(&self) -> Result<()> {
         ioutil::write_json(path(), self)
-            .with_context(|| format!("Failed to write state to '{}'", KUBIE_STATE_PATH.to_str().unwrap()))
+            .with_context(|| format!("Failed to write state to '{}'", KUBIE_STATE_PATH.display()))
     }
 }
