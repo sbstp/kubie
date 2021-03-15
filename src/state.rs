@@ -64,12 +64,9 @@ impl State {
             .with_context(|| format!("Failed to lock state: {}", path))?;
 
         // Do the work
-        let state = State::read_and_parse()
-            .with_context(|| format!("Could not load state file: {}", KUBIE_STATE_PATH.display()));
-        let result = match state {
-            Ok(s) => func(s),
-            Err(e) => Err(e),
-        };
+        let result = State::read_and_parse()
+            .with_context(|| format!("Could not load state file: {}", KUBIE_STATE_PATH.display()))
+            .and_then(func);
 
         // Release the lock
         flock
