@@ -25,8 +25,9 @@ where
     DirBuilder::new()
         .recursive(true)
         .create(path.parent().expect("path has no parent"))?;
-    let file = File::create(path)?;
-    let writer = BufWriter::new(file);
+    let temp_file = tempfile::NamedTempFile::new()?;
+    let persisted_file = temp_file.persist(path)?;
+    let writer = BufWriter::new(persisted_file);
     serde_json::to_writer(writer, obj)?;
     Ok(())
 }
@@ -51,8 +52,9 @@ where
     DirBuilder::new()
         .recursive(true)
         .create(path.parent().expect("path has no parent"))?;
-    let file = File::create(path)?;
-    let writer = BufWriter::new(file);
+    let temp_file = tempfile::NamedTempFile::new()?;
+    let persisted_file = temp_file.persist(path)?;
+    let writer = BufWriter::new(persisted_file);
     serde_yaml::to_writer(writer, obj)?;
     Ok(())
 }

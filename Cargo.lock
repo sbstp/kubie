@@ -257,6 +257,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fs2"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
+dependencies = [
+ "libc",
+ "winapi",
+]
+
+[[package]]
 name = "generator"
 version = "0.6.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -367,6 +377,7 @@ dependencies = [
  "atty",
  "cfg-if 1.0.0",
  "dirs",
+ "fs2",
  "glob",
  "lazy_static",
  "libc",
