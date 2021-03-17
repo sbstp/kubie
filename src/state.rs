@@ -3,7 +3,6 @@ use std::fs::{DirBuilder, File};
 
 use anyhow::{Context, Result};
 use fs2::FileExt;
-
 use serde::{Deserialize, Serialize};
 
 use crate::ioutil;
