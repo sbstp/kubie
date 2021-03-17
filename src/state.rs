@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{DirBuilder, File};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
@@ -16,6 +16,11 @@ lazy_static! {
     };
     static ref KUBIE_STATE_PATH: PathBuf = KUBIE_DATA_DIR.join("state.json");
     static ref KUBIE_STATE_LOCK_PATH: PathBuf = KUBIE_DATA_DIR.join(".state.json.lock");
+}
+
+#[inline]
+pub fn data_dir_path() -> &'static Path {
+    &*KUBIE_DATA_DIR
 }
 
 #[inline]
@@ -55,23 +60,28 @@ impl State {
     }
 
     fn access<R, F: FnOnce(State) -> Result<R>>(func: F) -> Result<R> {
-        let path = KUBIE_STATE_LOCK_PATH.display();
+        // Create directory where state and lock will live.
+        DirBuilder::new()
+            .recursive(true)
+            .create(data_dir_path())
+            .with_context(|| format!("Could not create data dir: {}", data_dir_path().display()))?;
 
         // Acquire the lock
         let flock = File::create(lock_path())?;
         flock
             .lock_exclusive()
-            .with_context(|| format!("Failed to lock state: {}", path))?;
+            .with_context(|| format!("Failed to lock state: {}", lock_path().display()))?;
 
         // Do the work
         let result = State::read_and_parse()
-            .with_context(|| format!("Could not load state file: {}", KUBIE_STATE_PATH.display()))
+            .with_context(|| format!("Could not load state file: {}", path().display()))
             .and_then(func);
 
         // Release the lock
         flock
             .unlock()
-            .with_context(|| format!("Failed to unlock state: {}", path))?;
+            .with_context(|| format!("Failed to unlock state: {}", path().display()))?;
+
         result
     }
 
@@ -79,11 +89,10 @@ impl State {
         if !path().exists() {
             return Ok(State::default());
         }
-        ioutil::read_json(path()).with_context(|| format!("Failed to read state from '{}'", KUBIE_STATE_PATH.display()))
+        ioutil::read_json(path()).with_context(|| format!("Failed to read state from '{}'", path().display()))
     }
 
     fn save(&self) -> Result<()> {
-        ioutil::write_json(path(), self)
-            .with_context(|| format!("Failed to write state to '{}'", KUBIE_STATE_PATH.display()))
+        ioutil::write_json(path(), self).with_context(|| format!("Failed to write state to '{}'", path().display()))
     }
 }
