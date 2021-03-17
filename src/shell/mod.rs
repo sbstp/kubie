@@ -76,7 +76,7 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     env_vars.insert("KUBIE_DEPTH", next_depth.to_string());
     env_vars.insert("KUBIE_KUBECONFIG", temp_config_file.path());
     env_vars.insert("KUBIE_SESSION", temp_session_file.path());
-    env_vars.insert("KUBIE_STATE", state::path());
+    env_vars.insert("KUBIE_STATE", state::paths::state());
 
     env_vars.insert("KUBIE_PROMPT_DISABLE", if settings.prompt.disable { "1" } else { "0" });
     env_vars.insert(

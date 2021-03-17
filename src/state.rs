@@ -1,31 +1,40 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::fs::{DirBuilder, File};
 
 use anyhow::{Context, Result};
 use fs2::FileExt;
-use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
 use crate::ioutil;
 
-lazy_static! {
-    static ref KUBIE_DATA_DIR: PathBuf = {
-        let base_data_dir = dirs::data_local_dir().expect("Could not get local data dir");
-        base_data_dir.join("kubie")
-    };
-    static ref KUBIE_STATE_PATH: PathBuf = KUBIE_DATA_DIR.join("state.json");
-    static ref KUBIE_STATE_LOCK_PATH: PathBuf = KUBIE_DATA_DIR.join(".state.json.lock");
-}
+pub mod paths {
+    use std::path::{Path, PathBuf};
 
-#[inline]
-pub fn path() -> &'static Path {
-    &*KUBIE_STATE_PATH
-}
+    use lazy_static::lazy_static;
 
-#[inline]
-fn lock_path() -> &'static Path {
-    &*KUBIE_STATE_LOCK_PATH
+    lazy_static! {
+        static ref KUBIE_DATA_DIR: PathBuf = {
+            let base_data_dir = dirs::data_local_dir().expect("Could not get local data dir");
+            base_data_dir.join("kubie")
+        };
+        static ref KUBIE_STATE_PATH: PathBuf = KUBIE_DATA_DIR.join("state.json");
+        static ref KUBIE_STATE_LOCK_PATH: PathBuf = KUBIE_DATA_DIR.join(".state.json.lock");
+    }
+
+    #[inline]
+    pub fn data_dir() -> &'static Path {
+        &*KUBIE_DATA_DIR
+    }
+
+    #[inline]
+    pub fn state() -> &'static Path {
+        &*KUBIE_STATE_PATH
+    }
+
+    #[inline]
+    pub fn state_lock() -> &'static Path {
+        &*KUBIE_STATE_LOCK_PATH
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -55,35 +64,41 @@ impl State {
     }
 
     fn access<R, F: FnOnce(State) -> Result<R>>(func: F) -> Result<R> {
-        let path = KUBIE_STATE_LOCK_PATH.display();
+        // Create directory where state and lock will live.
+        DirBuilder::new()
+            .recursive(true)
+            .create(paths::data_dir())
+            .with_context(|| format!("Could not create data dir: {}", paths::data_dir().display()))?;
 
         // Acquire the lock
-        let flock = File::create(lock_path())?;
+        let flock = File::create(paths::state_lock())?;
         flock
             .lock_exclusive()
-            .with_context(|| format!("Failed to lock state: {}", path))?;
+            .with_context(|| format!("Failed to lock state: {}", paths::state_lock().display()))?;
 
         // Do the work
         let result = State::read_and_parse()
-            .with_context(|| format!("Could not load state file: {}", KUBIE_STATE_PATH.display()))
+            .with_context(|| format!("Could not load state file: {}", paths::state().display()))
             .and_then(func);
 
         // Release the lock
         flock
             .unlock()
-            .with_context(|| format!("Failed to unlock state: {}", path))?;
+            .with_context(|| format!("Failed to unlock state: {}", paths::state_lock().display()))?;
+
         result
     }
 
     fn read_and_parse() -> Result<State> {
-        if !path().exists() {
+        if !paths::state().exists() {
             return Ok(State::default());
         }
-        ioutil::read_json(path()).with_context(|| format!("Failed to read state from '{}'", KUBIE_STATE_PATH.display()))
+        ioutil::read_json(paths::state())
+            .with_context(|| format!("Failed to read state from '{}'", paths::state().display()))
     }
 
     fn save(&self) -> Result<()> {
-        ioutil::write_json(path(), self)
-            .with_context(|| format!("Failed to write state to '{}'", KUBIE_STATE_PATH.display()))
+        ioutil::write_json(paths::state(), self)
+            .with_context(|| format!("Failed to write state to '{}'", paths::state().display()))
     }
 }
