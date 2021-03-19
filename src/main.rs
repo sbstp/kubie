@@ -42,9 +42,17 @@ fn main() -> Result<()> {
             context_name,
             namespace_name,
             exit_early,
+            context_headers,
             args,
         } => {
-            cmd::exec::exec(&settings, context_name, namespace_name, exit_early, args)?;
+            cmd::exec::exec(
+                &settings,
+                context_name,
+                namespace_name,
+                exit_early,
+                context_headers,
+                args,
+            )?;
         }
         Kubie::Lint => {
             cmd::lint::lint(&settings)?;

@@ -155,12 +155,14 @@ impl Default for Prompt {
 pub struct Behavior {
     #[serde(default = "def_bool_true")]
     pub validate_namespaces: bool,
+    pub print_context_in_exec: bool,
 }
 
 impl Default for Behavior {
     fn default() -> Self {
         Behavior {
             validate_namespaces: true,
+            print_context_in_exec: true,
         }
     }
 }

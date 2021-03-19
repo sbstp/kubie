@@ -55,6 +55,9 @@ pub enum Kubie {
         /// Exit early if a command fails when using a wildcard context.
         #[structopt(short = "e", long = "exit-early")]
         exit_early: bool,
+        /// Don't print context headers in output.
+        #[structopt(short = "n", long = "no-context-headers", parse(from_flag = std::ops::Not::not))]
+        context_headers: bool,
         /// Command to run as well as its arguments.
         args: Vec<String>,
     },

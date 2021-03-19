@@ -129,6 +129,11 @@ behavior:
     # namespaces. If you do not have the right to list namespaces, disable this.
     # Default: true
     validate_namespaces: true
+
+    # Enable or disable the printing of the 'CONTEXT => ...' headers when running
+    # `kubie exec`.
+    # Default: true
+    print_context_in_exec: true
 ```
 
 ## Future plans
