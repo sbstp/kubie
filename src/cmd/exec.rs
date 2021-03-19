@@ -57,6 +57,7 @@ pub fn exec(
     context_name: String,
     namespace_name: String,
     exit_early: bool,
+    context_headers: bool,
     args: Vec<String>,
 ) -> Result<()> {
     if args.len() == 0 {
@@ -70,9 +71,16 @@ pub fn exec(
         return Err(anyhow!("No context matching {}", context_name));
     }
 
+    let print_context = atty::is(atty::Stream::Stdout) && settings.behavior.print_context_in_exec && context_headers;
     for context_src in matching {
+        if print_context {
+            println!("CONTEXT => {}", context_src.item.name);
+        }
         let kubeconfig = installed.make_kubeconfig_for_context(&context_src.item.name, Some(&namespace_name))?;
         let return_code = run_in_context(&kubeconfig, &args)?;
+        if print_context {
+            println!("{}", "-".repeat(20));
+        }
 
         if return_code != 0 && exit_early {
             std::process::exit(return_code);
