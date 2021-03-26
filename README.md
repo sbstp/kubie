@@ -132,8 +132,13 @@ behavior:
 
     # Enable or disable the printing of the 'CONTEXT => ...' headers when running
     # `kubie exec`.
-    # Default: true
-    print_context_in_exec: true
+    # Valid values:
+    #   Auto:   Prints context headers only if stdout is a TTY. Piping/redirecting
+    #           kubie output will auto-disable context headers.
+    #   Always: Always prints context headers, even if stdout is not a TTY.
+    #   Never:  Never prints context headers.
+    # Default: Auto
+    print_context_in_exec: Auto
 ```
 
 ## Future plans

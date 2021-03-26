@@ -152,17 +152,41 @@ impl Default for Prompt {
 }
 
 #[derive(Debug, Deserialize)]
+pub enum ContextHeaderBehavior {
+    Auto,
+    Always,
+    Never,
+}
+
+impl ContextHeaderBehavior {
+    pub fn should_print_headers(&self) -> bool {
+        match self {
+            ContextHeaderBehavior::Auto => atty::is(atty::Stream::Stdout),
+            ContextHeaderBehavior::Always => true,
+            ContextHeaderBehavior::Never => false,
+        }
+    }
+}
+
+impl Default for ContextHeaderBehavior {
+    fn default() -> Self {
+        ContextHeaderBehavior::Auto
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Behavior {
     #[serde(default = "def_bool_true")]
     pub validate_namespaces: bool,
-    pub print_context_in_exec: bool,
+    #[serde(default)]
+    pub print_context_in_exec: ContextHeaderBehavior,
 }
 
 impl Default for Behavior {
     fn default() -> Self {
         Behavior {
             validate_namespaces: true,
-            print_context_in_exec: true,
+            print_context_in_exec: ContextHeaderBehavior::default(),
         }
     }
 }

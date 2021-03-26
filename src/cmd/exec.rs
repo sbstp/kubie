@@ -57,7 +57,8 @@ pub fn exec(
     context_name: String,
     namespace_name: String,
     exit_early: bool,
-    context_headers: bool,
+    override_context_headers: bool,
+    override_no_context_headers: bool,
     args: Vec<String>,
 ) -> Result<()> {
     if args.len() == 0 {
@@ -71,7 +72,14 @@ pub fn exec(
         return Err(anyhow!("No context matching {}", context_name));
     }
 
-    let print_context = atty::is(atty::Stream::Stdout) && settings.behavior.print_context_in_exec && context_headers;
+    let print_context = if override_context_headers {
+        true
+    } else if override_no_context_headers {
+        false
+    } else {
+        settings.behavior.print_context_in_exec.should_print_headers()
+    };
+
     for context_src in matching {
         if print_context {
             println!("CONTEXT => {}", context_src.item.name);
