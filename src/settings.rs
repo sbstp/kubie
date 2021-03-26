@@ -186,7 +186,7 @@ impl Default for Behavior {
     fn default() -> Self {
         Behavior {
             validate_namespaces: true,
-            print_context_in_exec: ContextHeaderBehavior::default(),
+            print_context_in_exec: Default::default(),
         }
     }
 }
