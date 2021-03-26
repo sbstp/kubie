@@ -42,8 +42,7 @@ fn main() -> Result<()> {
             context_name,
             namespace_name,
             exit_early,
-            override_context_headers,
-            override_no_context_headers,
+            context_headers_flag,
             args,
         } => {
             cmd::exec::exec(
@@ -51,8 +50,7 @@ fn main() -> Result<()> {
                 context_name,
                 namespace_name,
                 exit_early,
-                override_context_headers,
-                override_no_context_headers,
+                context_headers_flag,
                 args,
             )?;
         }
