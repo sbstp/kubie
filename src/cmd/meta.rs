@@ -1,6 +1,8 @@
 use structopt::clap;
 use structopt::StructOpt;
 
+use crate::settings::ContextHeaderBehavior;
+
 #[derive(Debug, StructOpt)]
 #[structopt(global_setting(clap::AppSettings::VersionlessSubcommands))]
 pub enum Kubie {
@@ -55,14 +57,9 @@ pub enum Kubie {
         /// Exit early if a command fails when using a wildcard context.
         #[structopt(short = "e", long = "exit-early")]
         exit_early: bool,
-        /// Always print context headers in output, even if not a TTY.
         /// Overrides behavior.print_context_in_exec in Kubie settings file.
-        #[structopt(long = "context-headers")]
-        override_context_headers: bool,
-        /// Never print context headers in output.
-        /// Overrides behavior.print_context_in_exec in Kubie settings file.
-        #[structopt(long = "no-context-headers", conflicts_with = "override-context-headers")]
-        override_no_context_headers: bool,
+        #[structopt(long = "context-headers", possible_values = &ContextHeaderBehavior::variants(), case_insensitive = true)]
+        context_headers_flag: Option<ContextHeaderBehavior>,
         /// Command to run as well as its arguments.
         args: Vec<String>,
     },

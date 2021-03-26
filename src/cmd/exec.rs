@@ -5,7 +5,7 @@ use anyhow::{anyhow, Result};
 use signal_hook::iterator::Signals;
 
 use crate::kubeconfig::{self, KubeConfig};
-use crate::settings::Settings;
+use crate::settings::{ContextHeaderBehavior, Settings};
 use crate::vars;
 
 fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i32> {
@@ -57,8 +57,7 @@ pub fn exec(
     context_name: String,
     namespace_name: String,
     exit_early: bool,
-    override_context_headers: bool,
-    override_no_context_headers: bool,
+    context_headers_flag: Option<ContextHeaderBehavior>,
     args: Vec<String>,
 ) -> Result<()> {
     if args.len() == 0 {
@@ -72,13 +71,10 @@ pub fn exec(
         return Err(anyhow!("No context matching {}", context_name));
     }
 
-    let print_context = if override_context_headers {
-        true
-    } else if override_no_context_headers {
-        false
-    } else {
-        settings.behavior.print_context_in_exec.should_print_headers()
-    };
+    let print_context = context_headers_flag
+        .as_ref()
+        .unwrap_or(&settings.behavior.print_context_in_exec)
+        .should_print_headers();
 
     for context_src in matching {
         if print_context {
