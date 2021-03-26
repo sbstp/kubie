@@ -55,9 +55,14 @@ pub enum Kubie {
         /// Exit early if a command fails when using a wildcard context.
         #[structopt(short = "e", long = "exit-early")]
         exit_early: bool,
-        /// Don't print context headers in output.
-        #[structopt(short = "n", long = "no-context-headers", parse(from_flag = std::ops::Not::not))]
-        context_headers: bool,
+        /// Always print context headers in output, even if not a TTY.
+        /// Overrides behavior.print_context_in_exec in Kubie settings file.
+        #[structopt(long = "context-headers")]
+        override_context_headers: bool,
+        /// Never print context headers in output.
+        /// Overrides behavior.print_context_in_exec in Kubie settings file.
+        #[structopt(long = "no-context-headers", conflicts_with = "override-context-headers")]
+        override_no_context_headers: bool,
         /// Command to run as well as its arguments.
         args: Vec<String>,
     },
