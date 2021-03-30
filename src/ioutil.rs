@@ -1,6 +1,9 @@
-use std::fs::{DirBuilder, File, OpenOptions};
 use std::io::{BufReader, BufWriter};
 use std::path::Path;
+use std::{
+    fs::{DirBuilder, File, OpenOptions},
+    panic::{self, UnwindSafe},
+};
 
 use anyhow::{Context, Result};
 use fs2::FileExt;
@@ -61,7 +64,7 @@ where
 pub fn file_lock<P, F, T>(path: P, scope: F) -> Result<T, anyhow::Error>
 where
     P: AsRef<Path>,
-    F: FnOnce() -> Result<T, anyhow::Error>,
+    F: FnOnce() -> Result<T, anyhow::Error> + UnwindSafe,
 {
     let path = path.as_ref();
     let file = OpenOptions::new()
@@ -76,10 +79,15 @@ where
     file.lock_exclusive()
         .with_context(|| format!("Could not lock file at {}", path.display()))?;
 
-    let result = scope();
+    // Run the given closure, but catch any panics so we can unlock before resuming the panic.
+    let exception = panic::catch_unwind(|| scope());
 
-    file.unlock()
-        .with_context(|| format!("Could not unlock file at {}", path.display()))?;
+    // Ignore errors during unlock. If we had a panic, we don't want to return the potential error.
+    // If we did not panic, we want to return the closure's result.
+    let _ = file.unlock();
 
-    result
+    match exception {
+        Ok(result) => result,
+        Err(x) => panic::resume_unwind(x),
+    }
 }

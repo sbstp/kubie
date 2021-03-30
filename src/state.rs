@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use std::fs::DirBuilder;
+use std::{collections::HashMap, panic::UnwindSafe};
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -54,7 +54,7 @@ impl State {
 
     /// Takes a closure that allows for modifications of the state. Automatically handles
     /// locking/unlocking and saving after execution of the closure.
-    pub fn modify<F: FnOnce(&mut State) -> Result<()>>(func: F) -> Result<()> {
+    pub fn modify<F: FnOnce(&mut State) -> Result<()> + UnwindSafe>(func: F) -> Result<()> {
         Self::access(|mut state| {
             func(&mut state)?;
             state.save()?;
@@ -62,7 +62,7 @@ impl State {
         })
     }
 
-    fn access<R, F: FnOnce(State) -> Result<R>>(func: F) -> Result<R> {
+    fn access<R, F: FnOnce(State) -> Result<R> + UnwindSafe>(func: F) -> Result<R> {
         // Create directory where state and lock will live.
         DirBuilder::new()
             .recursive(true)
