@@ -1,8 +1,7 @@
-use std::collections::HashMap;
-use std::fs::{DirBuilder, File};
+use std::fs::DirBuilder;
+use std::{collections::HashMap, panic::UnwindSafe};
 
 use anyhow::{Context, Result};
-use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 
 use crate::ioutil;
@@ -55,7 +54,7 @@ impl State {
 
     /// Takes a closure that allows for modifications of the state. Automatically handles
     /// locking/unlocking and saving after execution of the closure.
-    pub fn modify<F: FnOnce(&mut State) -> Result<()>>(func: F) -> Result<()> {
+    pub fn modify<F: FnOnce(&mut State) -> Result<()> + UnwindSafe>(func: F) -> Result<()> {
         Self::access(|mut state| {
             func(&mut state)?;
             state.save()?;
@@ -63,30 +62,18 @@ impl State {
         })
     }
 
-    fn access<R, F: FnOnce(State) -> Result<R>>(func: F) -> Result<R> {
+    fn access<R, F: FnOnce(State) -> Result<R> + UnwindSafe>(func: F) -> Result<R> {
         // Create directory where state and lock will live.
         DirBuilder::new()
             .recursive(true)
             .create(paths::data_dir())
             .with_context(|| format!("Could not create data dir: {}", paths::data_dir().display()))?;
 
-        // Acquire the lock
-        let flock = File::create(paths::state_lock())?;
-        flock
-            .lock_exclusive()
-            .with_context(|| format!("Failed to lock state: {}", paths::state_lock().display()))?;
-
-        // Do the work
-        let result = State::read_and_parse()
-            .with_context(|| format!("Could not load state file: {}", paths::state().display()))
-            .and_then(func);
-
-        // Release the lock
-        flock
-            .unlock()
-            .with_context(|| format!("Failed to unlock state: {}", paths::state_lock().display()))?;
-
-        result
+        ioutil::file_lock(paths::state_lock(), || {
+            State::read_and_parse()
+                .with_context(|| format!("Could not load state file: {}", paths::state().display()))
+                .and_then(func)
+        })
     }
 
     fn read_and_parse() -> Result<State> {

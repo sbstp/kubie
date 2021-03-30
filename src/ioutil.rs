@@ -1,8 +1,12 @@
-use std::fs::{DirBuilder, File};
 use std::io::{BufReader, BufWriter};
 use std::path::Path;
+use std::{
+    fs::{DirBuilder, File, OpenOptions},
+    panic::{self, UnwindSafe},
+};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
+use fs2::FileExt;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub fn read_json<P, T>(path: P) -> Result<T>
@@ -25,9 +29,8 @@ where
     DirBuilder::new()
         .recursive(true)
         .create(path.parent().expect("path has no parent"))?;
-    let temp_file = tempfile::NamedTempFile::new()?;
-    let persisted_file = temp_file.persist(path)?;
-    let writer = BufWriter::new(persisted_file);
+    let file = File::create(path)?;
+    let writer = BufWriter::new(file);
     serde_json::to_writer(writer, obj)?;
     Ok(())
 }
@@ -52,9 +55,39 @@ where
     DirBuilder::new()
         .recursive(true)
         .create(path.parent().expect("path has no parent"))?;
-    let temp_file = tempfile::NamedTempFile::new()?;
-    let persisted_file = temp_file.persist(path)?;
-    let writer = BufWriter::new(persisted_file);
+    let file = File::create(path)?;
+    let writer = BufWriter::new(file);
     serde_yaml::to_writer(writer, obj)?;
     Ok(())
+}
+
+pub fn file_lock<P, F, T>(path: P, scope: F) -> Result<T, anyhow::Error>
+where
+    P: AsRef<Path>,
+    F: FnOnce() -> Result<T, anyhow::Error> + UnwindSafe,
+{
+    let path = path.as_ref();
+    let file = OpenOptions::new()
+        .append(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(path)
+        .with_context(|| format!("Could not open lock file at {}", path.display()))?;
+
+    file.lock_exclusive()
+        .with_context(|| format!("Could not lock file at {}", path.display()))?;
+
+    // Run the given closure, but catch any panics so we can unlock before resuming the panic.
+    let exception = panic::catch_unwind(|| scope());
+
+    // Ignore errors during unlock. If we had a panic, we don't want to return the potential error.
+    // If we did not panic, we want to return the closure's result.
+    let _ = file.unlock();
+
+    match exception {
+        Ok(result) => result,
+        Err(x) => panic::resume_unwind(x),
+    }
 }
