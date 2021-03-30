@@ -1,11 +1,10 @@
 use std::collections::HashMap;
-use std::fs::{DirBuilder, File};
+use std::fs::DirBuilder;
 
 use anyhow::{Context, Result};
-use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 
-use crate::ioutil;
+use crate::ioutil::{self, LockFile};
 
 pub mod paths {
     use std::path::{Path, PathBuf};
@@ -70,23 +69,17 @@ impl State {
             .create(paths::data_dir())
             .with_context(|| format!("Could not create data dir: {}", paths::data_dir().display()))?;
 
-        // Acquire the lock
-        let flock = File::create(paths::state_lock())?;
+        let mut flock = LockFile::new(paths::state_lock())
+            .with_context(|| format!("Failed to lock open lock file: {}", paths::state_lock().display()))?;
+
         flock
-            .lock_exclusive()
-            .with_context(|| format!("Failed to lock state: {}", paths::state_lock().display()))?;
+            .acquire()
+            .with_context(|| format!("Failed to lock file: {}", paths::state_lock().display()))?;
 
         // Do the work
-        let result = State::read_and_parse()
+        State::read_and_parse()
             .with_context(|| format!("Could not load state file: {}", paths::state().display()))
-            .and_then(func);
-
-        // Release the lock
-        flock
-            .unlock()
-            .with_context(|| format!("Failed to unlock state: {}", paths::state_lock().display()))?;
-
-        result
+            .and_then(func)
     }
 
     fn read_and_parse() -> Result<State> {
