@@ -4,7 +4,7 @@ use std::fs::DirBuilder;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::ioutil::{self, LockFile};
+use crate::ioutil;
 
 pub mod paths {
     use std::path::{Path, PathBuf};
@@ -69,17 +69,11 @@ impl State {
             .create(paths::data_dir())
             .with_context(|| format!("Could not create data dir: {}", paths::data_dir().display()))?;
 
-        let mut flock = LockFile::new(paths::state_lock())
-            .with_context(|| format!("Failed to lock open lock file: {}", paths::state_lock().display()))?;
-
-        flock
-            .acquire()
-            .with_context(|| format!("Failed to lock file: {}", paths::state_lock().display()))?;
-
-        // Do the work
-        State::read_and_parse()
-            .with_context(|| format!("Could not load state file: {}", paths::state().display()))
-            .and_then(func)
+        ioutil::file_lock(paths::state_lock(), || {
+            State::read_and_parse()
+                .with_context(|| format!("Could not load state file: {}", paths::state().display()))
+                .and_then(func)
+        })
     }
 
     fn read_and_parse() -> Result<State> {

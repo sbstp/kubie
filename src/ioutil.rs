@@ -1,8 +1,8 @@
 use std::fs::{DirBuilder, File, OpenOptions};
-use std::io::{self, BufReader, BufWriter};
+use std::io::{BufReader, BufWriter};
 use std::path::Path;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use fs2::FileExt;
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -58,34 +58,28 @@ where
     Ok(())
 }
 
-pub struct LockFile {
-    inner: File,
-}
+pub fn file_lock<P, F, T>(path: P, scope: F) -> Result<T, anyhow::Error>
+where
+    P: AsRef<Path>,
+    F: FnOnce() -> Result<T, anyhow::Error>,
+{
+    let path = path.as_ref();
+    let file = OpenOptions::new()
+        .append(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(path)
+        .with_context(|| format!("Could not open lock file at {}", path.display()))?;
 
-pub struct LockFileGuard<'a> {
-    lock_file: &'a mut LockFile,
-}
+    file.lock_exclusive()
+        .with_context(|| format!("Could not lock file at {}", path.display()))?;
 
-impl LockFile {
-    pub fn new(path: impl AsRef<Path>) -> io::Result<Self> {
-        let inner = OpenOptions::new()
-            .append(true)
-            .truncate(false)
-            .read(true)
-            .write(true)
-            .create(true)
-            .open(path.as_ref())?;
-        Ok(LockFile { inner })
-    }
+    let result = scope();
 
-    pub fn acquire(&mut self) -> io::Result<LockFileGuard> {
-        self.inner.lock_exclusive()?;
-        Ok(LockFileGuard { lock_file: self })
-    }
-}
+    file.unlock()
+        .with_context(|| format!("Could not unlock file at {}", path.display()))?;
 
-impl<'a> Drop for LockFileGuard<'a> {
-    fn drop(&mut self) {
-        let _ = self.lock_file.inner.unlock();
-    }
+    result
 }
