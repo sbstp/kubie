@@ -6,7 +6,6 @@ _kubiecomplete()
 
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
-    prevprev=${COMP_WORDS[COMP_CWORD-2]}
 
     { \unalias command; \unset -f command; } >/dev/null 2>&1 || true
 
@@ -32,6 +31,7 @@ _kubiecomplete()
             esac
             ;;
         3)
+            prevprev=${COMP_WORDS[COMP_CWORD-2]}
             case ${prevprev} in
                 exec)
                     COMPREPLY=($(command kubie exec ${prev} default kubectl get namespaces|command tail -n+2|command awk '{print $1}'| command grep -e "^$cur" |command xargs))
