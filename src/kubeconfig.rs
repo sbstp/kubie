@@ -211,6 +211,12 @@ where
 
     for path in kubeconfigs.into_iter() {
         let path = path.as_ref();
+
+        // Avoid parsing things that aren't files or don't link to a file.
+        if !path.is_file() {
+            continue;
+        }
+
         let kubeconfig: Result<KubeConfig> = ioutil::read_yaml(&path);
 
         match kubeconfig {
