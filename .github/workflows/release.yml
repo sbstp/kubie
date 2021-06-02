@@ -46,7 +46,8 @@ jobs:
           use-cross: true
           command: build
           args: --release --target arm-unknown-linux-musleabi
-      - run: strip target/arm-unknown-linux-musleabi/release/kubie
+      - run: sudo apt-get install binutils-arm-linux-gnueabi
+      - run: arm-linux-gnueabi-strip target/arm-unknown-linux-musleabi/release/kubie
       - run: ls -lh target/arm-unknown-linux-musleabi/release/
 
       - uses: svenstaro/upload-release-action@v2
