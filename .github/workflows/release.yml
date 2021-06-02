@@ -48,7 +48,7 @@ jobs:
           args: --release --target arm-unknown-linux-musleabi
 
       # Turns out using the gnueabi strip tool on musleabi works, couldn't find the musleabi strip tool...
-      - run: sudo apt-get update && sudo agt-get install -y binutils-arm-linux-gnueabi
+      - run: sudo apt-get update && sudo apt-get install -y binutils-arm-linux-gnueabi
       - run: arm-linux-gnueabi-strip target/arm-unknown-linux-musleabi/release/kubie
       - run: ls -lh target/arm-unknown-linux-musleabi/release/
 
