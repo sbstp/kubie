@@ -46,7 +46,9 @@ jobs:
           use-cross: true
           command: build
           args: --release --target arm-unknown-linux-musleabi
-      - run: sudo apt-get install binutils-arm-linux-gnueabi
+
+      # Turns out using the gnueabi strip tool on musleabi works, couldn't find the musleabi strip tool...
+      - run: sudo apt-get update && sudo agt-get install -y binutils-arm-linux-gnueabi
       - run: arm-linux-gnueabi-strip target/arm-unknown-linux-musleabi/release/kubie
       - run: ls -lh target/arm-unknown-linux-musleabi/release/
 
@@ -54,7 +56,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/arm-unknown-linux-musleabi/release/kubie
-          asset_name: kubie-linux-arm32
+          asset_name: kubie-linux-armv6
           tag: ${{ github.ref }}
 
   build-macos-amd64:
