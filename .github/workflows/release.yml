@@ -31,6 +31,31 @@ jobs:
           asset_name: kubie-linux-amd64
           tag: ${{ github.ref }}
 
+  build-linux-armv6-static:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: arm-unknown-linux-musleabi
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          args: --release --target arm-unknown-linux-musleabi
+      - run: strip target/arm-unknown-linux-musleabi/release/kubie
+      - run: ls -lh target/arm-unknown-linux-musleabi/release/
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/arm-unknown-linux-musleabi/release/kubie
+          asset_name: kubie-linux-arm32
+          tag: ${{ github.ref }}
+
   build-macos-amd64:
     runs-on: macos-10.15
     steps:
