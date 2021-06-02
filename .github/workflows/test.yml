@@ -34,7 +34,7 @@ jobs:
         with:
           use-cross: true
           command: test
-          args: --all-features
+          args: --all-features --target arm-unknown-linux-musleabi
 
   test-macos-amd64:
     runs-on: macos-10.15
