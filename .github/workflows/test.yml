@@ -20,6 +20,22 @@ jobs:
           command: test
           args: --all-features
 
+  test-linux-armv6:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: arm-unknown-linux-musleabi
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          args: --all-features
+
   test-macos-amd64:
     runs-on: macos-10.15
     steps:
