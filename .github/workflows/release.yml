@@ -44,7 +44,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
-          command: test
+          command: build
           args: --release --target arm-unknown-linux-musleabi
       - run: strip target/arm-unknown-linux-musleabi/release/kubie
       - run: ls -lh target/arm-unknown-linux-musleabi/release/
