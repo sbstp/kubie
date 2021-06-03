@@ -48,8 +48,8 @@ jobs:
           args: --release --target arm-unknown-linux-musleabi
 
       # Turns out using the gnueabi strip tool on musleabi works, couldn't find the musleabi strip tool...
-      - run: sudo apt-get update && sudo apt-get install -y apt-get install binutils-aarch64-linux-gnu
-      - run: aarch64-linux-gnu-strip target/arm-unknown-linux-musleabi/release/kubie
+      - run: sudo apt-get update && sudo apt-get install -y binutils-arm-linux-gnueabi
+      - run: arm-linux-gnueabi-strip target/arm-unknown-linux-musleabi/release/kubie
       - run: ls -lh target/arm-unknown-linux-musleabi/release/
 
       - uses: svenstaro/upload-release-action@v2
@@ -76,8 +76,8 @@ jobs:
           args: --release --target aarch64-unknown-linux-musl
 
       # Turns out using the gnueabi strip tool on musleabi works, couldn't find the musleabi strip tool...
-      - run: sudo apt-get update && sudo apt-get install -y binutils-arm-linux-gnueabi
-      - run: arm-linux-gnueabi-strip target/aarch64-unknown-linux-musl/release/kubie
+      - run: sudo apt-get update && sudo apt-get install -y binutils-aarch64-linux-gnu
+      - run: aarch64-linux-gnu-strip target/aarch64-unknown-linux-musl/release/kubie
       - run: ls -lh target/aarch64-unknown-linux-musl/release/
 
       - uses: svenstaro/upload-release-action@v2
