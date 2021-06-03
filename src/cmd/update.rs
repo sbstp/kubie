@@ -30,6 +30,10 @@ impl Release {
         cfg_if! {
             if #[cfg(all(target_os = "linux", target_arch = "x86_64"))] {
                 Some("kubie-linux-amd64")
+            } else if #[cfg(all(target_os = "linux", target_arch = "arm"))] {
+                Some("kubie-linux-arm32")
+            } else if #[cfg(all(target_os = "linux", target_arch = "aarch64"))] {
+                Some("kubie-linux-arm64")
             } else if #[cfg(all(target_os = "macos", target_arch = "x86_64"))] {
                 Some("kubie-darwin-amd64")
             } else if #[cfg(all(target_os = "macos", target_arch = "aarch64"))] {

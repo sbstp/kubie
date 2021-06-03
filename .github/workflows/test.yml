@@ -20,7 +20,7 @@ jobs:
           command: test
           args: --all-features
 
-  test-linux-armv6:
+  test-linux-arm32:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -35,6 +35,22 @@ jobs:
           use-cross: true
           command: test
           args: --all-features --target arm-unknown-linux-musleabi
+
+  test-linux-arm64:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-musl
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          args: --all-features --target aarch64-unknown-linux-musl
 
   test-macos-amd64:
     runs-on: macos-10.15

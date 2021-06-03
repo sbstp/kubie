@@ -31,7 +31,7 @@ jobs:
           asset_name: kubie-linux-amd64
           tag: ${{ github.ref }}
 
-  build-linux-armv6-static:
+  build-linux-arm32-static:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -56,7 +56,35 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/arm-unknown-linux-musleabi/release/kubie
-          asset_name: kubie-linux-armv6
+          asset_name: kubie-linux-arm32
+          tag: ${{ github.ref }}
+
+  build-linux-arm64-static:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-musl
+          override: true
+
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --target aarch64-unknown-linux-musl
+
+      # Turns out using the gnueabi strip tool on musleabi works, couldn't find the musleabi strip tool...
+      - run: sudo apt-get update && sudo apt-get install -y binutils-arm-linux-gnueabi
+      - run: arm-linux-gnueabi-strip target/aarch64-unknown-linux-musl/release/kubie
+      - run: ls -lh target/aarch64-unknown-linux-musl/release/
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/aarch64-unknown-linux-musl/release/kubie
+          asset_name: kubie-linux-arm64
           tag: ${{ github.ref }}
 
   build-macos-amd64:
