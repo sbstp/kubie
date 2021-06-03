@@ -75,7 +75,7 @@ jobs:
           command: build
           args: --release --target aarch64-unknown-linux-musl
 
-      # Turns out using the gnueabi strip tool on musleabi works, couldn't find the musleabi strip tool...
+      # Turns out using the gnu strip tool on musl works, couldn't find the musl strip tool...
       - run: sudo apt-get update && sudo apt-get install -y binutils-aarch64-linux-gnu
       - run: aarch64-linux-gnu-strip target/aarch64-unknown-linux-musl/release/kubie
       - run: ls -lh target/aarch64-unknown-linux-musl/release/
