@@ -16,6 +16,7 @@ mod bash;
 mod detect;
 mod fish;
 mod prompt;
+mod xonsh;
 mod zsh;
 
 pub struct EnvVars<'n> {
@@ -87,6 +88,10 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         "KUBIE_FISH_USE_RPROMPT",
         if settings.prompt.fish_use_rprompt { "1" } else { "0" },
     );
+    env_vars.insert(
+        "KUBIE_XONSH_USE_RIGHT_PROMPT",
+        if settings.prompt.xonsh_use_right_prompt { "1" } else { "0" },
+    );
 
     match kind {
         ShellKind::Bash => {
@@ -94,6 +99,9 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         }
         ShellKind::Fish => {
             env_vars.insert("KUBIE_SHELL", "fish");
+        }
+        ShellKind::Xonsh => {
+            env_vars.insert("KUBIE_SHELL", "xonsh");
         }
         ShellKind::Zsh => {
             env_vars.insert("KUBIE_SHELL", "zsh");
@@ -109,6 +117,7 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     match kind {
         ShellKind::Bash => bash::spawn_shell(&info),
         ShellKind::Fish => fish::spawn_shell(&info),
+        ShellKind::Xonsh => xonsh::spawn_shell(&info),
         ShellKind::Zsh => zsh::spawn_shell(&info),
     }
 }

@@ -80,7 +80,7 @@ available below.
 
 ```yaml
 # Force kubie to use a particular shell, if unset detect shell currently in use.
-# Possible values: bash, dash, fish, zsh
+# Possible values: bash, dash, fish, xonsh, zsh
 # Default: unset
 shell: bash
 
@@ -122,6 +122,10 @@ prompt:
     # When using fish, show context and namespace on the right-hand side.
     # Default: false
     fish_use_rprompt: false
+
+    # When using xonsh, show context and namespace on the right-hand side.
+    # Default: false
+    xonsh_use_right_prompt: false
 
 # Behavior
 behavior:
