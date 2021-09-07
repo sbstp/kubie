@@ -52,18 +52,24 @@ where
         E: Display,
     {
         match self.shell_kind {
-            ShellKind::Fish => write!(f, "{}", content),
+            ShellKind::Fish | ShellKind::Xonsh => write!(f, "{}", content),
             ShellKind::Zsh => write!(f, "%{{{}%}}", content),
             _ => write!(f, "\\[{}\\]", content),
         }
     }
 
     fn start_color(&self, f: &mut fmt::Formatter, color: u32) -> fmt::Result {
-        self.isolate(f, format!("\\e[{}m", color))
+        match self.shell_kind {
+            ShellKind::Xonsh => self.isolate(f, format!("\\033[{}m", color)),
+            _ => self.isolate(f, format!("\\e[{}m", color))
+        }
     }
 
     fn end_color(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.isolate(f, "\\e[0m")
+        match self.shell_kind {
+            ShellKind::Xonsh => self.isolate(f, "\\033[0m"),
+            _ => self.isolate(f, "\\e[0m")
+        }
     }
 }
 

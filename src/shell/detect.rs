@@ -7,6 +7,7 @@ use anyhow::{anyhow, Context, Result};
 pub enum ShellKind {
     Bash,
     Fish,
+    Xonsh,
     Zsh,
 }
 
@@ -15,6 +16,7 @@ impl ShellKind {
         Some(match name {
             "bash" | "dash" => ShellKind::Bash,
             "fish" => ShellKind::Fish,
+            "xonsh" | "python" => ShellKind::Xonsh,
             "zsh" => ShellKind::Zsh,
             _ => return None,
         })
@@ -55,7 +57,7 @@ fn parse_command(cmd: &str) -> &str {
     let binary_path = &cmd[..first_space];
     let last_path_sep = binary_path.rfind("/").map(|x| x + 1).unwrap_or(0);
     let binary = &binary_path[last_path_sep..];
-    binary.trim_start_matches("-")
+    binary.trim_start_matches("-").trim_end_matches(|c: char| c.is_digit(10) || c == '.')
 }
 
 /// Detect from which kind of shell kubie was spawned.
@@ -110,4 +112,9 @@ fn test_parse_command_with_path_and_args() {
 #[test]
 fn test_parse_command_login_shell() {
     assert_eq!(parse_command("-zsh"), "zsh");
+}
+
+#[test]
+fn test_parse_command_versioned_intepreter() {
+    assert_eq!(parse_command("python3.8"), "python");
 }
