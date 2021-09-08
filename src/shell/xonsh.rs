@@ -47,7 +47,7 @@ import re
 for match in re.finditer(r'\$\(([^)]*)\)', $KUBIE_PROMPT):
     command = match.group(1)
     name = command.split(' ')[-1]
-    $PROMPT_FIELDS[name] = $(@(command.split(' '))).strip()
+    $PROMPT_FIELDS[name] = evalx(f'lambda: $({{command}}).strip()')
     $KUBIE_PROMPT = $KUBIE_PROMPT.replace(f'$({{command}})', '{{' + name + '}}')
 
 if $KUBIE_XONSH_USE_RIGHT_PROMPT == "1":
