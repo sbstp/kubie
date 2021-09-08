@@ -15,6 +15,20 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     write!(
         temp_rc_file_buf,
         r#"
+# https://xon.sh/xonshrc.html
+from pathlib import Path
+
+files = [
+    "/etc/xonshrc",
+    "~/.xonshrc",
+    "~/.config/xonsh/rc.xsh",
+]
+for file in files:
+    if Path(file).is_file():
+        source @(file)
+if Path("~/.config/xonsh/rc.d").is_dir():
+    for file in path.glob('*.xsh'):
+        source @(file)
 "#
     )?;
 
