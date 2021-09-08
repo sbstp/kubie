@@ -29,6 +29,10 @@ for file in files:
 if Path("~/.config/xonsh/rc.d").is_dir():
     for file in path.glob('*.xsh'):
         source @(file)
+
+@events.on_precommand
+def __kubie_cmd_pre_exec__(cmd):
+    $KUBECONFIG = $KUBIE_KUBECONFIG
 "#
     )?;
 
