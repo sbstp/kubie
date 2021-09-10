@@ -87,10 +87,14 @@ impl Installed {
         self.clusters
             .iter()
             .find(|s| s.item.name == name && *s.source == source)
+            .or_else(|| self.clusters.iter().find(|s| s.item.name == name))
     }
 
     pub fn find_user_by_name(&self, name: &str, source: &Path) -> Option<&Sourced<NamedUser>> {
-        self.users.iter().find(|s| s.item.name == name && *s.source == source)
+        self.users
+            .iter()
+            .find(|s| s.item.name == name && *s.source == source)
+            .or_else(|| self.users.iter().find(|s| s.item.name == name))
     }
 
     pub fn find_contexts_by_cluster(&self, name: &str, source: &Path) -> Vec<&Sourced<NamedContext>> {
