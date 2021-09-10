@@ -8,7 +8,7 @@ use super::ShellSpawnInfo;
 pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
     let temp_rc_file = tempfile::Builder::new()
         .prefix("kubie-xonshrc")
-        .suffix(".xonsh")
+        .suffix(".xsh")
         .tempfile()?;
     let mut temp_rc_file_buf = BufWriter::new(temp_rc_file.as_file());
 
@@ -46,7 +46,7 @@ import re
 # Fanciful prompt-command replacement as xonsh forces the use of PROMPT_FIELDS
 for match in re.finditer(r'\$\(([^)]*)\)', $KUBIE_PROMPT):
     command = match.group(1)
-    name = command.split(' ')[-1]
+    name = command.split().pop()
     $PROMPT_FIELDS[name] = evalx(f'lambda: $({{command}}).strip()')
     $KUBIE_PROMPT = $KUBIE_PROMPT.replace(f'$({{command}})', '{{' + name + '}}')
 
