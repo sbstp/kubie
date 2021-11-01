@@ -31,6 +31,9 @@ crates.io and then built.
 ### Homebrew
 You can install `kubie` from Homebrew by running `brew install kubie`.
 
+### MacPorts
+You can also install `kubie` from [MacPorts](https://www.macports.org) by running `sudo port install kubie`.
+
 ### Nix
 There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
