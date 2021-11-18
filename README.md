@@ -37,7 +37,10 @@ You can also install `kubie` from [MacPorts](https://www.macports.org) by runnin
 ### Nix
 There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
-### Bash autocomplete
+### Autocompletion
+
+#### Bash
+
 If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script:
 ```bash
 sudo cp ./completion/kubie.bash /etc/bash_completion.d/kubie
@@ -47,6 +50,16 @@ Then spawn new shell or source copied file:
 ```bash
 . /etc/bash_completion.d/kubie
 ```
+
+#### Fish
+
+Install the completions script [kubie.fish](completion/kubie.fish) by copying it, eg.:
+
+```bash
+cp completion/kubie.fish ~/.config/fish/completions/
+```
+
+Then reopen fish or source the file.
 
 ## Usage
 Note that if you have [`fzf`](https://github.com/junegunn/fzf) installed, the experience will be greatly improved.
