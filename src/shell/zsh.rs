@@ -17,8 +17,8 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
             zshrc_buf,
             r#"
 # If a zsh_history file exists, copy it over before zsh initialization so history is maintained
-if [[ -f "${{ZDOTDIR:-HOME}}/.zsh_history" ]] ; then
-    cp "${{ZDOTDIR:-HOME}}"/.zsh_history $ZDOTDIR
+if [[ -f "$HOME/.zsh_history" ]] ; then
+    cp $HOME/.zsh_history $ZDOTDIR
 fi
 
 KUBIE_LOGIN_SHELL=0
@@ -47,8 +47,8 @@ elif [[ -f "/etc/zsh/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zsh/zprofile"
 fi
 
-if [[ -f "${{ZDOTDIR:-HOME}}/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
-    source "${{ZDOTDIR:-HOME}}/.zprofile"
+if [[ -f "$HOME/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "$HOME/.zprofile"
 fi
 
 if [[ -f "/etc/zshrc" ]] ; then
@@ -57,8 +57,8 @@ elif [[ -f "/etc/zsh/zshrc" ]] ; then
     source "/etc/zsh/zshrc"
 fi
 
-if [[ -f "${{ZDOTDIR:-HOME}}/.zshrc" ]] ; then
-    source "${{ZDOTDIR:-HOME}}/.zshrc"
+if [[ -f "$HOME/.zshrc" ]] ; then
+    source "$HOME/.zshrc"
 fi
 
 if [[ -f "/etc/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
@@ -67,8 +67,8 @@ elif [[ -f "/etc/zsh/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zsh/zlogin"
 fi
 
-if [[ -f "${{ZDOTDIR:-HOME}}/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
-    source "${{ZDOTDIR:-HOME}}/.zlogin"
+if [[ -f "$HOME/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "$HOME/.zlogin"
 fi
 
 autoload -Uz add-zsh-hook
