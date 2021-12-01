@@ -16,16 +16,6 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
         write!(
             zshrc_buf,
             r#"
-# If a zsh_history file exists, copy it over before zsh initialization so history is maintained
-if [[ -f "$HOME/.zsh_history" ]] ; then
-    cp $HOME/.zsh_history $ZDOTDIR
-fi
-
-KUBIE_LOGIN_SHELL=0
-if [[ "$OSTYPE" == "darwin"* ]] ; then
-    KUBIE_LOGIN_SHELL=1
-fi
-
 # Reference for loading behavior
 # https://shreevatsa.wordpress.com/2008/03/30/zshbash-startup-files-loading-order-bashrc-zshrc-etc/
 
@@ -35,10 +25,26 @@ elif [[ -f "/etc/zsh/zshenv" ]] ; then
     source "/etc/zsh/zshenv"
 fi
 
-# TODO: It is possible for users to modify ZDOTDIR in ~/.zshenv to put zsh files in another place.
-# TODO: Currently modification of this variable it not supported by kubie.
 if [[ -f "$HOME/.zshenv" ]] ; then
+    tmp_ZDOTDIR=$ZDOTDIR
     source "$HOME/.zshenv"
+    # If the user has overridden $ZDOTDIR, we save that in $_KUBIE_USER_ZDOTDIR for later reference
+    # and reset $ZDOTDIR
+    if [[ "$tmp_ZDOTDIR" != "$ZDOTDIR" ]]; then
+        _KUBIE_USER_ZDOTDIR=$ZDOTDIR
+        ZDOTDIR=$tmp_ZDOTDIR
+        unset tmp_ZDOTDIR
+    fi
+fi
+
+# If a zsh_history file exists, copy it over before zsh initialization so history is maintained
+if [[ -f "$HISTFILE" ]] ; then
+    cp $HISTFILE $ZDOTDIR
+fi
+
+KUBIE_LOGIN_SHELL=0
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    KUBIE_LOGIN_SHELL=1
 fi
 
 if [[ -f "/etc/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
@@ -47,8 +53,8 @@ elif [[ -f "/etc/zsh/zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zsh/zprofile"
 fi
 
-if [[ -f "$HOME/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
-    source "$HOME/.zprofile"
+if [[ -f "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zprofile" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zprofile"
 fi
 
 if [[ -f "/etc/zshrc" ]] ; then
@@ -57,8 +63,8 @@ elif [[ -f "/etc/zsh/zshrc" ]] ; then
     source "/etc/zsh/zshrc"
 fi
 
-if [[ -f "$HOME/.zshrc" ]] ; then
-    source "$HOME/.zshrc"
+if [[ -f "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zshrc" ]] ; then
+    source "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zshrc"
 fi
 
 if [[ -f "/etc/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
@@ -67,9 +73,11 @@ elif [[ -f "/etc/zsh/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
     source "/etc/zsh/zlogin"
 fi
 
-if [[ -f "$HOME/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
-    source "$HOME/.zlogin"
+if [[ -f "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
+    source "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zlogin"
 fi
+
+unset _KUBIE_USER_ZDOTDIR
 
 autoload -Uz add-zsh-hook
 
