@@ -318,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "kubie"
-version = "0.15.3"
+version = "0.16.0"
 dependencies = [
  "anyhow",
  "attohttpc",
