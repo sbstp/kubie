@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 
@@ -14,11 +14,21 @@ lazy_static! {
         .to_str()
         .expect("home directory contains non unicode characters")
         .to_string();
+    static ref CONFIG_DIR: String = dirs::config_dir()
+        .expect("could not get config_dir")
+        .to_str()
+        .expect("config_dir contains non unicode characters")
+        .to_string();
 }
 
 #[inline]
 fn home_dir() -> &'static str {
     &HOME_DIR
+}
+
+#[inline]
+fn config_dir() -> &'static str {
+    &CONFIG_DIR
 }
 
 pub fn expanduser(path: &str) -> String {
@@ -45,7 +55,18 @@ pub struct Settings {
 
 impl Settings {
     pub fn path() -> String {
-        format!("{}/.kube/kubie.yaml", home_dir())
+        let legacy_path = format!("{}/.kube/kubie.yaml", home_dir());
+        let xdg_dir = format!("{}/kubie", config_dir());
+        let xdg_path = format!("{}/config.yaml", xdg_dir);
+
+        if Path::new(&legacy_path).exists() {
+            legacy_path
+        } else if !Path::new(&xdg_dir).is_dir() {
+            fs::create_dir_all(xdg_dir).expect("could not create config directory");
+            xdg_path
+        } else {
+            xdg_path
+        }
     }
 
     pub fn load() -> Result<Settings> {
