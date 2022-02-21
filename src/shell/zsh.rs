@@ -38,8 +38,8 @@ if [[ -f "$HOME/.zshenv" ]] ; then
 fi
 
 # If a zsh_history file exists, copy it over before zsh initialization so history is maintained
-if [[ -f "$HISTFILE" ]] ; then
-    cp $HISTFILE $ZDOTDIR
+if [[ -f "$HOME/.zsh_history" ]] ; then
+    cp $HOME/.zsh_history $ZDOTDIR
 fi
 
 KUBIE_LOGIN_SHELL=0
