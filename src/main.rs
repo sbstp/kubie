@@ -24,9 +24,10 @@ fn main() -> Result<()> {
             namespace_name,
             context_name,
             kubeconfigs,
+            clone,
             recursive,
         } => {
-            cmd::context::context(&settings, context_name, namespace_name, kubeconfigs, recursive)?;
+            cmd::context::context(&settings, context_name, namespace_name, kubeconfigs, clone, recursive)?;
         }
         Kubie::Namespace {
             namespace_name,

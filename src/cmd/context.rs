@@ -11,21 +11,67 @@ use crate::shell::spawn_shell;
 use crate::state::State;
 use crate::vars;
 
-fn enter_context(
+fn enter_cloned_context(
     settings: &Settings,
     installed: Installed,
-    context_name: &str,
     namespace_name: Option<&str>,
     recursive: bool,
 ) -> Result<()> {
+    let session = Session::load()?;
+
+    let previous_ctx = session
+        .get_last_context()
+        .context("There is no previous context to switch to.")?;
+    let namespace_name = namespace_name.or(previous_ctx.namespace.as_deref());
+    let kubeconfig = installed.make_kubeconfig_for_context(&previous_ctx.context, namespace_name)?;
+
+    if settings.behavior.validate_namespaces {
+        if let Some(namespace_name) = namespace_name {
+            let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
+            if !namespaces.iter().any(|x| x == namespace_name) {
+                eprintln!("Warning: namespace {} does not exist.", namespace_name);
+            }
+        }
+    }
+
+    if vars::is_kubie_active() && !recursive {
+        let path = kubeconfig::get_kubeconfig_path()?;
+        let file = File::create(&path).context("could not write in temporary KUBECONFIG file")?;
+        kubeconfig.write_to(file)?;
+        session.save(None)?;
+    } else {
+        spawn_shell(settings, kubeconfig, &session)?;
+    }
+
+    Ok(())
+}
+
+fn enter_context(
+    settings: &Settings,
+    mut installed: Installed,
+    context_name: Option<String>,
+    mut namespace_name: Option<&str>,
+    recursive: bool,
+) -> Result<()> {
+    let context_name = match context_name {
+        Some(context_name) => context_name,
+        None => match select_or_list_context(&mut installed)? {
+            SelectResult::Selected(x) => {
+                namespace_name = None;
+                x
+            }
+            _ => return Ok(()),
+        },
+    };
+
     let state = State::load()?;
     let mut session = Session::load()?;
 
-    let namespace_name = namespace_name.or(state.namespace_history.get(context_name).and_then(|s| s.as_deref()));
+    let namespace_name = namespace_name.or(state.namespace_history.get(&context_name).and_then(|s| s.as_deref()));
 
-    let kubeconfig = if context_name == "-" {
+    let kubeconfig = if &context_name == "-" {
         let previous_ctx = session
-            .get_last_context()
+            .get_previous_context()
             .context("There is no previous context to switch to.")?;
         installed.make_kubeconfig_for_context(&previous_ctx.context, previous_ctx.namespace.as_deref())?
     } else {
@@ -61,26 +107,20 @@ fn enter_context(
 pub fn context(
     settings: &Settings,
     context_name: Option<String>,
-    mut namespace_name: Option<String>,
+    namespace_name: Option<String>,
     kubeconfigs: Vec<String>,
+    clone: bool,
     recursive: bool,
 ) -> Result<()> {
-    let mut installed = if kubeconfigs.is_empty() {
+    let installed = if kubeconfigs.is_empty() {
         kubeconfig::get_installed_contexts(settings)?
     } else {
         kubeconfig::get_kubeconfigs_contexts(&kubeconfigs)?
     };
 
-    let context_name = match context_name {
-        Some(context_name) => context_name,
-        None => match select_or_list_context(&mut installed)? {
-            SelectResult::Selected(x) => {
-                namespace_name = None;
-                x
-            }
-            _ => return Ok(()),
-        },
-    };
-
-    enter_context(settings, installed, &context_name, namespace_name.as_deref(), recursive)
+    if clone {
+        enter_cloned_context(settings, installed, namespace_name.as_deref(), recursive)
+    } else {
+        enter_context(settings, installed, context_name, namespace_name.as_deref(), recursive)
+    }
 }
