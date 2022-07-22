@@ -7,7 +7,6 @@ use anyhow::{Context, Result};
 use glob::glob;
 use lazy_static::lazy_static;
 use serde::Deserialize;
-use structopt::clap::arg_enum;
 
 lazy_static! {
     static ref HOME_DIR: String = dirs::home_dir()
@@ -155,14 +154,12 @@ impl Default for Prompt {
     }
 }
 
-arg_enum! {
-    #[derive(Debug, Deserialize)]
-    #[serde(rename_all = "lowercase")]
-    pub enum ContextHeaderBehavior {
-        Auto,
-        Always,
-        Never,
-    }
+#[derive(Debug, Clone, clap::ValueEnum, Deserialize)]
+#[clap(rename_all = "lower")]
+pub enum ContextHeaderBehavior {
+    Auto,
+    Always,
+    Never,
 }
 
 impl ContextHeaderBehavior {

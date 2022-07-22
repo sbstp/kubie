@@ -1,5 +1,5 @@
 use anyhow::Result;
-use structopt::StructOpt;
+use clap::Parser;
 
 use cmd::meta::Kubie;
 use settings::Settings;
@@ -17,7 +17,7 @@ mod vars;
 
 fn main() -> Result<()> {
     let settings = Settings::load()?;
-    let kubie = Kubie::from_args();
+    let kubie = Kubie::parse();
 
     match kubie {
         Kubie::Context {
