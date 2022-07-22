@@ -15,7 +15,7 @@ complete -c kubie -n "$cmd help" -a "$commands"
 
 # FIXME: This should take --kubeconfig into account
 complete -c kubie -n "$cmd ctx delete edit exec; and __kubie_at_arg 1" -d 'context' \
-    -a '(kubie ctx 2>/dev/null)'
+    -a '(kubectl config get-contexts -o name)'
 
 complete -c kubie -n "$cmd ctx ns" -l recursive -s r -d 'spawn a new recursive shell'
 
