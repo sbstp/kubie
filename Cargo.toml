@@ -18,23 +18,23 @@ anyhow = "1"
 atty = "0.2"
 cfg-if = "1"
 dirs = "2"
-fs2 = "0.4.3"
+fs2 = "0.4"
 glob = "0.3"
 lazy_static = "1"
 libc = "0.2"
 serde = {version = "1", features = ["derive"]}
 serde_json = "1"
 serde_yaml = "0.8"
-signal-hook = "0.1"
+signal-hook = "0.3"
 structopt = "0.3"
 tempfile = "3"
-which = "3"
-wildmatch = "1"
+which = "4"
+wildmatch = "2"
 
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls"]
-version = "0.16"
+version = "0.19"
 
 [profile.release]
 codegen-units = 1

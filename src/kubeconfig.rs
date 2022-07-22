@@ -115,7 +115,7 @@ impl Installed {
         let matcher = WildMatch::new(pattern);
         self.contexts
             .iter()
-            .filter(|s| matcher.is_match(&s.item.name))
+            .filter(|s| matcher.matches(&s.item.name))
             .collect()
     }
 

@@ -2,6 +2,7 @@ use std::process::Command;
 use std::thread;
 
 use anyhow::{anyhow, Result};
+use signal_hook::consts::signal::*;
 use signal_hook::iterator::Signals;
 
 use crate::kubeconfig::{self, KubeConfig};
@@ -18,16 +19,8 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
     let depth = vars::get_depth();
     let next_depth = depth + 1;
 
-    let signals = Signals::new(&[
-        signal_hook::SIGHUP,
-        signal_hook::SIGTERM,
-        signal_hook::SIGINT,
-        signal_hook::SIGQUIT,
-        signal_hook::SIGWINCH,
-        signal_hook::SIGUSR1,
-        signal_hook::SIGUSR2,
-    ])
-    .expect("could not install signal handler");
+    let mut signals = Signals::new(&[SIGHUP, SIGTERM, SIGINT, SIGQUIT, SIGWINCH, SIGUSR1, SIGUSR2])
+        .expect("could not install signal handler");
 
     let mut child = Command::new(&args[0])
         .args(&args[1..])
