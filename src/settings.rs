@@ -156,6 +156,7 @@ impl Default for Prompt {
 
 #[derive(Debug, Clone, clap::ValueEnum, Deserialize)]
 #[clap(rename_all = "lower")]
+#[serde(rename_all = "lowercase")]
 pub enum ContextHeaderBehavior {
     Auto,
     Always,
