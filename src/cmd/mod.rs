@@ -1,6 +1,9 @@
-use anyhow::{bail, Result};
+use std::io::Cursor;
 
-use crate::fzf;
+use anyhow::{bail, Result};
+use skim::prelude::SkimItemReader;
+use skim::{Skim, SkimOptions};
+
 use crate::kubeconfig::Installed;
 use crate::kubectl;
 
@@ -16,61 +19,44 @@ pub mod update;
 
 pub enum SelectResult {
     Cancelled,
-    Listed,
     Selected(String),
 }
 
-pub fn select_or_list_context(installed: &mut Installed) -> Result<SelectResult> {
+pub fn select_context(skim_options: &SkimOptions, installed: &mut Installed) -> Result<SelectResult> {
     installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
+    let mut context_names: Vec<_> = installed.contexts.iter().map(|c| c.item.name.clone()).collect();
+    context_names.reverse();
 
-    if installed.contexts.is_empty() {
+    if context_names.is_empty() {
         bail!("No contexts found");
     }
 
-    if installed.contexts.len() == 1 {
-        return Ok(SelectResult::Selected(installed.contexts[0].item.name.clone()));
+    let item_reader = SkimItemReader::default();
+    let items = item_reader.of_bufread(Cursor::new(context_names.join("\n")));
+    let selected_items = Skim::run_with(skim_options, Some(items))
+        .map(|out| out.selected_items)
+        .unwrap_or_else(|| Vec::new());
+    if selected_items.is_empty() {
+        return Ok(SelectResult::Cancelled);
     }
-
-    // We only select the context with fzf if stdout is a terminal and if
-    // fzf is present on the machine.
-    Ok(if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-        match fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
-            Some(context_name) => SelectResult::Selected(context_name),
-            None => {
-                println!("Selection cancelled.");
-                SelectResult::Cancelled
-            }
-        }
-    } else {
-        for c in &installed.contexts {
-            println!("{}", c.item.name);
-        }
-        SelectResult::Listed
-    })
+    Ok(SelectResult::Selected(selected_items[0].output().to_string()))
 }
 
-pub fn select_or_list_namespace() -> Result<SelectResult> {
+pub fn select_namespace(skim_options: &SkimOptions) -> Result<SelectResult> {
     let mut namespaces = kubectl::get_namespaces(None)?;
-    namespaces.sort();
+    namespaces.reverse();
 
     if namespaces.is_empty() {
         bail!("No namespaces found");
     }
 
-    // We only select the namespace with fzf if stdout is a terminal and if
-    // fzf is present on the machine.
-    Ok(if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-        match fzf::select(namespaces.iter())? {
-            Some(namespace_name) => SelectResult::Selected(namespace_name),
-            None => {
-                println!("Selection cancelled.");
-                SelectResult::Cancelled
-            }
-        }
-    } else {
-        for ns in namespaces {
-            println!("{}", ns);
-        }
-        SelectResult::Listed
-    })
+    let item_reader = SkimItemReader::default();
+    let items = item_reader.of_bufread(Cursor::new(namespaces.join("\n")));
+    let selected_items = Skim::run_with(skim_options, Some(items))
+        .map(|out| out.selected_items)
+        .unwrap_or_else(|| Vec::new());
+    if selected_items.is_empty() {
+        return Ok(SelectResult::Cancelled);
+    }
+    Ok(SelectResult::Selected(selected_items[0].output().to_string()))
 }

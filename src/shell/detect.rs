@@ -57,7 +57,9 @@ fn parse_command(cmd: &str) -> &str {
     let binary_path = &cmd[..first_space];
     let last_path_sep = binary_path.rfind("/").map(|x| x + 1).unwrap_or(0);
     let binary = &binary_path[last_path_sep..];
-    binary.trim_start_matches("-").trim_end_matches(|c: char| c.is_digit(10) || c == '.')
+    binary
+        .trim_start_matches("-")
+        .trim_end_matches(|c: char| c.is_digit(10) || c == '.')
 }
 
 /// Detect from which kind of shell kubie was spawned.

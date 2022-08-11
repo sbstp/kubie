@@ -3,9 +3,10 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use anyhow::{anyhow, Result};
+use skim::SkimOptions;
 use which::which;
 
-use crate::cmd::{select_or_list_context, SelectResult};
+use crate::cmd::{select_context, SelectResult};
 use crate::kubeconfig;
 use crate::settings::Settings;
 
@@ -24,13 +25,13 @@ fn get_editor() -> Result<PathBuf> {
         .ok_or_else(|| anyhow!("Could not find any editor to use"))
 }
 
-pub fn edit_context(settings: &Settings, context_name: Option<String>) -> Result<()> {
+pub fn edit_context(settings: &Settings, skim_options: &SkimOptions, context_name: Option<String>) -> Result<()> {
     let mut installed = kubeconfig::get_installed_contexts(settings)?;
     installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
 
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match select_or_list_context(&mut installed)? {
+        None => match select_context(skim_options, &mut installed)? {
             SelectResult::Selected(x) => x,
             _ => return Ok(()),
         },

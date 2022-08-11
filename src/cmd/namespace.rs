@@ -1,8 +1,9 @@
 use std::fs::File;
 
 use anyhow::{anyhow, Context, Result};
+use skim::SkimOptions;
 
-use crate::cmd::{select_or_list_namespace, SelectResult};
+use crate::cmd::{select_namespace, SelectResult};
 use crate::kubeconfig;
 use crate::kubectl;
 use crate::session::Session;
@@ -11,7 +12,13 @@ use crate::shell::spawn_shell;
 use crate::state::State;
 use crate::vars;
 
-pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive: bool, unset: bool) -> Result<()> {
+pub fn namespace(
+    settings: &Settings,
+    skim_options: &SkimOptions,
+    namespace_name: Option<String>,
+    recursive: bool,
+    unset: bool,
+) -> Result<()> {
     vars::ensure_kubie_active()?;
 
     let mut session = Session::load().context("Could not load session file")?;
@@ -36,7 +43,7 @@ pub fn namespace(settings: &Settings, namespace_name: Option<String>, recursive:
         Some(s) if settings.behavior.validate_namespaces && !namespaces.contains(&s) => {
             return Err(anyhow!("'{}' is not a valid namespace for the context", s))
         }
-        None => match select_or_list_namespace()? {
+        None => match select_namespace(skim_options)? {
             SelectResult::Selected(s) => Some(s),
             _ => return Ok(()),
         },

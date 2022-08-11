@@ -1,8 +1,9 @@
 use std::fs::File;
 
 use anyhow::{Context, Result};
+use skim::SkimOptions;
 
-use crate::cmd::{select_or_list_context, SelectResult};
+use crate::cmd::{select_context, SelectResult};
 use crate::kubeconfig::{self, Installed};
 use crate::kubectl;
 use crate::session::Session;
@@ -60,6 +61,7 @@ fn enter_context(
 
 pub fn context(
     settings: &Settings,
+    skim_options: &SkimOptions,
     context_name: Option<String>,
     mut namespace_name: Option<String>,
     kubeconfigs: Vec<String>,
@@ -73,7 +75,7 @@ pub fn context(
 
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match select_or_list_context(&mut installed)? {
+        None => match select_context(skim_options, &mut installed)? {
             SelectResult::Selected(x) => {
                 namespace_name = None;
                 x

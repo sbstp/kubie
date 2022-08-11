@@ -90,7 +90,11 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     );
     env_vars.insert(
         "KUBIE_XONSH_USE_RIGHT_PROMPT",
-        if settings.prompt.xonsh_use_right_prompt { "1" } else { "0" },
+        if settings.prompt.xonsh_use_right_prompt {
+            "1"
+        } else {
+            "0"
+        },
     );
 
     match kind {
