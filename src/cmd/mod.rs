@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use anyhow::{bail, Result};
-use skim::prelude::SkimItemReader;
+use skim::prelude::{Key, SkimItemReader};
 use skim::{Skim, SkimOptions};
 
 use crate::kubeconfig::Installed;
@@ -40,8 +40,11 @@ pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Instal
         let item_reader = SkimItemReader::default();
         let items = item_reader.of_bufread(Cursor::new(context_names.join("\n")));
         let selected_items = Skim::run_with(skim_options, Some(items))
-            .map(|out| out.selected_items)
-            .unwrap_or_else(|| Vec::new());
+            .map(|out| match out.final_key {
+                Key::Enter => out.selected_items,
+                _ => Vec::new(),
+            })
+            .unwrap_or_default();
         if selected_items.is_empty() {
             return Ok(SelectResult::Cancelled);
         }
@@ -68,8 +71,11 @@ pub fn select_or_list_namespace(skim_options: &SkimOptions) -> Result<SelectResu
         let item_reader = SkimItemReader::default();
         let items = item_reader.of_bufread(Cursor::new(namespaces.join("\n")));
         let selected_items = Skim::run_with(skim_options, Some(items))
-            .map(|out| out.selected_items)
-            .unwrap_or_else(|| Vec::new());
+            .map(|out| match out.final_key {
+                Key::Enter => out.selected_items,
+                _ => Vec::new(),
+            })
+            .unwrap_or_default();
         if selected_items.is_empty() {
             return Ok(SelectResult::Cancelled);
         }
