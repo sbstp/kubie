@@ -23,7 +23,7 @@ pub enum SelectResult {
     Selected(String),
 }
 
-pub fn select_context(skim_options: &SkimOptions, installed: &mut Installed) -> Result<SelectResult> {
+pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Installed) -> Result<SelectResult> {
     installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
     let mut context_names: Vec<_> = installed.contexts.iter().map(|c| c.item.name.clone()).collect();
 
@@ -51,7 +51,7 @@ pub fn select_context(skim_options: &SkimOptions, installed: &mut Installed) -> 
     }
 }
 
-pub fn select_namespace(skim_options: &SkimOptions) -> Result<SelectResult> {
+pub fn select_or_list_namespace(skim_options: &SkimOptions) -> Result<SelectResult> {
     let mut namespaces = kubectl::get_namespaces(None)?;
     namespaces.sort();
 

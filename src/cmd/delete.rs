@@ -1,7 +1,7 @@
 use anyhow::Result;
 use skim::SkimOptions;
 
-use crate::cmd::{select_context, SelectResult};
+use crate::cmd::{select_or_list_context, SelectResult};
 use crate::kubeconfig;
 use crate::settings::Settings;
 
@@ -10,7 +10,7 @@ pub fn delete_context(settings: &Settings, skim_options: &SkimOptions, context_n
 
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match select_context(skim_options, &mut installed)? {
+        None => match select_or_list_context(skim_options, &mut installed)? {
             SelectResult::Selected(x) => x,
             _ => return Ok(()),
         },

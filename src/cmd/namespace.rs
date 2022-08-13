@@ -3,7 +3,7 @@ use std::fs::File;
 use anyhow::{anyhow, Context, Result};
 use skim::SkimOptions;
 
-use crate::cmd::{select_namespace, SelectResult};
+use crate::cmd::{select_or_list_namespace, SelectResult};
 use crate::kubeconfig;
 use crate::kubectl;
 use crate::session::Session;
@@ -43,7 +43,7 @@ pub fn namespace(
         Some(s) if settings.behavior.validate_namespaces && !namespaces.contains(&s) => {
             return Err(anyhow!("'{}' is not a valid namespace for the context", s))
         }
-        None => match select_namespace(skim_options)? {
+        None => match select_or_list_namespace(skim_options)? {
             SelectResult::Selected(s) => Some(s),
             _ => return Ok(()),
         },
