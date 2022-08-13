@@ -30,6 +30,9 @@ pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Instal
     if context_names.is_empty() {
         bail!("No contexts found");
     }
+    if context_names.len() == 1 {
+        return Ok(SelectResult::Selected(context_names[0].clone()));
+    }
 
     if atty::is(atty::Stream::Stdout) {
         // NOTE: skim show the list of context names in reverse order
