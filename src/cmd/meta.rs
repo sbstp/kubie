@@ -3,7 +3,7 @@ use clap::Parser;
 use crate::settings::ContextHeaderBehavior;
 
 #[derive(Debug, Parser)]
-#[clap(disable_version_flag = true)]
+#[clap(version)]
 pub enum Kubie {
     /// Spawn a shell in the given context. The shell is isolated from other shells.
     /// Kubie shells can be spawned recursively without any issue.
