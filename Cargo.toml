@@ -35,7 +35,7 @@ skim = "0.9"
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls"]
-version = "0.19"
+version = "0.22"
 
 [profile.release]
 codegen-units = 1
