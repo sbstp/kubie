@@ -30,6 +30,7 @@ signal-hook = "0.3"
 tempfile = "3"
 which = "4"
 wildmatch = "2"
+skim = "0.9"
 
 [dependencies.attohttpc]
 default-features = false
