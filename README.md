@@ -165,8 +165,8 @@ behavior:
 
 ## For distro maintainers
 Since `0.19.0`, the self update functionality is behind a feature. You can use `cargo build --release --no-default-features`
-to produce a binary without the self update functionality, which is also smaller. It's probably better if people rely
-on the distro's package manager for updates over this.
+to produce a binary without the self update functionality. It's probably better if people rely on the distro's package
+manager for updates over this functionality. The binary produced is also quite smaller since it has fewer dependencies.
 
 ## Future plans
 * Integration with vault to automatically download k8s configs from a vault server
