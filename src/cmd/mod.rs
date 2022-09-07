@@ -15,6 +15,7 @@ pub mod info;
 pub mod lint;
 pub mod meta;
 pub mod namespace;
+#[cfg(feature = "update")]
 pub mod update;
 
 pub enum SelectResult {

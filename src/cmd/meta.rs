@@ -81,6 +81,7 @@ pub enum Kubie {
     /// Check for a Kubie update and replace Kubie's binary if needed.
     /// This function can ask for sudo-mode.
     #[clap(name = "update")]
+    #[cfg(feature = "update")]
     Update,
 
     /// Delete a context. Automatic garbage collection will be performed.
