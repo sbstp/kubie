@@ -80,7 +80,7 @@ where
         .with_context(|| format!("Could not lock file at {}", path.display()))?;
 
     // Run the given closure, but catch any panics so we can unlock before resuming the panic.
-    let exception = panic::catch_unwind(|| scope());
+    let exception = panic::catch_unwind(scope);
 
     // Ignore errors during unlock. If we had a panic, we don't want to return the potential error.
     // If we did not panic, we want to return the closure's result.

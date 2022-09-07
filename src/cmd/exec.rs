@@ -53,14 +53,14 @@ pub fn exec(
     context_headers_flag: Option<ContextHeaderBehavior>,
     args: Vec<String>,
 ) -> Result<()> {
-    if args.len() == 0 {
+    if args.is_empty() {
         return Ok(());
     }
 
     let installed = kubeconfig::get_installed_contexts(settings)?;
     let matching = installed.get_contexts_matching(&context_name);
 
-    if matching.len() == 0 {
+    if matching.is_empty() {
         return Err(anyhow!("No context matching {}", context_name));
     }
 

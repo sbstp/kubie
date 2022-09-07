@@ -78,7 +78,7 @@ fn enter_namespace(
     session.add_history_entry(context_name, namespace_name);
 
     if recursive {
-        spawn_shell(settings, config, &session)?;
+        spawn_shell(settings, config, session)?;
     } else {
         let config_file = File::create(kubeconfig::get_kubeconfig_path()?)?;
         config.write_to(config_file)?;

@@ -13,8 +13,8 @@ pub fn get_depth() -> u32 {
 
 /// Check if we're in a kubie shell.
 pub fn is_kubie_active() -> bool {
-    let active = env::var("KUBIE_ACTIVE").unwrap_or("0".into());
-    return active == "1";
+    let active = env::var("KUBIE_ACTIVE").unwrap_or_else(|_| "0".into());
+    active == "1"
 }
 
 /// Ensure that we're inside a kubie shell, returning an error if we aren't.

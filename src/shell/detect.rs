@@ -32,7 +32,7 @@ fn run_ps(args: &[&str]) -> Result<Vec<String>> {
     }
 
     let text = str::from_utf8(&result.stdout)?;
-    Ok(text.split("\n").filter(|x| !x.is_empty()).map(String::from).collect())
+    Ok(text.split('\n').filter(|x| !x.is_empty()).map(String::from).collect())
 }
 
 fn parent_of(pid: &str) -> Result<String> {
@@ -53,13 +53,13 @@ fn command_of(pid: &str) -> Result<String> {
 }
 
 fn parse_command(cmd: &str) -> &str {
-    let first_space = cmd.find(" ").unwrap_or(cmd.len());
+    let first_space = cmd.find(' ').unwrap_or(cmd.len());
     let binary_path = &cmd[..first_space];
-    let last_path_sep = binary_path.rfind("/").map(|x| x + 1).unwrap_or(0);
+    let last_path_sep = binary_path.rfind('/').map(|x| x + 1).unwrap_or(0);
     let binary = &binary_path[last_path_sep..];
     binary
-        .trim_start_matches("-")
-        .trim_end_matches(|c: char| c.is_digit(10) || c == '.')
+        .trim_start_matches('-')
+        .trim_end_matches(|c: char| c.is_ascii_digit() || c == '.')
 }
 
 /// Detect from which kind of shell kubie was spawned.

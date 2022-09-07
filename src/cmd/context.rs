@@ -22,7 +22,8 @@ fn enter_context(
     let state = State::load()?;
     let mut session = Session::load()?;
 
-    let namespace_name = namespace_name.or(state.namespace_history.get(context_name).and_then(|s| s.as_deref()));
+    let namespace_name =
+        namespace_name.or_else(|| state.namespace_history.get(context_name).and_then(|s| s.as_deref()));
 
     let kubeconfig = if context_name == "-" {
         let previous_ctx = session
@@ -30,7 +31,7 @@ fn enter_context(
             .context("There is no previous context to switch to.")?;
         installed.make_kubeconfig_for_context(&previous_ctx.context, previous_ctx.namespace.as_deref())?
     } else {
-        installed.make_kubeconfig_for_context(&context_name, namespace_name)?
+        installed.make_kubeconfig_for_context(context_name, namespace_name)?
     };
 
     session.add_history_entry(
