@@ -39,6 +39,8 @@ pub struct Settings {
     pub prompt: Prompt,
     #[serde(default)]
     pub behavior: Behavior,
+    #[serde(default)]
+    pub hooks: Hooks,
 }
 
 impl Settings {
@@ -181,6 +183,23 @@ impl Default for Behavior {
         Behavior {
             validate_namespaces: true,
             print_context_in_exec: Default::default(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Hooks {
+    #[serde(default)]
+    pub start_ctx: String,
+    #[serde(default)]
+    pub stop_ctx: String,
+}
+
+impl Default for Hooks {
+    fn default() -> Self {
+        Hooks {
+            start_ctx: format!(""),
+            stop_ctx: format!(""),
         }
     }
 }
