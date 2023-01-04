@@ -78,6 +78,13 @@ fn main() -> Result<()> {
         Kubie::Delete { context_name } => {
             cmd::delete::delete_context(&settings, &skim_options, context_name)?;
         }
+        Kubie::Export {
+            context_name,
+            namespace_name,
+            args,
+        } => {
+            cmd::export::export(&settings, context_name, namespace_name, args)?;
+        }
     }
 
     Ok(())
