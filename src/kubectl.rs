@@ -18,7 +18,7 @@ pub fn get_namespaces<'a>(kubeconfig: impl Into<Option<&'a KubeConfig>>) -> anyh
             .prefix("kubie-config")
             .suffix(".yaml")
             .tempfile()?;
-        kubeconfig.write_to(&temp_config_file)?;
+        kubeconfig.write_to_file(temp_config_file.path())?;
         cmd.env("KUBECONFIG", temp_config_file.path());
     } else {
         cmd.env(

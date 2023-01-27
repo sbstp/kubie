@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::ffi::OsString;
-use std::io::BufWriter;
 use std::process::Command;
 
 use anyhow::{anyhow, Result};
@@ -55,8 +54,7 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         .prefix("kubie-config")
         .suffix(".yaml")
         .tempfile()?;
-    let temp_config_file_buf = BufWriter::new(temp_config_file.as_file());
-    config.write_to(temp_config_file_buf)?;
+    config.write_to_file(temp_config_file.path())?;
 
     let temp_session_file = tempfile::Builder::new()
         .prefix("kubie-session")

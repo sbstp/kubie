@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env;
-use std::fs;
-use std::io::Write;
+use std::fs::{self, File, Permissions};
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
@@ -72,8 +72,10 @@ pub struct Installed {
 }
 
 impl KubeConfig {
-    pub fn write_to<W: Write>(&self, writer: W) -> anyhow::Result<()> {
-        serde_yaml::to_writer(writer, self)?;
+    pub fn write_to_file(&self, path: &Path) -> anyhow::Result<()> {
+        let file = File::create(path).context("could not write file")?;
+        fs::set_permissions(&path, Permissions::from_mode(0o600))?;
+        serde_yaml::to_writer(file, self)?;
         Ok(())
     }
 }
