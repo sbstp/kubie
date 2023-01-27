@@ -1,5 +1,3 @@
-use std::fs::File;
-
 use anyhow::{anyhow, Context, Result};
 use skim::SkimOptions;
 
@@ -80,8 +78,8 @@ fn enter_namespace(
     if recursive {
         spawn_shell(settings, config, session)?;
     } else {
-        let config_file = File::create(kubeconfig::get_kubeconfig_path()?)?;
-        config.write_to(config_file)?;
+        let config_file = kubeconfig::get_kubeconfig_path()?;
+        config.write_to_file(config_file.as_path())?;
         session.save(None)?;
     }
 
