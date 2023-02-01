@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-linux-amd64-static:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -27,7 +27,7 @@ jobs:
           tag: ${{ github.ref }}
 
   build-linux-arm32-static:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -48,7 +48,7 @@ jobs:
           tag: ${{ github.ref }}
 
   build-linux-arm64-static:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -101,3 +101,19 @@ jobs:
           file: target/aarch64-apple-darwin/release/kubie
           asset_name: kubie-darwin-arm64
           tag: ${{ github.ref }}
+
+  publish-crates-io:
+    name: Publish to crates.io
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
