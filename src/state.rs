@@ -22,17 +22,17 @@ pub mod paths {
 
     #[inline]
     pub fn data_dir() -> &'static Path {
-        &*KUBIE_DATA_DIR
+        &KUBIE_DATA_DIR
     }
 
     #[inline]
     pub fn state() -> &'static Path {
-        &*KUBIE_STATE_PATH
+        &KUBIE_STATE_PATH
     }
 
     #[inline]
     pub fn state_lock() -> &'static Path {
-        &*KUBIE_STATE_LOCK_PATH
+        &KUBIE_STATE_LOCK_PATH
     }
 }
 

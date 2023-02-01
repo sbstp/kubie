@@ -52,16 +52,16 @@ where
         E: Display,
     {
         match self.shell_kind {
-            ShellKind::Fish | ShellKind::Xonsh => write!(f, "{}", content),
-            ShellKind::Zsh => write!(f, "%{{{}%}}", content),
-            _ => write!(f, "\\[{}\\]", content),
+            ShellKind::Fish | ShellKind::Xonsh => write!(f, "{content}"),
+            ShellKind::Zsh => write!(f, "%{{{content}%}}"),
+            _ => write!(f, "\\[{content}\\]"),
         }
     }
 
     fn start_color(&self, f: &mut fmt::Formatter, color: u32) -> fmt::Result {
         match self.shell_kind {
-            ShellKind::Xonsh => self.isolate(f, format!("\\033[{}m", color)),
-            _ => self.isolate(f, format!("\\e[{}m", color)),
+            ShellKind::Xonsh => self.isolate(f, format!("\\033[{color}m")),
+            _ => self.isolate(f, format!("\\e[{color}m")),
         }
     }
 
@@ -101,7 +101,7 @@ pub fn generate_ps1(settings: &Settings, depth: u32, shell_kind: ShellKind) -> S
     parts.push(
         Color::new(
             RED,
-            Command::new(format!("{} info ctx", current_exe_path_str), shell_kind),
+            Command::new(format!("{current_exe_path_str} info ctx"), shell_kind),
             shell_kind,
         )
         .to_string(),
@@ -109,7 +109,7 @@ pub fn generate_ps1(settings: &Settings, depth: u32, shell_kind: ShellKind) -> S
     parts.push(
         Color::new(
             GREEN,
-            Command::new(format!("{} info ns", current_exe_path_str), shell_kind),
+            Command::new(format!("{current_exe_path_str} info ns"), shell_kind),
             shell_kind,
         )
         .to_string(),

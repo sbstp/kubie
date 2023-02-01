@@ -18,7 +18,7 @@ lazy_static! {
 
 #[inline]
 fn home_dir() -> &'static str {
-    &*HOME_DIR
+    &HOME_DIR
 }
 
 pub fn expanduser(path: &str) -> String {
@@ -103,13 +103,13 @@ impl Default for Configs {
 fn default_include_path() -> Vec<String> {
     let home_dir = home_dir();
     vec![
-        format!("{}/.kube/config", home_dir),
-        format!("{}/.kube/*.yml", home_dir),
-        format!("{}/.kube/*.yaml", home_dir),
-        format!("{}/.kube/configs/*.yml", home_dir),
-        format!("{}/.kube/configs/*.yaml", home_dir),
-        format!("{}/.kube/kubie/*.yml", home_dir),
-        format!("{}/.kube/kubie/*.yaml", home_dir),
+        format!("{home_dir}/.kube/config"),
+        format!("{home_dir}/.kube/*.yml"),
+        format!("{home_dir}/.kube/*.yaml"),
+        format!("{home_dir}/.kube/configs/*.yml"),
+        format!("{home_dir}/.kube/configs/*.yaml"),
+        format!("{home_dir}/.kube/kubie/*.yml"),
+        format!("{home_dir}/.kube/kubie/*.yaml"),
     ]
 }
 

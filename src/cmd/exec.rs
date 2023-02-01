@@ -19,7 +19,7 @@ fn run_in_context(kubeconfig: &KubeConfig, args: &[String]) -> anyhow::Result<i3
     let depth = vars::get_depth();
     let next_depth = depth + 1;
 
-    let mut signals = Signals::new(&[SIGHUP, SIGTERM, SIGINT, SIGQUIT, SIGWINCH, SIGUSR1, SIGUSR2])
+    let mut signals = Signals::new([SIGHUP, SIGTERM, SIGINT, SIGQUIT, SIGWINCH, SIGUSR1, SIGUSR2])
         .expect("could not install signal handler");
 
     let mut child = Command::new(&args[0])

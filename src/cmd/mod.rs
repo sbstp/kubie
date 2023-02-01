@@ -52,7 +52,7 @@ pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Instal
         Ok(SelectResult::Selected(selected_items[0].output().to_string()))
     } else {
         for c in context_names {
-            println!("{}", c);
+            println!("{c}");
         }
         Ok(SelectResult::Listed)
     }
@@ -83,7 +83,7 @@ pub fn select_or_list_namespace(skim_options: &SkimOptions) -> Result<SelectResu
         Ok(SelectResult::Selected(selected_items[0].output().to_string()))
     } else {
         for n in namespaces {
-            println!("{}", n);
+            println!("{n}");
         }
         Ok(SelectResult::Listed)
     }

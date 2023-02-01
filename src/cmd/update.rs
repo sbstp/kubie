@@ -19,7 +19,7 @@ pub struct Release {
 
 impl Release {
     pub fn get_latest() -> Result<Release> {
-        let latest_release = attohttpc::get(&LATEST_RELEASE_URL).send()?.json()?;
+        let latest_release = attohttpc::get(LATEST_RELEASE_URL).send()?.json()?;
         Ok(latest_release)
     }
 
@@ -62,8 +62,8 @@ struct Asset {
 
 pub fn update() -> Result<()> {
     let latest_release = Release::get_latest()?;
-    if latest_release.tag_name == format!("v{}", VERSION) {
-        println!("Kubie is up-to-date : v{}", VERSION);
+    if latest_release.tag_name == format!("v{VERSION}") {
+        println!("Kubie is up-to-date : v{VERSION}");
     } else {
         println!(
             "A new version of Kubie is available ({}), the new version will be installed by replacing this binary.",
@@ -71,7 +71,7 @@ pub fn update() -> Result<()> {
         );
 
         let download_url = latest_release.get_binary_url().context("Sorry, this release has no build for your OS, please create an issue : https://github.com/sbstp/kubie/issues")?;
-        println!("Download url is: {}", download_url);
+        println!("Download url is: {download_url}");
 
         let resp = attohttpc::get(download_url).send()?;
         if resp.is_success() {
@@ -90,7 +90,7 @@ pub fn update() -> Result<()> {
 pub fn replace_file(old_file: &Path, new_file: &Path) -> std::io::Result<()> {
     fs::set_permissions(new_file, Permissions::from_mode(0o755))?;
     fs::remove_file(old_file)?;
-    fs::copy(&new_file, old_file)?;
+    fs::copy(new_file, old_file)?;
     Ok(())
 }
 

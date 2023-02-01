@@ -75,7 +75,7 @@ pub struct Installed {
 impl KubeConfig {
     pub fn write_to_file(&self, path: &Path) -> anyhow::Result<()> {
         let file = File::create(path).context("could not write file")?;
-        fs::set_permissions(&path, Permissions::from_mode(0o600))?;
+        fs::set_permissions(path, Permissions::from_mode(0o600))?;
 
         let buffer = BufWriter::new(file);
         serde_yaml::to_writer(buffer, self)?;
@@ -227,7 +227,7 @@ where
             continue;
         }
 
-        let kubeconfig: Result<KubeConfig> = ioutil::read_yaml(&path);
+        let kubeconfig: Result<KubeConfig> = ioutil::read_yaml(path);
 
         match kubeconfig {
             Ok(mut kubeconfig) => {

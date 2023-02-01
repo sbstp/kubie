@@ -47,12 +47,11 @@ impl Session {
 
     pub fn get_last_context(&self) -> Option<&HistoryEntry> {
         let current_context = self.history.last()?;
-        for entry in self.history.iter().rev().skip(1) {
-            if current_context.context != entry.context {
-                return Some(entry);
-            }
-        }
-        None
+        self.history
+            .iter()
+            .rev()
+            .skip(1)
+            .find(|&entry| current_context.context != entry.context)
     }
 
     pub fn get_last_namespace(&self) -> Option<&str> {
