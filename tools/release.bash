@@ -27,4 +27,3 @@ git commit -m "Release version $VERSION"
 git tag "v$VERSION"
 git push origin master
 git push origin master --tags
-cargo publish
