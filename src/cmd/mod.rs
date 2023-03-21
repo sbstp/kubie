@@ -1,6 +1,9 @@
-use anyhow::{bail, Result};
+use std::io::Cursor;
 
-use crate::fzf;
+use anyhow::{bail, Result};
+use skim::prelude::{Key, SkimItemReader};
+use skim::{Skim, SkimOptions};
+
 use crate::kubeconfig::Installed;
 use crate::kubectl;
 
@@ -12,6 +15,7 @@ pub mod info;
 pub mod lint;
 pub mod meta;
 pub mod namespace;
+#[cfg(feature = "update")]
 pub mod update;
 
 pub enum SelectResult {
@@ -20,36 +24,41 @@ pub enum SelectResult {
     Selected(String),
 }
 
-pub fn select_or_list_context(installed: &mut Installed) -> Result<SelectResult> {
+pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Installed) -> Result<SelectResult> {
     installed.contexts.sort_by(|a, b| a.item.name.cmp(&b.item.name));
+    let mut context_names: Vec<_> = installed.contexts.iter().map(|c| c.item.name.clone()).collect();
 
-    if installed.contexts.is_empty() {
+    if context_names.is_empty() {
         bail!("No contexts found");
     }
-
-    if installed.contexts.len() == 1 {
-        return Ok(SelectResult::Selected(installed.contexts[0].item.name.clone()));
+    if context_names.len() == 1 {
+        return Ok(SelectResult::Selected(context_names[0].clone()));
     }
 
-    // We only select the context with fzf if stdout is a terminal and if
-    // fzf is present on the machine.
-    Ok(if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-        match fzf::select(installed.contexts.iter().map(|c| &c.item.name))? {
-            Some(context_name) => SelectResult::Selected(context_name),
-            None => {
-                println!("Selection cancelled.");
-                SelectResult::Cancelled
-            }
+    if atty::is(atty::Stream::Stdout) {
+        // NOTE: skim show the list of context names in reverse order
+        context_names.reverse();
+        let item_reader = SkimItemReader::default();
+        let items = item_reader.of_bufread(Cursor::new(context_names.join("\n")));
+        let selected_items = Skim::run_with(skim_options, Some(items))
+            .map(|out| match out.final_key {
+                Key::Enter => out.selected_items,
+                _ => Vec::new(),
+            })
+            .unwrap_or_default();
+        if selected_items.is_empty() {
+            return Ok(SelectResult::Cancelled);
         }
+        Ok(SelectResult::Selected(selected_items[0].output().to_string()))
     } else {
-        for c in &installed.contexts {
-            println!("{}", c.item.name);
+        for c in context_names {
+            println!("{}", c);
         }
-        SelectResult::Listed
-    })
+        Ok(SelectResult::Listed)
+    }
 }
 
-pub fn select_or_list_namespace() -> Result<SelectResult> {
+pub fn select_or_list_namespace(skim_options: &SkimOptions) -> Result<SelectResult> {
     let mut namespaces = kubectl::get_namespaces(None)?;
     namespaces.sort();
 
@@ -57,20 +66,25 @@ pub fn select_or_list_namespace() -> Result<SelectResult> {
         bail!("No namespaces found");
     }
 
-    // We only select the namespace with fzf if stdout is a terminal and if
-    // fzf is present on the machine.
-    Ok(if atty::is(atty::Stream::Stdout) && fzf::is_available() {
-        match fzf::select(namespaces.iter())? {
-            Some(namespace_name) => SelectResult::Selected(namespace_name),
-            None => {
-                println!("Selection cancelled.");
-                SelectResult::Cancelled
-            }
+    if atty::is(atty::Stream::Stdout) {
+        // NOTE: skim show the list of namespaces in reverse order
+        namespaces.reverse();
+        let item_reader = SkimItemReader::default();
+        let items = item_reader.of_bufread(Cursor::new(namespaces.join("\n")));
+        let selected_items = Skim::run_with(skim_options, Some(items))
+            .map(|out| match out.final_key {
+                Key::Enter => out.selected_items,
+                _ => Vec::new(),
+            })
+            .unwrap_or_default();
+        if selected_items.is_empty() {
+            return Ok(SelectResult::Cancelled);
         }
+        Ok(SelectResult::Selected(selected_items[0].output().to_string()))
     } else {
-        for ns in namespaces {
-            println!("{}", ns);
+        for n in namespaces {
+            println!("{}", n);
         }
-        SelectResult::Listed
-    })
+        Ok(SelectResult::Listed)
+    }
 }

@@ -10,15 +10,9 @@ use crate::vars;
 ///
 /// Currently it stores the history of contexts and namespaces entered to allow
 /// users to switch back to the previous context with `-`.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Session {
     history: Vec<HistoryEntry>,
-}
-
-impl Default for Session {
-    fn default() -> Self {
-        Session { history: Vec::new() }
-    }
 }
 
 impl Session {

@@ -113,10 +113,7 @@ impl Installed {
 
     pub fn get_contexts_matching(&self, pattern: &str) -> Vec<&Sourced<NamedContext>> {
         let matcher = WildMatch::new(pattern);
-        self.contexts
-            .iter()
-            .filter(|s| matcher.is_match(&s.item.name))
-            .collect()
+        self.contexts.iter().filter(|s| matcher.matches(&s.item.name)).collect()
     }
 
     pub fn delete_context(&mut self, name: &str) -> Result<()> {
@@ -165,27 +162,31 @@ impl Installed {
             .iter()
             .find(|c| c.item.name == context_name)
             .cloned()
-            .ok_or(anyhow!("Could not find context {}", context_name))?;
+            .ok_or_else(|| anyhow!("Could not find context {}", context_name))?;
 
         context_src.item.context.namespace = namespace_name.map(Into::into);
 
         let cluster = self
             .find_cluster_by_name(&context_src.item.context.cluster, &context_src.source)
             .cloned()
-            .ok_or(anyhow!(
-                "Could not find cluster {} referenced by context {}",
-                context_src.item.context.cluster,
-                context_name,
-            ))?;
+            .ok_or_else(|| {
+                anyhow!(
+                    "Could not find cluster {} referenced by context {}",
+                    context_src.item.context.cluster,
+                    context_name,
+                )
+            })?;
 
         let user = self
             .find_user_by_name(&context_src.item.context.user, &context_src.source)
             .cloned()
-            .ok_or(anyhow!(
-                "Could not find user {} referenced by context {}",
-                context_src.item.context.user,
-                context_name,
-            ))?;
+            .ok_or_else(|| {
+                anyhow!(
+                    "Could not find user {} referenced by context {}",
+                    context_src.item.context.user,
+                    context_name,
+                )
+            })?;
 
         Ok(KubeConfig {
             clusters: vec![cluster.item],

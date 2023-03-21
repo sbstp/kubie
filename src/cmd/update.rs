@@ -14,7 +14,6 @@ const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/sbstp/kubie/relea
 #[derive(Debug, Deserialize)]
 pub struct Release {
     tag_name: String,
-    prerelease: bool,
     assets: Vec<Asset>,
 }
 
@@ -58,9 +57,7 @@ impl Release {
 
 #[derive(Debug, Deserialize)]
 struct Asset {
-    name: String,
     browser_download_url: String,
-    state: String,
 }
 
 pub fn update() -> Result<()> {

@@ -47,7 +47,7 @@ pub struct ShellSpawnInfo<'s, 'n> {
 
 pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -> Result<()> {
     let kind = match &settings.shell {
-        Some(shell) => ShellKind::from_str(&shell).ok_or_else(|| anyhow!("Invalid shell setting: {}", shell))?,
+        Some(shell) => ShellKind::from_str(shell).ok_or_else(|| anyhow!("Invalid shell setting: {}", shell))?,
         None => detect()?,
     };
 
@@ -90,7 +90,11 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
     );
     env_vars.insert(
         "KUBIE_XONSH_USE_RIGHT_PROMPT",
-        if settings.prompt.xonsh_use_right_prompt { "1" } else { "0" },
+        if settings.prompt.xonsh_use_right_prompt {
+            "1"
+        } else {
+            "0"
+        },
     );
 
     match kind {

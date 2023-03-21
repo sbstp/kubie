@@ -49,7 +49,7 @@ impl State {
     /// Loads the state.json from the filesystem, waiting for a file lock to ensure no other
     /// concurrent Kubie processes are accessing/writing the file at the same time.
     pub fn load() -> Result<State> {
-        Self::access(|state| Ok(state))
+        Self::access(Ok)
     }
 
     /// Takes a closure that allows for modifications of the state. Automatically handles

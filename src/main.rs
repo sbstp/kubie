@@ -1,11 +1,11 @@
 use anyhow::Result;
-use structopt::StructOpt;
+use clap::Parser;
 
 use cmd::meta::Kubie;
 use settings::Settings;
+use skim::prelude::SkimOptionsBuilder;
 
 mod cmd;
-mod fzf;
 mod ioutil;
 mod kubeconfig;
 mod kubectl;
@@ -17,7 +17,8 @@ mod vars;
 
 fn main() -> Result<()> {
     let settings = Settings::load()?;
-    let kubie = Kubie::from_args();
+    let skim_options = SkimOptionsBuilder::default().multi(false).build().unwrap();
+    let kubie = Kubie::parse();
 
     match kubie {
         Kubie::Context {
@@ -27,14 +28,22 @@ fn main() -> Result<()> {
             clone,
             recursive,
         } => {
-            cmd::context::context(&settings, context_name, namespace_name, kubeconfigs, clone, recursive)?;
+            cmd::context::context(
+                &settings,
+                &skim_options,
+                context_name,
+                namespace_name,
+                kubeconfigs,
+                clone,
+                recursive,
+            )?;
         }
         Kubie::Namespace {
             namespace_name,
             recursive,
             unset,
         } => {
-            cmd::namespace::namespace(&settings, namespace_name, recursive, unset)?;
+            cmd::namespace::namespace(&settings, &skim_options, namespace_name, recursive, unset)?;
         }
         Kubie::Info(info) => {
             cmd::info::info(info)?;
@@ -59,16 +68,17 @@ fn main() -> Result<()> {
             cmd::lint::lint(&settings)?;
         }
         Kubie::Edit { context_name } => {
-            cmd::edit::edit_context(&settings, context_name)?;
+            cmd::edit::edit_context(&settings, &skim_options, context_name)?;
         }
         Kubie::EditConfig => {
             cmd::edit::edit_config()?;
         }
+        #[cfg(feature = "update")]
         Kubie::Update => {
             cmd::update::update()?;
         }
         Kubie::Delete { context_name } => {
-            cmd::delete::delete_context(&settings, context_name)?;
+            cmd::delete::delete_context(&settings, &skim_options, context_name)?;
         }
     }
 

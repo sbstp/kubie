@@ -61,14 +61,14 @@ where
     fn start_color(&self, f: &mut fmt::Formatter, color: u32) -> fmt::Result {
         match self.shell_kind {
             ShellKind::Xonsh => self.isolate(f, format!("\\033[{}m", color)),
-            _ => self.isolate(f, format!("\\e[{}m", color))
+            _ => self.isolate(f, format!("\\e[{}m", color)),
         }
     }
 
     fn end_color(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.shell_kind {
             ShellKind::Xonsh => self.isolate(f, "\\033[0m"),
-            _ => self.isolate(f, "\\e[0m")
+            _ => self.isolate(f, "\\e[0m"),
         }
     }
 }

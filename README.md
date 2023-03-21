@@ -65,17 +65,16 @@ cp completion/kubie.fish ~/.config/fish/completions/
 Then reopen fish or source the file.
 
 ## Usage
-Note that if you have [`fzf`](https://github.com/junegunn/fzf) installed, the experience will be greatly improved.
 Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 
 ---
 
-* `kubie ctx` show the list of available contexts (if fzf is installed, display a selectable menu of contexts)
+* `kubie ctx` display a selectable menu of contexts
 * `kubie ctx <context>` switch the current shell to the given context (spawns a shell if not a kubie shell)
 * `kubie ctx -` switch back to the previous context
 * `kubie ctx <context> -r` spawn a recursive shell in the given context
 * `kubie ctx <context> -n <namespace>` spawn a shell in the given context and namespace
-* `kubie ns` show the list of available namespaces (if fzf is installed, display a selectable menu of namespaces)
+* `kubie ns` display a selectable menu of namespaces
 * `kubie ns <namespace>` switch the current shell to the given namespace
 * `kubie ns -` switch back to the previous namespace
 * `kubie ns <namespace> -r` spawn a recursive shell in the given namespace
@@ -84,7 +83,7 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
   in the given namespace
 * `kubie exec <wildcard> <namespace> -e <cmd> <args>...` execute a command in all the contexts matched by the wildcard and
   in the given namespace but fail early if any of the commands executed return a non-zero exit code
-* `kubie edit` if fzf is installed, display a selectable menu of contexts to edit
+* `kubie edit` display a selectable menu of contexts to edit
 * `kubie edit <context>` edit the file that contains this context
 * `kubie edit-config` edit kubie's own config file
 * `kubie lint` lint k8s config files for issues
@@ -163,6 +162,11 @@ behavior:
     # Default: auto
     print_context_in_exec: auto
 ```
+
+## For distro maintainers
+Since `0.19.0`, the self update functionality is behind a feature. You can use `cargo build --release --no-default-features`
+to produce a binary without the self update functionality. It's probably better if people rely on the distro's package
+manager for updates over this functionality. The binary produced is also quite smaller since it has fewer dependencies.
 
 ## Future plans
 * Integration with vault to automatically download k8s configs from a vault server

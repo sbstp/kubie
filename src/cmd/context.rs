@@ -1,6 +1,7 @@
 use std::fs::File;
 
 use anyhow::{Context, Result};
+use skim::SkimOptions;
 
 use crate::cmd::{select_or_list_context, SelectResult};
 use crate::kubeconfig::{self, Installed};
@@ -48,6 +49,7 @@ fn enter_cloned_context(
 
 fn enter_context(
     settings: &Settings,
+    skim_optons: &SkimOptions,
     mut installed: Installed,
     context_name: Option<String>,
     mut namespace_name: Option<&str>,
@@ -55,7 +57,7 @@ fn enter_context(
 ) -> Result<()> {
     let context_name = match context_name {
         Some(context_name) => context_name,
-        None => match select_or_list_context(&mut installed)? {
+        None => match select_or_list_context(skim_optons, &mut installed)? {
             SelectResult::Selected(x) => {
                 namespace_name = None;
                 x
@@ -67,7 +69,8 @@ fn enter_context(
     let state = State::load()?;
     let mut session = Session::load()?;
 
-    let namespace_name = namespace_name.or(state.namespace_history.get(&context_name).and_then(|s| s.as_deref()));
+    let namespace_name =
+        namespace_name.or_else(|| state.namespace_history.get(&context_name).and_then(|s| s.as_deref()));
 
     let kubeconfig = if &context_name == "-" {
         let previous_ctx = session
@@ -106,6 +109,7 @@ fn enter_context(
 
 pub fn context(
     settings: &Settings,
+    skim_options: &SkimOptions,
     context_name: Option<String>,
     namespace_name: Option<String>,
     kubeconfigs: Vec<String>,
@@ -121,6 +125,6 @@ pub fn context(
     if clone {
         enter_cloned_context(settings, installed, namespace_name.as_deref(), recursive)
     } else {
-        enter_context(settings, installed, context_name, namespace_name.as_deref(), recursive)
+        enter_context(settings, skim_options, installed, context_name, namespace_name.as_deref(), recursive)
     }
 }

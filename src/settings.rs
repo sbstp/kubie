@@ -7,7 +7,6 @@ use anyhow::{Context, Result};
 use glob::glob;
 use lazy_static::lazy_static;
 use serde::Deserialize;
-use structopt::clap::arg_enum;
 
 lazy_static! {
     static ref HOME_DIR: String = dirs::home_dir()
@@ -23,14 +22,14 @@ fn home_dir() -> &'static str {
 }
 
 pub fn expanduser(path: &str) -> String {
-    if path.starts_with("~/") {
-        format!("{}/{}", home_dir(), &path[2..])
+    if let Some(stripped) = path.strip_prefix("~/") {
+        format!("{}/{}", home_dir(), stripped)
     } else {
         path.to_string()
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct Settings {
     #[serde(default)]
     pub shell: Option<String>,
@@ -67,31 +66,20 @@ impl Settings {
     pub fn get_kube_configs_paths(&self) -> Result<HashSet<PathBuf>> {
         let mut paths = HashSet::new();
         for inc in &self.configs.include {
-            let expanded = expanduser(&inc);
+            let expanded = expanduser(inc);
             for entry in glob(&expanded)? {
                 paths.insert(entry?);
             }
         }
 
         for exc in &self.configs.exclude {
-            let expanded = expanduser(&exc);
+            let expanded = expanduser(exc);
             for entry in glob(&expanded)? {
                 paths.remove(&entry?);
             }
         }
 
         Ok(paths)
-    }
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Settings {
-            shell: Default::default(),
-            configs: Configs::default(),
-            prompt: Prompt::default(),
-            behavior: Behavior::default(),
-        }
     }
 }
 
@@ -155,14 +143,13 @@ impl Default for Prompt {
     }
 }
 
-arg_enum! {
-    #[derive(Debug, Deserialize)]
-    #[serde(rename_all = "lowercase")]
-    pub enum ContextHeaderBehavior {
-        Auto,
-        Always,
-        Never,
-    }
+#[derive(Debug, Clone, clap::ValueEnum, Deserialize)]
+#[clap(rename_all = "lower")]
+#[serde(rename_all = "lowercase")]
+pub enum ContextHeaderBehavior {
+    Auto,
+    Always,
+    Never,
 }
 
 impl ContextHeaderBehavior {
