@@ -9,6 +9,7 @@ pub enum ShellKind {
     Fish,
     Xonsh,
     Zsh,
+    Nu,
 }
 
 impl ShellKind {
@@ -18,6 +19,7 @@ impl ShellKind {
             "fish" => ShellKind::Fish,
             "xonsh" | "python" => ShellKind::Xonsh,
             "zsh" => ShellKind::Zsh,
+            "nu" => ShellKind::Nu,
             _ => return None,
         })
     }
@@ -119,4 +121,9 @@ fn test_parse_command_login_shell() {
 #[test]
 fn test_parse_command_versioned_intepreter() {
     assert_eq!(parse_command("python3.8"), "python");
+}
+
+#[test]
+fn test_parse_command_nu() {
+    assert_eq!(parse_command("/bin/nu"), "nu");
 }

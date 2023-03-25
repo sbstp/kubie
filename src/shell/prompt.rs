@@ -43,6 +43,7 @@ impl<D> Color<D> {
     }
 }
 
+// FIXME: @Miuler Validate this implementation for nu shell
 impl<D> Color<D>
 where
     D: Display,
