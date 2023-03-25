@@ -17,6 +17,7 @@ mod fish;
 mod prompt;
 mod xonsh;
 mod zsh;
+mod nu;
 
 pub struct EnvVars<'n> {
     vars: HashMap<&'n str, OsString>,
@@ -108,6 +109,9 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         ShellKind::Zsh => {
             env_vars.insert("KUBIE_SHELL", "zsh");
         }
+        ShellKind::Nu => {
+            env_vars.insert("KUBIE_SHELL", "nu");
+        }
     }
 
     let info = ShellSpawnInfo {
@@ -121,5 +125,6 @@ pub fn spawn_shell(settings: &Settings, config: KubeConfig, session: &Session) -
         ShellKind::Fish => fish::spawn_shell(&info),
         ShellKind::Xonsh => xonsh::spawn_shell(&info),
         ShellKind::Zsh => zsh::spawn_shell(&info),
+        ShellKind::Nu => nu::spawn_shell(&info),
     }
 }
