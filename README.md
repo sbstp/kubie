@@ -161,6 +161,21 @@ behavior:
     #   never:  Never prints context headers.
     # Default: auto
     print_context_in_exec: auto
+
+# Optional start and stop hooks
+hooks:
+    # A command hook to run when a CTX is started.  
+    # This example re-labels your terminal window
+    # Default: none
+    start_ctx: >
+        echo -en "\033]1; `kubie info ctx`|`kubie info ns` \007"
+
+    # A command hook to run when a CTX is stopped
+    # This example sets the terminal back to the shell name
+    # Default: none
+    stop_ctx: >
+        echo -en "\033]1; $SHELL \007"
+
 ```
 
 ## For distro maintainers
