@@ -11,6 +11,19 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
 
     for (name, value) in &info.env_vars.vars {
         args.push_str(&format!(r#"let-env {} = '{}';"#, name, value.as_os_str().to_str().unwrap()));
+
+        if String::from("KUBIE_PROMPT_DISABLE").eq(name) && value == "0" {
+            let mut _prompt = info.prompt.clone();
+            _prompt.remove_matches("\\[\\e[31m\\]");
+            _prompt.remove_matches("\\[\\e[32m\\]");
+            _prompt.remove_matches("\\[\\e[0m\\]");
+            _prompt.remove_matches("$");
+            let prompt = format!(
+                r#"let-env PROMPT_COMMAND = {{ || $"{prompt}\n(create_left_prompt)" }};"#,
+                prompt = _prompt
+            );
+            args.push_str(prompt.as_str());
+        }
     }
     cmd.arg("-e");
     cmd.arg(args);
