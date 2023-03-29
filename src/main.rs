@@ -1,3 +1,5 @@
+#![feature(string_remove_matches)]
+
 use anyhow::Result;
 use clap::Parser;
 
