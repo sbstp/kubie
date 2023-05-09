@@ -69,8 +69,6 @@ pub enum Kubie {
         context_name: String,
         /// Namespace in which to run the command. This is mandatory to avoid potential errors.
         namespace_name: String,
-        /// Command to run as well as its arguments.
-        args: Vec<String>,
     },
 
     /// Check the Kubernetes config files for issues.

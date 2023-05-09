@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use crate::kubeconfig::{self, KubeConfig};
 use crate::settings::{ContextHeaderBehavior, Settings};
 
-pub fn export(settings: &Settings, context_name: String, namespace_name: String, args: Vec<String>) -> Result<()> {
+pub fn export(settings: &Settings, context_name: String, namespace_name: String) -> Result<()> {
     let installed = kubeconfig::get_installed_contexts(settings)?;
     let matching = installed.get_contexts_matching(&context_name);
 
