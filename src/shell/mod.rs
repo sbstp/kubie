@@ -14,10 +14,10 @@ use crate::vars;
 mod bash;
 mod detect;
 mod fish;
+mod nu;
 mod prompt;
 mod xonsh;
 mod zsh;
-mod nu;
 
 pub struct EnvVars<'n> {
     vars: HashMap<&'n str, OsString>,
