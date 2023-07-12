@@ -148,7 +148,9 @@ impl Default for Prompt {
 #[derive(Debug, Clone, clap::ValueEnum, Deserialize)]
 #[clap(rename_all = "lower")]
 #[serde(rename_all = "lowercase")]
+#[derive(Default)]
 pub enum ContextHeaderBehavior {
+    #[default]
     Auto,
     Always,
     Never,
@@ -161,12 +163,6 @@ impl ContextHeaderBehavior {
             ContextHeaderBehavior::Always => true,
             ContextHeaderBehavior::Never => false,
         }
-    }
-}
-
-impl Default for ContextHeaderBehavior {
-    fn default() -> Self {
-        ContextHeaderBehavior::Auto
     }
 }
 
@@ -187,21 +183,12 @@ impl Default for Behavior {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 pub struct Hooks {
     #[serde(default)]
     pub start_ctx: String,
     #[serde(default)]
     pub stop_ctx: String,
-}
-
-impl Default for Hooks {
-    fn default() -> Self {
-        Hooks {
-            start_ctx: format!(""),
-            stop_ctx: format!(""),
-        }
-    }
 }
 
 fn def_bool_true() -> bool {

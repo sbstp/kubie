@@ -23,7 +23,7 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
                 .replace("\\[\\e[31m\\]", "")
                 .replace("\\[\\e[32m\\]", "")
                 .replace("\\[\\e[0m\\]", "")
-                .replace("$", "");
+                .replace('$', "");
             let prompt = format!(
                 r#"let-env PROMPT_COMMAND = {{ || $"{prompt}\n(create_left_prompt)" }};"#,
                 prompt = _prompt
