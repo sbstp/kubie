@@ -53,7 +53,7 @@ jobs:
           args: --all-features --target aarch64-unknown-linux-musl
 
   test-macos-amd64:
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -68,7 +68,7 @@ jobs:
   # We use an amd64 machine to cross compile for arm64. We cannot run the tests,
   # only verify that the project compiles well.
   build-macos-arm64:
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
