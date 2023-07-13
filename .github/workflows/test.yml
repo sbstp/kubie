@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-linux-amd64:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -21,7 +21,7 @@ jobs:
           args: --all-features
 
   test-linux-arm32:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -37,7 +37,7 @@ jobs:
           args: --all-features --target arm-unknown-linux-musleabi
 
   test-linux-arm64:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
