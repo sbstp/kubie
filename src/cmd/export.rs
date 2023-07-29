@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 
-use crate::kubeconfig::{self};
+use crate::kubeconfig;
 use crate::settings::Settings;
 
 pub fn export(settings: &Settings, context_name: String, namespace_name: String) -> Result<()> {

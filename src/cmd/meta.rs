@@ -63,7 +63,7 @@ pub enum Kubie {
         args: Vec<String>,
     },
 
-    #[clap(name = "export", trailing_var_arg = true)]
+    #[clap(name = "export")]
     Export {
         /// Name of the context in which to run the command.
         context_name: String,
