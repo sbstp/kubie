@@ -63,6 +63,14 @@ pub enum Kubie {
         args: Vec<String>,
     },
 
+    #[clap(name = "export", trailing_var_arg = true)]
+    Export {
+        /// Name of the context in which to run the command.
+        context_name: String,
+        /// Namespace in which to run the command. This is mandatory to avoid potential errors.
+        namespace_name: String,
+    },
+
     /// Check the Kubernetes config files for issues.
     #[clap(name = "lint")]
     Lint,

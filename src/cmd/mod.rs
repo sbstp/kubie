@@ -11,6 +11,7 @@ pub mod context;
 pub mod delete;
 pub mod edit;
 pub mod exec;
+pub mod export;
 pub mod info;
 pub mod lint;
 pub mod meta;
