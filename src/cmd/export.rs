@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
-use crate::kubeconfig::{self, KubeConfig};
-use crate::settings::{ContextHeaderBehavior, Settings};
+use crate::kubeconfig::{self};
+use crate::settings::Settings;
 
 pub fn export(settings: &Settings, context_name: String, namespace_name: String) -> Result<()> {
     let installed = kubeconfig::get_installed_contexts(settings)?;
@@ -17,7 +17,7 @@ pub fn export(settings: &Settings, context_name: String, namespace_name: String)
             .prefix("kubie-config")
             .suffix(".yaml")
             .tempfile()?;
-        kubeconfig.write_to(&temp_config_file)?;
+        kubeconfig.write_to_file(temp_config_file.path())?;
         println!("{}", temp_config_file.path().display());
     }
 

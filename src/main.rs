@@ -81,9 +81,8 @@ fn main() -> Result<()> {
         Kubie::Export {
             context_name,
             namespace_name,
-            args,
         } => {
-            cmd::export::export(&settings, context_name, namespace_name, args)?;
+            cmd::export::export(&settings, context_name, namespace_name)?;
         }
     }
 
