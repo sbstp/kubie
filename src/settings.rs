@@ -81,7 +81,8 @@ impl Settings {
             Settings::default()
         };
 
-        // Very important to exclude kubie's own config file ~/.kube/kubie.yaml from the results.
+        // Very important to exclude kubie's own config file from the results
+        // it is ~/.config/kubie/config.yaml by default
         settings.configs.exclude.push(settings_path_str);
         Ok(settings)
     }
