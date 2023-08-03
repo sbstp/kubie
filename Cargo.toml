@@ -35,7 +35,7 @@ skim = "0.10.1"
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls-native-roots"]
-version = "0.24"
+version = "0.26"
 optional = true
 
 [features]
