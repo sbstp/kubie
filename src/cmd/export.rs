@@ -18,7 +18,8 @@ pub fn export(settings: &Settings, context_name: String, namespace_name: String)
             .suffix(".yaml")
             .tempfile()?;
         kubeconfig.write_to_file(temp_config_file.path())?;
-        println!("{}", temp_config_file.path().display());
+        let (_, path) = temp_config_file.keep()?;
+        println!("{}", path.display());
     }
 
     std::process::exit(0);
