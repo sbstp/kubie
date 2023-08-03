@@ -19,6 +19,7 @@ pub fn export(settings: &Settings, context_name: String, namespace_name: String)
             .tempfile()?;
         kubeconfig.write_to_file(temp_config_file.path())?;
         println!("{}", temp_config_file.path().display());
+        temp_config_file.keep()?;
     }
 
     std::process::exit(0);
