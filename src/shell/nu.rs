@@ -11,7 +11,7 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
 
     for (name, value) in &info.env_vars.vars {
         args.push_str(&format!(
-            r#"let-env {} = '{}';"#,
+            r#"$env.{} = '{}';"#,
             name,
             value.as_os_str().to_str().unwrap()
         ));
@@ -25,7 +25,7 @@ pub fn spawn_shell(info: &ShellSpawnInfo) -> Result<()> {
                 .replace("\\[\\e[0m\\]", "")
                 .replace('$', "");
             let prompt = format!(
-                r#"let-env PROMPT_COMMAND = {{ || $"{prompt}\n(create_left_prompt)" }};"#,
+                r#"$env.PROMPT_COMMAND = {{ || $"{prompt}\n(create_left_prompt)" }};"#,
                 prompt = _prompt
             );
             args.push_str(prompt.as_str());
