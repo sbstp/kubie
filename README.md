@@ -38,7 +38,7 @@ You can also install `kubie` from [MacPorts](https://www.macports.org) by runnin
 There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
 ### Arch Linux
-`kubie` is available in the [community repository](https://archlinux.org/packages/community/x86_64/kubie/) and it can be installed by running `pacman -S kubie`.
+`kubie` is available in the [extra repository](https://archlinux.org/packages/extra/x86_64/kubie/) and it can be installed by running `pacman -S kubie`.
 
 ### Autocompletion
 
