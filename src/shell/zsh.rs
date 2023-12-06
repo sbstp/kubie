@@ -131,6 +131,10 @@ add-zsh-hook precmd __kubie_cmd_pre_cmd__
                 info.prompt
             )?;
         }
+
+        if !info.settings.hooks.start_ctx.is_empty() {
+            write!(zshrc_buf, "{}", info.settings.hooks.start_ctx)?;
+        }
     }
 
     let mut cmd = Command::new("zsh");
@@ -139,5 +143,24 @@ add-zsh-hook precmd __kubie_cmd_pre_cmd__
 
     let mut child = cmd.spawn()?;
     child.wait()?;
+
+    if !info.settings.hooks.stop_ctx.is_empty() {
+        let temp_exit_hook_file = tempfile::Builder::new()
+            .prefix("kubie-zsh-exit-hook")
+            .suffix(".zsh")
+            .tempfile()?;
+        let mut temp_exit_hook_file_buf = BufWriter::new(temp_exit_hook_file.as_file());
+
+        write!(temp_exit_hook_file_buf, "{}", info.settings.hooks.stop_ctx)?;
+
+        temp_exit_hook_file_buf.flush()?;
+        let mut exit_cmd = Command::new("zsh");
+        exit_cmd.arg(temp_exit_hook_file.path());
+        info.env_vars.apply(&mut exit_cmd);
+
+        let mut child = exit_cmd.spawn()?;
+        child.wait()?;
+    }
+    
     Ok(())
 }
