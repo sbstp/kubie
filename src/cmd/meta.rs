@@ -63,11 +63,12 @@ pub enum Kubie {
         args: Vec<String>,
     },
 
+    /// Prints the path to an isolated configuration file for a context and namespace.
     #[clap(name = "export")]
     Export {
-        /// Name of the context in which to run the command.
+        /// Name of the context to export.
         context_name: String,
-        /// Namespace in which to run the command. This is mandatory to avoid potential errors.
+        /// Name of the namespace in the context. This is mandatory to avoid potential errors.
         namespace_name: String,
     },
 
