@@ -64,7 +64,8 @@ elif [[ -f "/etc/zsh/zshrc" ]] ; then
 fi
 
 if [[ -f "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zshrc" ]] ; then
-    source "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zshrc"
+    ZDOTDIR=$_KUBIE_USER_ZDOTDIR \
+        source "${{_KUBIE_USER_ZDOTDIR:-$HOME}}/.zshrc"
 fi
 
 if [[ -f "/etc/zlogin" && "$KUBIE_LOGIN_SHELL" == "1" ]] ; then
@@ -161,6 +162,6 @@ add-zsh-hook precmd __kubie_cmd_pre_cmd__
         let mut child = exit_cmd.spawn()?;
         child.wait()?;
     }
-    
+
     Ok(())
 }
