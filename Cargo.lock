@@ -1528,9 +1528,9 @@ dependencies = [
 
 [[package]]
 name = "wildmatch"
-version = "2.1.1"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee583bdc5ff1cf9db20e9db5bb3ff4c3089a8f6b8b31aff265c9aba85812db86"
+checksum = "495ec47bf3c1345005f40724f0269362c8556cbc43aed0526ed44cae1d35fceb"
 
 [[package]]
 name = "winapi"
