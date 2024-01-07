@@ -1,3 +1,5 @@
+#compdef kubie
+
 function _kubie {
     local -a subcmds
     local context state line
