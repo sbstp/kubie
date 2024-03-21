@@ -64,6 +64,21 @@ cp completion/kubie.fish ~/.config/fish/completions/
 
 Then reopen fish or source the file.
 
+
+#### Zsh
+
+Autocomplete with Zsh can either be installed by sourcing the file eg.:
+
+```bash
+source ./completion/kubie.zsh
+```
+
+Or by adding it to your fpath and renaming the completion file to _kubie eg.:
+```bash
+cp .completion/kubie.zsh ~/.zsh/completions
+```
+
+
 ## Usage
 Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 
