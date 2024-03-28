@@ -94,7 +94,7 @@ Selectable menus will be available when using `kubie ctx` and `kubie ns`.
 * `kubie update` will check the latest kubie version and update your local installation if needed
 
 ## Settings
-You can customize kubie's behavior with the `~/.kube/kubie.yaml` file. The settings available and their defaults are
+You can customize kubie's behavior with the `~/.config/kubie/config.yaml` file. The settings available and their defaults are
 available below.
 
 ```yaml
@@ -165,7 +165,7 @@ behavior:
 
 # Optional start and stop hooks
 hooks:
-    # A command hook to run when a CTX is started.  
+    # A command hook to run when a CTX is started.
     # This example re-labels your terminal window
     # Default: none
     start_ctx: >
