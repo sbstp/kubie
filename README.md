@@ -75,7 +75,7 @@ source ./completion/kubie.zsh
 
 Or by adding it to your fpath and renaming the completion file to _kubie eg.:
 ```bash
-cp .completion/kubie.zsh ~/.zsh/completions
+cp ./completion/kubie.zsh ~/.zsh/_kubie
 ```
 
 
