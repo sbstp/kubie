@@ -73,7 +73,7 @@ Autocomplete with Zsh can either be installed by sourcing the file eg.:
 source ./completion/kubie.zsh
 ```
 
-Or by adding it to your fpath and renaming the completion file to _kubie eg.:
+Or by adding the file to one of your [`fpath`](https://zsh.sourceforge.io/Doc/Release/Functions.html#Autoloading-Functions) folders, for instance `~/.zsh`, and making sure [zsh autocompletion is initialized](https://zsh.sourceforge.io/Doc/Release/Completion-System.html#Initialization) ([for instance](https://docs.brew.sh/Shell-Completion#configuring-completions-in-zsh)):
 ```bash
 cp ./completion/kubie.zsh ~/.zsh/_kubie
 ```
