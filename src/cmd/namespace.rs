@@ -25,12 +25,6 @@ pub fn namespace(
         return enter_namespace(settings, &mut session, recursive, None);
     }
 
-    let namespaces = if settings.behavior.validate_namespaces {
-        kubectl::get_namespaces(None)?
-    } else {
-        vec![]
-    };
-
     let namespace_name = match namespace_name {
         Some(s) if s == "-" => Some(
             session
@@ -38,14 +32,19 @@ pub fn namespace(
                 .context("There is not previous namespace to switch to")?
                 .to_string(),
         ),
-        Some(s) if settings.behavior.validate_namespaces && !namespaces.contains(&s) => {
-            return Err(anyhow!("'{}' is not a valid namespace for the context", s))
+        Some(s) => {
+            if settings.behavior.validate_namespaces {
+                let namespaces = kubectl::get_namespaces(None)?;
+                if !namespaces.contains(&s) {
+                    return Err(anyhow!("'{}' is not a valid namespace for the context", s))
+                }
+            }
+            Some(s)
         }
         None => match select_or_list_namespace(skim_options)? {
             SelectResult::Selected(s) => Some(s),
             _ => return Ok(()),
         },
-        Some(_) => namespace_name,
     };
 
     enter_namespace(settings, &mut session, recursive, namespace_name)
