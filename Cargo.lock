@@ -708,7 +708,6 @@ version = "0.23.0"
 dependencies = [
  "anyhow",
  "attohttpc",
- "atty",
  "cfg-if",
  "clap 4.5.8",
  "dirs",

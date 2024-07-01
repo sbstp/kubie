@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::io::{self, Cursor, IsTerminal};
 
 use anyhow::{bail, Result};
 use skim::prelude::{Key, SkimItemReader};
@@ -36,8 +36,8 @@ pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Instal
         return Ok(SelectResult::Selected(context_names[0].clone()));
     }
 
-    if atty::is(atty::Stream::Stdout) {
-        // NOTE: skim show the list of context names in reverse order
+    if io::stdout().is_terminal() {
+        // NOTE: skim shows the list of context names in reverse order
         context_names.reverse();
         let item_reader = SkimItemReader::default();
         let items = item_reader.of_bufread(Cursor::new(context_names.join("\n")));
@@ -67,8 +67,8 @@ pub fn select_or_list_namespace(skim_options: &SkimOptions) -> Result<SelectResu
         bail!("No namespaces found");
     }
 
-    if atty::is(atty::Stream::Stdout) {
-        // NOTE: skim show the list of namespaces in reverse order
+    if io::stdout().is_terminal() {
+        // NOTE: skim shows the list of namespaces in reverse order
         namespaces.reverse();
         let item_reader = SkimItemReader::default();
         let items = item_reader.of_bufread(Cursor::new(namespaces.join("\n")));

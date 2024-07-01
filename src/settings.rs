@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{self, BufReader, IsTerminal};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
@@ -159,7 +159,7 @@ pub enum ContextHeaderBehavior {
 impl ContextHeaderBehavior {
     pub fn should_print_headers(&self) -> bool {
         match self {
-            ContextHeaderBehavior::Auto => atty::is(atty::Stream::Stdout),
+            ContextHeaderBehavior::Auto => io::stdout().is_terminal(),
             ContextHeaderBehavior::Always => true,
             ContextHeaderBehavior::Never => false,
         }
