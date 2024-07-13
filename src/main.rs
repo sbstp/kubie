@@ -25,6 +25,7 @@ fn main() -> Result<()> {
             namespace_name,
             context_name,
             kubeconfigs,
+            clone,
             recursive,
         } => {
             cmd::context::context(
@@ -33,6 +34,7 @@ fn main() -> Result<()> {
                 context_name,
                 namespace_name,
                 kubeconfigs,
+                clone,
                 recursive,
             )?;
         }
