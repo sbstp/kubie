@@ -59,8 +59,9 @@ pub fn select_or_list_context(skim_options: &SkimOptions, installed: &mut Instal
     }
 }
 
-pub fn select_or_list_namespace(skim_options: &SkimOptions) -> Result<SelectResult> {
-    let mut namespaces = kubectl::get_namespaces(None)?;
+pub fn select_or_list_namespace(skim_options: &SkimOptions, namespaces: Option<Vec<String>>) -> Result<SelectResult> {
+    let mut namespaces = namespaces.unwrap_or_else(|| kubectl::get_namespaces(None).expect("could not get namespaces"));
+
     namespaces.sort();
 
     if namespaces.is_empty() {

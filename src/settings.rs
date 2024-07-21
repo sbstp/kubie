@@ -166,19 +166,28 @@ impl ContextHeaderBehavior {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 pub struct Behavior {
-    #[serde(default = "def_bool_true")]
-    pub validate_namespaces: bool,
+    #[serde(default)]
+    pub validate_namespaces: ValidateNamespacesBehavior,
     #[serde(default)]
     pub print_context_in_exec: ContextHeaderBehavior,
 }
 
-impl Default for Behavior {
-    fn default() -> Self {
-        Behavior {
-            validate_namespaces: true,
-            print_context_in_exec: Default::default(),
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ValidateNamespacesBehavior {
+    #[default]
+    True,
+    False,
+    Partial,
+}
+
+impl ValidateNamespacesBehavior {
+    pub fn can_list_namespaces(&self) -> bool {
+        match self {
+            ValidateNamespacesBehavior::True | ValidateNamespacesBehavior::Partial => true,
+            ValidateNamespacesBehavior::False => false,
         }
     }
 }

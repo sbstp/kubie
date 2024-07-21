@@ -5,7 +5,7 @@ use crate::cmd::{select_or_list_namespace, SelectResult};
 use crate::kubeconfig;
 use crate::kubectl;
 use crate::session::Session;
-use crate::settings::Settings;
+use crate::settings::{Settings, ValidateNamespacesBehavior};
 use crate::shell::spawn_shell;
 use crate::state::State;
 use crate::vars;
@@ -32,16 +32,34 @@ pub fn namespace(
                 .context("There is not previous namespace to switch to")?
                 .to_string(),
         ),
-        Some(s) => {
-            if settings.behavior.validate_namespaces {
+        Some(s) => match settings.behavior.validate_namespaces {
+            ValidateNamespacesBehavior::False => Some(s),
+            ValidateNamespacesBehavior::True => {
                 let namespaces = kubectl::get_namespaces(None)?;
                 if !namespaces.contains(&s) {
-                    return Err(anyhow!("'{}' is not a valid namespace for the context", s))
+                    return Err(anyhow!("'{}' is not a valid namespace for the context", s));
+                }
+                Some(s)
+            }
+            ValidateNamespacesBehavior::Partial => {
+                let namespaces = kubectl::get_namespaces(None)?;
+                if namespaces.contains(&s) {
+                    Some(s)
+                } else {
+                    let ns_partial_matches: Vec<String> =
+                        namespaces.iter().filter(|&ns| ns.contains(&s)).cloned().collect();
+                    match ns_partial_matches.len() {
+                        0 => return Err(anyhow!("'{}' is not a valid namespace for the context", s)),
+                        1 => Some(ns_partial_matches[0].clone()),
+                        _ => match select_or_list_namespace(skim_options, Some(ns_partial_matches))? {
+                            SelectResult::Selected(s) => Some(s),
+                            _ => return Ok(()),
+                        },
+                    }
                 }
             }
-            Some(s)
-        }
-        None => match select_or_list_namespace(skim_options)? {
+        },
+        None => match select_or_list_namespace(skim_options, None)? {
             SelectResult::Selected(s) => Some(s),
             _ => return Ok(()),
         },
