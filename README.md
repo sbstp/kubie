@@ -148,8 +148,15 @@ prompt:
 
 # Behavior
 behavior:
-    # Make sure the namespace exists with `kubectl get namespaces` when switching
-    # namespaces. If you do not have the right to list namespaces, disable this.
+    # Namespace validation and switching behavior.  Set to "false" if you do not have
+    # the right to list namespaces.
+    # Valid values:
+    #  true:    make sure the namespace exists with `kubectl get namespaces`
+    #  false:   switch namespaces without validation
+    #  partial: check for partial matches when running `kubie ns <namespace>`
+    #           and no exact match is found:
+    #             - if exactly one namespace partially matches, switch to that namespace
+    #             - if multiple namespaces partially match, select from those
     # Default: true
     validate_namespaces: true
 
