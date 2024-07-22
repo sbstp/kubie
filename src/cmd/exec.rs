@@ -58,7 +58,8 @@ pub fn exec(
     }
 
     let installed = kubeconfig::get_installed_contexts(settings)?;
-    let matching = installed.get_contexts_matching(&context_name);
+    let mut matching = installed.get_contexts_matching(&context_name);
+    matching.sort_by(|a, b| a.item.name.cmp(&b.item.name));
 
     if matching.is_empty() {
         return Err(anyhow!("No context matching {}", context_name));
