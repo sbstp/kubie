@@ -11,18 +11,16 @@ use crate::kubeconfig;
 use crate::settings::Settings;
 
 fn get_editor(settings: &Settings) -> Result<PathBuf> {
+    if let Some(default_editor) = &settings.default_editor {
+        if let Ok(path) = which(default_editor) {
+            return Ok(path);
+        }
+    }
+
     env::var("EDITOR")
         .ok()
         .and_then(|editor| which(editor).ok())
         .or_else(|| {
-            if settings.default_editor.is_some() {
-                if let Some(default_editor) = &settings.default_editor {
-                    if let Ok(path) = which(default_editor.as_str()) {
-                        return Some(path);
-                    }
-                }
-            }
-
             for editor in &["nvim", "vim", "emacs", "vi", "nano"] {
                 if let Ok(path) = which(editor) {
                     return Some(path);
