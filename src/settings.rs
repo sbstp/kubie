@@ -34,6 +34,8 @@ pub struct Settings {
     #[serde(default)]
     pub shell: Option<String>,
     #[serde(default)]
+    pub default_editor: Option<String>,
+    #[serde(default)]
     pub configs: Configs,
     #[serde(default)]
     pub prompt: Prompt,
