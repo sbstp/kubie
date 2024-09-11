@@ -10,12 +10,18 @@ use crate::cmd::{select_or_list_context, SelectResult};
 use crate::kubeconfig;
 use crate::settings::Settings;
 
-fn get_editor() -> Result<PathBuf> {
+fn get_editor(settings: &Settings) -> Result<PathBuf> {
+    if let Some(default_editor) = &settings.default_editor {
+        if let Ok(path) = which(default_editor) {
+            return Ok(path);
+        }
+    }
+
     env::var("EDITOR")
         .ok()
         .and_then(|editor| which(editor).ok())
         .or_else(|| {
-            for editor in &["vim", "emacs", "vi", "nano"] {
+            for editor in &["nvim", "vim", "emacs", "vi", "nano"] {
                 if let Ok(path) = which(editor) {
                     return Some(path);
                 }
@@ -41,7 +47,7 @@ pub fn edit_context(settings: &Settings, skim_options: &SkimOptions, context_nam
         .find_context_by_name(&context_name)
         .ok_or_else(|| anyhow!("Could not find context {}", context_name))?;
 
-    let editor = get_editor()?;
+    let editor = get_editor(settings)?;
 
     let mut job = Command::new(editor).arg(context_src.source.as_ref()).spawn()?;
     job.wait()?;
@@ -49,8 +55,8 @@ pub fn edit_context(settings: &Settings, skim_options: &SkimOptions, context_nam
     Ok(())
 }
 
-pub fn edit_config() -> Result<()> {
-    let editor = get_editor()?;
+pub fn edit_config(settings: &Settings) -> Result<()> {
+    let editor = get_editor(settings)?;
     let settings_path = Settings::path();
 
     let mut job = Command::new(editor).arg(settings_path).spawn()?;

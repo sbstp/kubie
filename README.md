@@ -103,6 +103,11 @@ available below.
 # Default: unset
 shell: bash
 
+# For the commands `kubie edit/edit-config`
+# Possible values: Any installed text editor
+# Default: unset
+default_editor: vim
+
 # Configure where to look for kubernetes config files.
 configs:
 

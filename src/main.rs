@@ -69,7 +69,7 @@ fn main() -> Result<()> {
             cmd::edit::edit_context(&settings, &skim_options, context_name)?;
         }
         Kubie::EditConfig => {
-            cmd::edit::edit_config()?;
+            cmd::edit::edit_config(&settings)?;
         }
         #[cfg(feature = "update")]
         Kubie::Update => {
