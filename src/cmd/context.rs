@@ -37,7 +37,7 @@ fn enter_context(
         kubeconfig.contexts[0].context.namespace.as_deref(),
     );
 
-    if settings.behavior.validate_namespaces {
+    if settings.behavior.validate_namespaces.can_list_namespaces() {
         if let Some(namespace_name) = namespace_name {
             let namespaces = kubectl::get_namespaces(Some(&kubeconfig))?;
             if !namespaces.iter().any(|x| x == namespace_name) {
