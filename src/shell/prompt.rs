@@ -55,7 +55,8 @@ where
         match self.shell_kind {
             ShellKind::Fish | ShellKind::Xonsh => write!(f, "{content}"),
             ShellKind::Zsh => write!(f, "%{{{content}%}}"),
-            _ => write!(f, "\\[{content}\\]"),
+            ShellKind::Bash => write!(f, "\\[{content}\\]"),
+            _ => write!(f, "{content}"),
         }
     }
 
