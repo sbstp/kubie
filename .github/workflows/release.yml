@@ -75,14 +75,12 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+          target: x86_64-apple-darwin
+      - run: SDKROOT=$(xcrun --sdk macosx --show-sdk-path) MACOSX_DEPLOYMENT_TARGET=11.0 cargo build --release --target x86_64-apple-darwin
       - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/release/kubie
+          file: target/x86_64-apple-darwin/release/kubie
           asset_name: kubie-darwin-amd64
           tag: ${{ github.ref }}
 
