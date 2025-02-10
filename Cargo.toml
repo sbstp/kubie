@@ -17,7 +17,7 @@ version = "0.24.1"
 anyhow = "1"
 clap = { version = "4.5.26", features = ["derive"] }
 cfg-if = "1"
-dirs = "5"
+dirs = "6"
 fs2 = "0.4"
 glob = "0.3"
 lazy_static = "1"
