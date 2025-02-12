@@ -3,7 +3,7 @@ authors = ["Simon Bernier St-Pierre <git@sbstp.ca>"]
 categories = ["command-line-utilities", "development-tools"]
 description = "A more powerful alternative to kubectx and kubens."
 documentation = "https://github.com/sbstp/kubie/blob/master/README.md"
-edition = "2018"
+edition = "2021"
 exclude = ["releases/**/*"]
 homepage = "https://github.com/sbstp/kubie"
 keywords = ["kubernetes", "kubectx", "kubens"]
@@ -34,7 +34,7 @@ skim = "0.10.4"
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls-native-roots"]
-version = "0.28"
+version = "0.28.5"
 optional = true
 
 [features]
