@@ -71,7 +71,6 @@ where
         .append(true)
         .truncate(false)
         .read(true)
-        .write(true)
         .create(true)
         .open(path)
         .with_context(|| format!("Could not open lock file at {}", path.display()))?;
@@ -84,7 +83,7 @@ where
 
     // Ignore errors during unlock. If we had a panic, we don't want to return the potential error.
     // If we did not panic, we want to return the closure's result.
-    let _ = file.unlock();
+    let _ = FileExt::unlock(&file);
 
     match exception {
         Ok(result) => result,
