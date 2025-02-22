@@ -31,6 +31,9 @@ which = "7"
 wildmatch = "2"
 skim = "0.10.4"
 
+[target.arm-unknown-linux-musleabi.dependencies]
+aws-lc-rs = { version = "1.12", default-features = false, features = ["aws-lc-sys", "prebuilt-nasm", "bindgen"] }
+
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls-native-roots"]

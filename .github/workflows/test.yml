@@ -24,8 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt-get install -y libclang1
-      - run: cargo install --force --locked bindgen-cli
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
