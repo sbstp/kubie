@@ -8,7 +8,7 @@ use std::rc::Rc;
 
 use anyhow::{anyhow, bail, Context as _, Result};
 use serde::{Deserialize, Serialize};
-use serde_yaml::Value;
+use serde_yaml::{Mapping, Value};
 use wildmatch::WildMatch;
 
 use crate::ioutil;
@@ -28,13 +28,13 @@ pub struct KubeConfig {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NamedCluster {
     pub name: String,
-    pub cluster: Value,
+    pub cluster: Mapping,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NamedUser {
     pub name: String,
-    pub user: Value,
+    pub user: Mapping,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -157,6 +157,17 @@ impl Installed {
         Ok(())
     }
 
+    fn make_path_absolute(mapping: &mut Mapping, key: &str, parent: &Path) {
+        if !mapping.contains_key(key) {
+            return;
+        }
+        let str = mapping.get(key).unwrap().as_str().unwrap();
+        let path = Path::new(str);
+        if !path.is_absolute() {
+            mapping.insert(key.into(), parent.join(path).to_str().unwrap().into());
+        }
+    }
+
     pub fn make_kubeconfig_for_context(
         &self,
         context_name: &str,
@@ -171,7 +182,7 @@ impl Installed {
 
         context_src.item.context.namespace = namespace_name.map(Into::into);
 
-        let cluster = self
+        let cluster_src = self
             .find_cluster_by_name(&context_src.item.context.cluster, &context_src.source)
             .cloned()
             .ok_or_else(|| {
@@ -182,7 +193,11 @@ impl Installed {
                 )
             })?;
 
-        let user = self
+        let mut named_cluster = cluster_src.item;
+        let cluster = &mut named_cluster.cluster;
+        Self::make_path_absolute(cluster, "certificate-authority", cluster_src.source.parent().unwrap());
+
+        let user_src = self
             .find_user_by_name(&context_src.item.context.user, &context_src.source)
             .cloned()
             .ok_or_else(|| {
@@ -193,10 +208,16 @@ impl Installed {
                 )
             })?;
 
+        let mut named_user = user_src.item;
+        let user = &mut named_user.user;
+
+        Self::make_path_absolute(user, "client-certificate", user_src.source.parent().unwrap());
+        Self::make_path_absolute(user, "client-key", user_src.source.parent().unwrap());
+
         Ok(KubeConfig {
-            clusters: vec![cluster.item],
+            clusters: vec![named_cluster],
             contexts: vec![context_src.item],
-            users: vec![user.item],
+            users: vec![named_user],
             current_context: Some(context_name.into()),
             others: {
                 let mut m: HashMap<String, Value> = HashMap::new();
