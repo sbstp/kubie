@@ -45,13 +45,17 @@ impl Session {
         })
     }
 
-    pub fn get_last_context(&self) -> Option<&HistoryEntry> {
+    pub fn get_previous_context(&self) -> Option<&HistoryEntry> {
         let current_context = self.history.last()?;
         self.history
             .iter()
             .rev()
             .skip(1)
             .find(|&entry| current_context.context != entry.context)
+    }
+
+    pub fn get_last_context(&self) -> Option<&HistoryEntry> {
+        return self.history.last()
     }
 
     pub fn get_last_namespace(&self) -> Option<&str> {
