@@ -29,7 +29,7 @@ signal-hook = "0.3"
 tempfile = "3"
 which = "7"
 wildmatch = "2"
-skim = "0.16.0"
+skim = "0.16.1"
 
 [target.arm-unknown-linux-musleabi.dependencies]
 aws-lc-rs = { version = "1.12", default-features = false, features = ["aws-lc-sys", "prebuilt-nasm", "bindgen"] }
