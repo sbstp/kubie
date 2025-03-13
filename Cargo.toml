@@ -11,7 +11,7 @@ license = "Zlib"
 name = "kubie"
 readme = "README.md"
 repository = "https://github.com/sbstp/kubie"
-version = "0.25.0"
+version = "0.25.1"
 
 [dependencies]
 anyhow = "1"
@@ -32,7 +32,11 @@ wildmatch = "2"
 skim = "0.16.1"
 
 [target.arm-unknown-linux-musleabi.dependencies]
-aws-lc-rs = { version = "1.12", default-features = false, features = ["aws-lc-sys", "prebuilt-nasm", "bindgen"] }
+aws-lc-rs = { version = "1.12", default-features = false, features = [
+    "aws-lc-sys",
+    "prebuilt-nasm",
+    "bindgen",
+] }
 
 [dependencies.attohttpc]
 default-features = false
