@@ -74,10 +74,7 @@ pub fn context(
     let context_name = match context_name {
         Some(context_name) => context_name,
         None => match select_or_list_context(skim_options, &mut installed)? {
-            SelectResult::Selected(x) => {
-                namespace_name = None;
-                x
-            }
+            SelectResult::Selected(x) => x,
             _ => return Ok(()),
         },
     };
