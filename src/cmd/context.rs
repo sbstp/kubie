@@ -61,7 +61,7 @@ pub fn context(
     settings: &Settings,
     skim_options: &SkimOptions,
     context_name: Option<String>,
-    mut namespace_name: Option<String>,
+    namespace_name: Option<String>,
     kubeconfigs: Vec<String>,
     recursive: bool,
 ) -> Result<()> {
