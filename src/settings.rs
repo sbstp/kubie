@@ -29,6 +29,16 @@ pub fn expanduser(path: &str) -> String {
     }
 }
 
+#[derive(Default, Debug, Deserialize)]
+pub struct Fzf {
+    pub mouse: bool,
+    pub reverse: bool,
+    pub ignore_case: bool,
+    pub info_hidden: bool,
+    pub prompt: Option<String>,
+    pub color: Option<String>,
+}
+
 #[derive(Debug, Default, Deserialize)]
 pub struct Settings {
     #[serde(default)]
@@ -43,6 +53,8 @@ pub struct Settings {
     pub behavior: Behavior,
     #[serde(default)]
     pub hooks: Hooks,
+    #[serde(default)]
+    pub fzf: Fzf,
 }
 
 impl Settings {
