@@ -16,8 +16,38 @@ mod state;
 mod vars;
 
 fn main() -> Result<()> {
-    let settings = Settings::load()?;
-    let skim_options = SkimOptionsBuilder::default().multi(false).build().unwrap();
+    let mut settings = Settings::load()?;
+
+    let skim_options = {
+        let mut options = SkimOptionsBuilder::default();
+
+        options.no_multi(true);
+
+        options.color(settings.fzf.color.take());
+
+        if settings.fzf.ignore_case {
+            options.case(skim::CaseMatching::Ignore);
+        };
+
+        if !settings.fzf.mouse {
+            options.no_mouse(true);
+        };
+
+        if settings.fzf.reverse {
+            options.reverse(true);
+        }
+
+        if settings.fzf.info_hidden {
+            options.no_info(true);
+        }
+
+        if let Some(prompt) = settings.fzf.prompt.take() {
+            options.prompt(prompt);
+        }
+
+        options.build().unwrap()
+    };
+
     let kubie = Kubie::parse();
 
     match kubie {
