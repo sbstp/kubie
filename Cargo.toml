@@ -15,7 +15,7 @@ version = "0.25.2"
 
 [dependencies]
 anyhow = "1"
-clap = { version = "4.5.37", features = ["derive"] }
+clap = { version = "4.5.40", features = ["derive"] }
 cfg-if = "1"
 dirs = "6"
 fs2 = "0.4"
@@ -29,7 +29,7 @@ signal-hook = "0.3"
 tempfile = "3"
 which = "7"
 wildmatch = "2"
-skim = "0.16.2"
+skim = "0.18.0"
 
 [target.arm-unknown-linux-musleabi.dependencies]
 aws-lc-rs = { version = "1.13", default-features = false, features = [
