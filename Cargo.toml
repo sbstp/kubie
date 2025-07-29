@@ -41,7 +41,7 @@ aws-lc-rs = { version = "1.13", default-features = false, features = [
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls-native-roots"]
-version = "0.30.0"
+version = "0.30.1"
 optional = true
 
 [features]
