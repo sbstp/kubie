@@ -15,7 +15,7 @@ version = "0.26.0"
 
 [dependencies]
 anyhow = "1"
-clap = { version = "4.5.41", features = ["derive"] }
+clap = { version = "4.5.43", features = ["derive"] }
 cfg-if = "1"
 dirs = "6"
 fs2 = "0.4"
@@ -41,7 +41,7 @@ aws-lc-rs = { version = "1.13", default-features = false, features = [
 [dependencies.attohttpc]
 default-features = false
 features = ["compress", "json", "tls-rustls-native-roots"]
-version = "0.30.0"
+version = "0.30.1"
 optional = true
 
 [features]
