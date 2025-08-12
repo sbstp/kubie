@@ -15,7 +15,7 @@ version = "0.26.0"
 
 [dependencies]
 anyhow = "1"
-clap = { version = "4.5.43", features = ["derive"] }
+clap = { version = "4.5.44", features = ["derive"] }
 cfg-if = "1"
 dirs = "6"
 fs2 = "0.4"
