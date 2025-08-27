@@ -175,6 +175,13 @@ behavior:
     # Default: auto
     print_context_in_exec: auto
 
+    # Parse the CONTEXT_NAME argument to `kubie exec` and `kubie export` as a
+    # space-delimited list, allowing multiple patterns to be specified.
+    # Example:
+    #   kubie exec 'dev-* pre-* staging-1 prod-2' kube-system -- kubectl get po
+    # Default: false
+    allow_multiple_context_patterns: false
+
 # Optional start and stop hooks
 hooks:
     # A command hook to run when a CTX is started.  

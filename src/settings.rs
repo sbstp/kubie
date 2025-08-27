@@ -186,6 +186,8 @@ pub struct Behavior {
     pub validate_namespaces: ValidateNamespacesBehavior,
     #[serde(default)]
     pub print_context_in_exec: ContextHeaderBehavior,
+    #[serde(default = "def_bool_false")]
+    pub allow_multiple_context_patterns: bool,
 }
 
 #[derive(Debug, Deserialize, Default)]
