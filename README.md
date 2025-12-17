@@ -38,31 +38,22 @@ You can also install `kubie` from [MacPorts](https://www.macports.org) by runnin
 There is a `kubie` Nix package maintained by @illiusdope that you can install.
 
 ### Arch Linux
-`kubie` is available in the [extra repository](https://archlinux.org/packages/extra/x86_64/kubie/) and it can be installed by running `pacman -S kubie`.
+`kubie` is available in the [extra repository](https://archlinux.org/packages/extra/x86_64/kubie/), and it can be installed by running `pacman -S kubie`.
 
 ### Autocompletion
 
-#### Bash
+Autocompletion can be enabled by adding one of the following lines to your shell's configuration file, e.g., `~/.bashrc`
+or `~/.zshrc`:
 
-If you want autocompletion for `kubie ctx`, `kubie ns` and `kubie exec`, please install this script:
-```bash
-sudo cp ./completion/kubie.bash /etc/bash_completion.d/kubie
+```sh
+# Bash / Zsh / others
+source <(kubie generate-completion)
+# Fish
+kubie generate-completion fish | source
 ```
 
-Then spawn new shell or source copied file:
-```bash
-. /etc/bash_completion.d/kubie
-```
-
-#### Fish
-
-Install the completions script [kubie.fish](completion/kubie.fish) by copying it, eg.:
-
-```bash
-cp completion/kubie.fish ~/.config/fish/completions/
-```
-
-Then reopen fish or source the file.
+See the [clap-complete docs](https://docs.rs/clap_complete/latest/clap_complete/aot/enum.Shell.html) for all supported
+shells.
 
 ## Usage
 Selectable menus will be available when using `kubie ctx` and `kubie ns`.

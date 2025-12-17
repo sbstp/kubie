@@ -1,4 +1,5 @@
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::{generate, Shell};
 
 use crate::settings::ContextHeaderBehavior;
 
@@ -100,6 +101,12 @@ pub enum Kubie {
         /// Name of the context to edit.
         context_name: Option<String>,
     },
+
+    /// Generate a completion script. Enable completion using
+    /// `source <(kubie generate-completion)`. This can be added to your shell's
+    /// configuration file to enable completion automatically.
+    #[clap(name = "generate-completion")]
+    GenerateCompletion(GenerateCompletionCommand),
 }
 
 #[derive(Debug, Parser)]
@@ -120,4 +127,30 @@ pub enum KubieInfoKind {
     /// Get the current depth of contexts.
     #[clap(name = "depth")]
     Depth,
+}
+
+#[derive(Debug, Parser)]
+pub struct GenerateCompletionCommand {
+    /// The shell to generate the completion script for. Determined automatically if omitted.
+    #[clap(value_enum)]
+    pub shell: Option<Shell>,
+}
+
+/// Generate a completion script.
+pub fn generate_completion(command: GenerateCompletionCommand) {
+    let mut app = Kubie::command();
+    let bin_name = env!("CARGO_BIN_NAME");
+    let shell = determine_shell(command);
+    generate(shell, &mut app, bin_name, &mut std::io::stdout());
+}
+
+fn determine_shell(command: GenerateCompletionCommand) -> Shell {
+    if let Some(shell) = command.shell {
+        shell
+    } else if let Some(shell) = Shell::from_env() {
+        shell
+    } else {
+        eprintln!("Could not determine shell from environment. Please specify the shell.");
+        std::process::exit(1);
+    }
 }
