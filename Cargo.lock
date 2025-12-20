@@ -313,9 +313,9 @@ dependencies = [
 
 [[package]]
 name = "clap_complete"
-version = "4.5.56"
+version = "4.5.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67e4efcbb5da11a92e8a609233aa1e8a7d91e38de0be865f016d14700d45a7fd"
+checksum = "39615915e2ece2550c0149addac32fb5bd312c657f43845bb9088cb9c8a7c992"
 dependencies = [
  "clap",
 ]
@@ -981,6 +981,7 @@ dependencies = [
  "aws-lc-rs",
  "cfg-if",
  "clap",
+ "clap_complete",
  "dirs",
  "fs2",
  "glob",
