@@ -116,9 +116,26 @@ impl Installed {
             .collect()
     }
 
-    pub fn get_contexts_matching(&self, pattern: &str) -> Vec<&Sourced<NamedContext>> {
-        let matcher = WildMatch::new(pattern);
-        self.contexts.iter().filter(|s| matcher.matches(&s.item.name)).collect()
+    pub fn get_contexts_matching(&self, pattern: &str, allow_multiple_context_patterns: bool) -> Vec<&Sourced<NamedContext>> {
+        let mut result = vec![];
+
+        let patterns = if allow_multiple_context_patterns {
+            pattern.split_whitespace().collect()
+        } else {
+            vec![pattern]
+        };
+
+        for p in &patterns {
+            let matcher = WildMatch::new(p);
+            let m: Vec<_> = self.contexts.iter().filter(|s| matcher.matches(&s.item.name)).collect();
+            if patterns.len() > 1 && m.is_empty() {
+                println!("WARNING: No context matching {p}");
+            }
+            result.extend(m);
+        }
+        result.sort_by_key(|k| &k.item.name);
+        result.dedup_by_key(|k| &k.item.name);
+        result
     }
 
     pub fn delete_context(&mut self, name: &str) -> Result<()> {
