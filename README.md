@@ -1,4 +1,7 @@
 # Kubie
+> [!IMPORTANT]
+> Please see issue [#385](https://github.com/sbstp/kubie/issues/385) regarding the future of Kubie development.
+
 <img src="./assets/logo.svg" align="right"/>
 
 `kubie` is an alternative to `kubectx`, `kubens` and the `k on` prompt modification script. It offers context switching,
